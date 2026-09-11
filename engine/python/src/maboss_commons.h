@@ -55,6 +55,11 @@
 #include <Python.h>
 #include <structmember.h>
 
+// Py_NewRef arrived in Python 3.10; the wheels still target 3.6+
+#if PY_VERSION_HEX < 0x030A0000
+static inline PyObject* Py_NewRef(PyObject *obj) { Py_INCREF(obj); return obj; }
+#endif
+
 // I use these to define the name of the library, and the init function
 // Not sure why we need this 2 level thingy... Came from https://stackoverflow.com/a/1489971/11713763
 #if defined (MAXNODES) && MAXNODES > 64 

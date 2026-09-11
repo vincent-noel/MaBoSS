@@ -151,6 +151,9 @@ MODULE_INIT_NAME(void)
 #endif
 
     m = PyModule_Create(&cMaBoSSDef);
+    if (m == NULL) {
+        return NULL;
+    }
 
 #if !defined (MAXNODES) || MAXNODES == 0xFFFFFFF 
     char exception_name[50] = "cmaboss_dn.BNException";
@@ -161,7 +164,18 @@ MODULE_INIT_NAME(void)
     strcat(exception_name, ".BNException");
 #endif
     PyBNException = PyErr_NewException(exception_name, NULL, NULL);
-    PyModule_AddObject(m, "BNException", PyBNException);
+    if (PyBNException == NULL) {
+        Py_DECREF(m);
+        return NULL;
+    }
+    // PyModule_AddObject steals on success, and PyBNException is also kept in a
+    // module-level global, so hand it a reference of its own
+    Py_INCREF(PyBNException);
+    if (PyModule_AddObject(m, "BNException", PyBNException) < 0) {
+        Py_DECREF(PyBNException);
+        Py_DECREF(m);
+        return NULL;
+    }
         
     Py_INCREF(&cMaBoSSSim);
     if (PyModule_AddObject(m, "MaBoSSSim", (PyObject *) &cMaBoSSSim) < 0) {

@@ -98,12 +98,16 @@ PyTypeObject cMaBoSSConfig = {
 void cMaBoSSConfig_dealloc(cMaBoSSConfigObject *self)
 {
     delete self->config;
+    self->config = NULL;
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 PyObject * cMaBoSSConfig_new(PyTypeObject* type, PyObject *args, PyObject* kwargs) 
 {
   cMaBoSSConfigObject* py_config = (cMaBoSSConfigObject *) type->tp_alloc(type, 0);
+  if (py_config == NULL) {
+    return NULL;
+  }
   py_config->config = new RunConfig();
   return (PyObject*) py_config;
 }
