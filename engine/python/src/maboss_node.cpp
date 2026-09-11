@@ -219,7 +219,7 @@ PyObject * cMaBoSSNode_setRawRateDown(cMaBoSSNodeObject* self, PyObject* args)
       rate_down_expr = self->network->parseSingleExpression(PyUnicode_AsUTF8(rate_down));  
     }    
     
-    self->node->setRateUpExpression(rate_down_expr);
+    self->node->setRateDownExpression(rate_down_expr);
 
   } catch (BNException& e) {
     PyErr_SetString(PyBNException, e.getMessage().c_str());
