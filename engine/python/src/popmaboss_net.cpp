@@ -93,10 +93,10 @@ PyTypeObject cPopMaBoSSNetwork = {
     0,                              /* tp_getattro */
     0,                              /* tp_setattro */
     0,                              /* tp_as_buffer */
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,                              /* tp_flags */
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,         /* tp_flags */
   "cPopMaBoSS Network object",                   /* tp_doc */
-    0,                              /* tp_traverse */
-    0,                              /* tp_clear */
+  (traverseproc) cPopMaBoSSNetwork_traverse,   /* tp_traverse */
+  (inquiry) cPopMaBoSSNetwork_clear,           /* tp_clear */
     0,                              /* tp_richcompare */
     0,                              /* tp_weaklistoffset */
     0,                              /* tp_iter */
@@ -114,27 +114,51 @@ PyTypeObject cPopMaBoSSNetwork = {
   cPopMaBoSSNetwork_new,                      /* tp_new */   
 };
 
+int cPopMaBoSSNetwork_traverse(cPopMaBoSSNetworkObject *self, visitproc visit, void *arg)
+{
+  Py_VISIT(self->nodes);
+  return 0;
+}
+
+int cPopMaBoSSNetwork_clear(cPopMaBoSSNetworkObject *self)
+{
+  Py_CLEAR(self->nodes);
+  return 0;
+}
+
 void cPopMaBoSSNetwork_dealloc(cPopMaBoSSNetworkObject *self)
 {
+    PyObject_GC_UnTrack(self);
+    Py_CLEAR(self->nodes);
     delete self->network;
+    self->network = NULL;
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 PyObject *cPopMaBoSSNetwork_str(PyObject *self) {
-  PyObject* str = PyUnicode_FromString(((cPopMaBoSSNetworkObject* )self)->network->toString().c_str());
-  Py_INCREF(str);
-  return str;
+  return PyUnicode_FromString(((cPopMaBoSSNetworkObject* )self)->network->toString().c_str());
 }
 
-int cPopMaBoSSNetwork_NodesSetItem(cPopMaBoSSNetworkObject* self, PyObject *key, PyObject* value) 
+int cPopMaBoSSNetwork_NodesSetItem(cPopMaBoSSNetworkObject* self, PyObject *key, PyObject* value)
 {
-  Py_INCREF(value);
+  // value is NULL when Python is deleting the entry (del net[key])
+  if (value == NULL) {
+    return PyDict_DelItem(self->nodes, key);
+  }
   return PyDict_SetItem(self->nodes, key, value);
 }
 
-PyObject * cPopMaBoSSNetwork_NodesGetItem(cPopMaBoSSNetworkObject* self, PyObject *key) 
+PyObject * cPopMaBoSSNetwork_NodesGetItem(cPopMaBoSSNetworkObject* self, PyObject *key)
 {
-  PyObject* item = PyDict_GetItem(self->nodes, key);
+  // PyDict_GetItem returns a borrowed reference, and NULL without setting an
+  // exception when the key is missing
+  PyObject* item = PyDict_GetItemWithError(self->nodes, key);
+  if (item == NULL) {
+    if (!PyErr_Occurred()) {
+      PyErr_SetObject(PyExc_KeyError, key);
+    }
+    return NULL;
+  }
   Py_INCREF(item);
   return item;
 }
@@ -144,25 +168,19 @@ Py_ssize_t cPopMaBoSSNetwork_NodesLength(cPopMaBoSSNetworkObject* self)
   return PyObject_Length(self->nodes);
 }
 
-PyObject* cPopMaBoSSNetwork_Keys(cPopMaBoSSNetworkObject* self) 
+PyObject* cPopMaBoSSNetwork_Keys(cPopMaBoSSNetworkObject* self)
 {
-  PyObject* keys = PyDict_Keys(self->nodes);
-  Py_INCREF(keys);
-  return keys;
+  return PyDict_Keys(self->nodes);
 }
 
-PyObject* cPopMaBoSSNetwork_Values(cPopMaBoSSNetworkObject* self) 
+PyObject* cPopMaBoSSNetwork_Values(cPopMaBoSSNetworkObject* self)
 {
-  PyObject* values = PyDict_Values(self->nodes);
-  Py_INCREF(values);
-  return values;
+  return PyDict_Values(self->nodes);
 }
 
-PyObject* cPopMaBoSSNetwork_Items(cPopMaBoSSNetworkObject* self) 
+PyObject* cPopMaBoSSNetwork_Items(cPopMaBoSSNetworkObject* self)
 {
-  PyObject* items = PyDict_Items(self->nodes);
-  Py_INCREF(items);
-  return items;
+  return PyDict_Items(self->nodes);
 }
 
 PyObject* cPopMaBoSSNetwork_getDeathRate(cPopMaBoSSNetworkObject* self) 
@@ -172,12 +190,7 @@ PyObject* cPopMaBoSSNetwork_getDeathRate(cPopMaBoSSNetworkObject* self)
     Py_RETURN_NONE;
   }
   
-  PyObject* death_rate_str = PyUnicode_FromString(
-    death_rate->toString().c_str()
-  );
-  
-  Py_INCREF(death_rate_str);
-  return death_rate_str;
+  return PyUnicode_FromString(death_rate->toString().c_str());
 }
 
 PyObject* cPopMaBoSSNetwork_setDeathRate(cPopMaBoSSNetworkObject* self, PyObject *args) 
@@ -213,25 +226,38 @@ PyObject* cPopMaBoSSNetwork_setOutput(cPopMaBoSSNetworkObject* self, PyObject *a
   
   for (auto* node: self->network->getNodes()) 
   {
-    if (PySequence_Contains(list, PyUnicode_FromString(node->getLabel().c_str()))) {
-      node->isInternal(false);
-    } else {
-      node->isInternal(true);
+    PyObject* label = PyUnicode_FromString(node->getLabel().c_str());
+    if (label == NULL) {
+      return NULL;
     }
+    int contains = PySequence_Contains(list, label);
+    Py_DECREF(label);
+    if (contains < 0) {
+      return NULL;
+    }
+    node->isInternal(contains == 0);
   }
   Py_RETURN_NONE;
 }
 
-PyObject* cPopMaBoSSNetwork_getOutput(cPopMaBoSSNetworkObject* self) 
+PyObject* cPopMaBoSSNetwork_getOutput(cPopMaBoSSNetworkObject* self)
 {
   PyObject* output = PyList_New(0);
-  for (auto* node: self->network->getNodes()) 
+  if (output == NULL) {
+    return NULL;
+  }
+  for (auto* node: self->network->getNodes())
   {
     if (!node->isInternal()) {
-      PyList_Append(output, PyUnicode_FromString(node->getLabel().c_str()));
+      PyObject* label = PyUnicode_FromString(node->getLabel().c_str());
+      if (label == NULL || PyList_Append(output, label) < 0) {
+        Py_XDECREF(label);
+        Py_DECREF(output);
+        return NULL;
+      }
+      Py_DECREF(label);
     }
   }
-  Py_INCREF(output);
   return output;
 }
 
@@ -245,21 +271,40 @@ PyObject* cPopMaBoSSNetwork_addDivisionRule(cPopMaBoSSNetworkObject* self, PyObj
   
   try{
     std::string division_rule = std::string("division {\nrate=") + std::string(rule) + ";\n";
-    if (daugther_1 != NULL){
-      for (Py_ssize_t i=0; i < PyDict_Size(daugther_1); i++)
+    // PyDict_Next avoids rebuilding (and leaking) a keys list on every turn
+    if (daugther_1 != NULL && daugther_1 != Py_None){
+      if (!PyDict_Check(daugther_1)) {
+        PyErr_SetString(PyExc_TypeError, "daughter 1 must be a dict");
+        return NULL;
+      }
+      PyObject *key, *value;
+      Py_ssize_t pos = 0;
+      while (PyDict_Next(daugther_1, &pos, &key, &value))
       {
-        PyObject* key = PyList_GetItem(PyDict_Keys(daugther_1), i);
+        if (!PyUnicode_Check(key)) {
+          PyErr_SetString(PyExc_TypeError, "Node names must be strings");
+          return NULL;
+        }
         std::string key_str = PyUnicode_AsUTF8(key);
-        std::string value_str = std::to_string(PyLong_AsLong(PyDict_GetItem(daugther_1, key)));
+        std::string value_str = std::to_string(PyLong_AsLong(value));
         division_rule += key_str + std::string(".DAUGHTER1=") + value_str + ";\n";
       }
     }
-    if (daugther_2 != NULL){
-      for (Py_ssize_t i=0; i < PyDict_Size(daugther_2); i++)
+    if (daugther_2 != NULL && daugther_2 != Py_None){
+      if (!PyDict_Check(daugther_2)) {
+        PyErr_SetString(PyExc_TypeError, "daughter 2 must be a dict");
+        return NULL;
+      }
+      PyObject *key, *value;
+      Py_ssize_t pos = 0;
+      while (PyDict_Next(daugther_2, &pos, &key, &value))
       {
-        PyObject* key = PyList_GetItem(PyDict_Keys(daugther_2), i);
+        if (!PyUnicode_Check(key)) {
+          PyErr_SetString(PyExc_TypeError, "Node names must be strings");
+          return NULL;
+        }
         std::string key_str = PyUnicode_AsUTF8(key);
-        std::string value_str = std::to_string(PyLong_AsLong(PyDict_GetItem(daugther_2, key)));
+        std::string value_str = std::to_string(PyLong_AsLong(value));
         division_rule += key_str + std::string(".DAUGHTER2=") + value_str + ";\n";
       }
     }
@@ -281,24 +326,38 @@ PyObject* cPopMaBoSSNetwork_getDivisionRules(cPopMaBoSSNetworkObject* self)
   for (auto rule: self->network->getDivisionRules()) 
   {
     PyObject* rate = PyUnicode_FromString(rule->rate->toString().c_str());
-    
+
+    // PyDict_SetItemString does not steal, so each value must be released
     PyObject* daugther_1 = PyDict_New();
     for (auto map: rule->daughters[DivisionRule::DAUGHTER_1]) {
-      
-      PyDict_SetItemString(daugther_1, map.first->getLabel().c_str(), PyUnicode_FromString(map.second->toString().c_str()));
+      PyObject* v = PyUnicode_FromString(map.second->toString().c_str());
+      PyDict_SetItemString(daugther_1, map.first->getLabel().c_str(), v);
+      Py_XDECREF(v);
     }
 
     PyObject* daugther_2 = PyDict_New();
     for (auto map: rule->daughters[DivisionRule::DAUGHTER_2]) {
-      PyDict_SetItemString(daugther_2, map.first->getLabel().c_str(), PyUnicode_FromString(map.second->toString().c_str()));
+      PyObject* v = PyUnicode_FromString(map.second->toString().c_str());
+      PyDict_SetItemString(daugther_2, map.first->getLabel().c_str(), v);
+      Py_XDECREF(v);
     }
-    
-    PyDict_SetItem(rules, PyLong_FromUnsignedLong(index), PyTuple_Pack(3, rate, daugther_1, daugther_2));
-    
-    index++;  
+
+    // "N" steals rate/daugther_1/daugther_2 into the tuple; the tuple and the
+    // key are then released once the dict holds its own reference
+    PyObject* tuple = Py_BuildValue("NNN", rate, daugther_1, daugther_2);
+    PyObject* key = PyLong_FromUnsignedLong(index);
+    if (tuple == NULL || key == NULL || PyDict_SetItem(rules, key, tuple) < 0) {
+      Py_XDECREF(tuple);
+      Py_XDECREF(key);
+      Py_DECREF(rules);
+      return NULL;
+    }
+    Py_DECREF(tuple);
+    Py_DECREF(key);
+
+    index++;
   }
-  
-  Py_INCREF(rules);
+
   return rules;
 }
 
@@ -327,8 +386,15 @@ PyObject* cPopMaBoSSNetwork_removeDivisionRule(cPopMaBoSSNetworkObject* self, Py
 PyObject * cPopMaBoSSNetwork_new(PyTypeObject* type, PyObject *args, PyObject* kwargs) 
 {
   cPopMaBoSSNetworkObject* py_network = (cPopMaBoSSNetworkObject *) type->tp_alloc(type, 0);
-  py_network->network = new PopNetwork(); 
+  if (py_network == NULL) {
+    return NULL;
+  }
   py_network->nodes = PyDict_New();
+  if (py_network->nodes == NULL) {
+    Py_DECREF(py_network);
+    return NULL;
+  }
+  py_network->network = new PopNetwork();
   return (PyObject*) py_network;
 }
 
@@ -356,25 +422,26 @@ int cPopMaBoSSNetwork_init(PyObject* self, PyObject *args, PyObject* kwargs)
       py_network->network->parseExpression(PyUnicode_AsUTF8(network_str));
       
     } else {
-      py_network = NULL;
       PyErr_SetString(PyBNException, "No network file or string provided");
       return -1;
     }
 
-    for (auto* node: py_network->network->getNodes()) 
-    { 
-      PyObject * py_node = PyObject_CallFunction((PyObject *) &cMaBoSSNode, "sO", node->getLabel().c_str(), py_network);
+    for (auto* node: py_network->network->getNodes())
+    {
+      PyObject * py_node = PyObject_CallFunction((PyObject *) &cMaBoSSNode, "sO", node->getLabel().c_str(), (PyObject *) py_network);
       if (py_node == NULL)
-      { 
+      {
         return -1;
       }
-      
-      PyDict_SetItemString(py_network->nodes, node->getLabel().c_str(), (PyObject*) py_node);
-      Py_INCREF(py_node);
+
+      int rc = PyDict_SetItemString(py_network->nodes, node->getLabel().c_str(), py_node);
+      Py_DECREF(py_node);
+      if (rc < 0) {
+        return -1;
+      }
     }
-  
+
   } catch (BNException& e) {
-    py_network = NULL;
     PyErr_SetString(PyBNException, e.getMessage().c_str());
     return -1;
   }
@@ -422,28 +489,48 @@ PyObject* cPopMaBoSSNetwork_setIstate(cPopMaBoSSNetworkObject* self, PyObject *a
       std::map<std::vector<bool>, double> istate_map;
       
       for (Py_ssize_t i = 0; i < PyList_Size(node); i++) {
-        Node* maboss_node = self->network->getNode(PyUnicode_AsUTF8(PyList_GetItem(node, i)));
-        istate_nodes->push_back(maboss_node);
+        PyObject* name = PyList_GetItem(node, i);
+        if (!PyUnicode_Check(name)) {
+          delete istate_nodes;
+          PyErr_SetString(PyExc_TypeError, "Node names must be strings");
+          return NULL;
+        }
+        istate_nodes->push_back(self->network->getNode(PyUnicode_AsUTF8(name)));
       }
-      
-      for (Py_ssize_t i = 0; i < PyList_Size(PyDict_Keys(istate)); i++) {
-        
+
+      // PyDict_Next avoids rebuilding (and leaking) a keys list on every turn
+      PyObject *boolean_state, *proba;
+      Py_ssize_t pos = 0;
+      while (PyDict_Next(istate, &pos, &boolean_state, &proba)) {
+
         std::vector<bool> istate_state;
-        PyObject* boolean_state = PyList_GetItem(PyDict_Keys(istate), i);  
-    
+
+        if (!PyTuple_Check(boolean_state)) {
+          delete istate_nodes;
+          PyErr_SetString(PyExc_TypeError, "Initial state keys must be tuples");
+          return NULL;
+        }
+
         if (PyTuple_Size(boolean_state) != PyList_Size(node)) {
+          delete istate_nodes;
           PyErr_SetString(PyBNException, "The number of nodes and the number of boolean values do not match");
           return NULL;
         }
-    
+
         for (Py_ssize_t j=0; j < PyTuple_Size(boolean_state); j++) {
           istate_state.push_back(PyLong_AsLong(PyTuple_GetItem(boolean_state, j)) == 1);
         }
-        istate_map.insert(std::pair<std::vector<bool>, double>(istate_state, PyFloat_AsDouble(PyDict_GetItem(istate, boolean_state))));
+        istate_map.insert(std::pair<std::vector<bool>, double>(istate_state, PyFloat_AsDouble(proba)));
       }
-      
+
+      if (PyErr_Occurred()) {
+        delete istate_nodes;
+        return NULL;
+      }
+
+      // setStatesProbas takes ownership of istate_nodes
       IStateGroup::setStatesProbas(self->network, istate_nodes, istate_map);
-    } 
+    }
   } catch (BNException& e) {
     PyErr_SetString(PyBNException, e.getMessage().c_str());
     return NULL;
@@ -470,14 +557,24 @@ PyObject* cPopMaBoSSNetwork_setPopIstate(cPopMaBoSSNetworkObject* self, PyObject
       std::vector<PopIStateGroup::PopProbaIState*>* istate_map = new std::vector<PopIStateGroup::PopProbaIState*>();
       
       for (Py_ssize_t i = 0; i < PyList_Size(node); i++) {
-        Node* maboss_node = self->network->getNode(PyUnicode_AsUTF8(PyList_GetItem(node, i)));
-        istate_nodes->push_back(maboss_node);
+        PyObject* name = PyList_GetItem(node, i);
+        if (!PyUnicode_Check(name)) {
+          PyErr_SetString(PyExc_TypeError, "Node names must be strings");
+          return NULL;
+        }
+        istate_nodes->push_back(self->network->getNode(PyUnicode_AsUTF8(name)));
       }
-      
+
       //Parsing each key : each pop state
-      for (Py_ssize_t i = 0; i < PyList_Size(PyDict_Keys(istate)); i++) 
-      {  
-        PyObject* py_pop_state = PyList_GetItem(PyDict_Keys(istate), i);
+      // PyDict_Next avoids rebuilding (and leaking) a keys list on every turn
+      PyObject *py_pop_state, *py_proba;
+      Py_ssize_t pos = 0;
+      while (PyDict_Next(istate, &pos, &py_pop_state, &py_proba))
+      {
+        if (!PyTuple_Check(py_pop_state)) {
+          PyErr_SetString(PyExc_TypeError, "Population state keys must be tuples");
+          return NULL;
+        }
 
         // if (PyObject_IsInstance(PyTuple_GetItem(py_pop_state, 0), (PyObject *)&PyTuple_Type) && PyObject_IsInstance(PyTuple_GetItem(py_pop_state, 1), (PyObject *)&PyLong_Type)) {
         //   PyErr_SetString(PyBNException, "Keys should be tuples of tuples, integers");
@@ -500,7 +597,7 @@ PyObject* cPopMaBoSSNetwork_setPopIstate(cPopMaBoSSNetworkObject* self, PyObject
           individual_pop_istates->push_back(new PopIStateGroup::PopProbaIState::PopIStateGroupIndividual(boolean_state, pop));
         }
         
-        double proba = PyFloat_AsDouble(PyDict_GetItem(istate, py_pop_state));
+        double proba = PyFloat_AsDouble(py_proba);
         istate_map->push_back(new PopIStateGroup::PopProbaIState(proba, individual_pop_istates));
       }
       

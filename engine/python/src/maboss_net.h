@@ -59,6 +59,8 @@ typedef struct {
 
 
 void cMaBoSSNetwork_dealloc(cMaBoSSNetworkObject *self);
+int cMaBoSSNetwork_traverse(cMaBoSSNetworkObject *self, visitproc visit, void *arg);
+int cMaBoSSNetwork_clear(cMaBoSSNetworkObject *self);
 PyObject *cMaBoSSNetwork_str(PyObject *self);
 int cMaBoSSNetwork_NodesSetItem(cMaBoSSNetworkObject* self, PyObject *key, PyObject* value);
 PyObject * cMaBoSSNetwork_NodesGetItem(cMaBoSSNetworkObject* self, PyObject *key);

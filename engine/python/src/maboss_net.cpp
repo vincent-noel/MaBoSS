@@ -88,10 +88,10 @@ PyTypeObject cMaBoSSNetwork = {
     0,                              /* tp_getattro */
     0,                              /* tp_setattro */
     0,                              /* tp_as_buffer */
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,                              /* tp_flags */
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,         /* tp_flags */
   "cMaBoSS Network object",                   /* tp_doc */
-    0,                              /* tp_traverse */
-    0,                              /* tp_clear */
+  (traverseproc) cMaBoSSNetwork_traverse,     /* tp_traverse */
+  (inquiry) cMaBoSSNetwork_clear,             /* tp_clear */
     0,                              /* tp_richcompare */
     0,                              /* tp_weaklistoffset */
     0,                              /* tp_iter */
@@ -109,27 +109,51 @@ PyTypeObject cMaBoSSNetwork = {
   cMaBoSSNetwork_new,                      /* tp_new */
 };
 
+int cMaBoSSNetwork_traverse(cMaBoSSNetworkObject *self, visitproc visit, void *arg)
+{
+  Py_VISIT(self->nodes);
+  return 0;
+}
+
+int cMaBoSSNetwork_clear(cMaBoSSNetworkObject *self)
+{
+  Py_CLEAR(self->nodes);
+  return 0;
+}
+
 void cMaBoSSNetwork_dealloc(cMaBoSSNetworkObject *self)
 {
+    PyObject_GC_UnTrack(self);
+    Py_CLEAR(self->nodes);
     delete self->network;
+    self->network = NULL;
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
 PyObject *cMaBoSSNetwork_str(PyObject *self) {
-  PyObject* str = PyUnicode_FromString(((cMaBoSSNetworkObject* )self)->network->toString().c_str());
-  Py_INCREF(str);
-  return str;
+  return PyUnicode_FromString(((cMaBoSSNetworkObject* )self)->network->toString().c_str());
 }
 
-int cMaBoSSNetwork_NodesSetItem(cMaBoSSNetworkObject* self, PyObject *key, PyObject* value) 
+int cMaBoSSNetwork_NodesSetItem(cMaBoSSNetworkObject* self, PyObject *key, PyObject* value)
 {
-  Py_INCREF(value);
+  // value is NULL when Python is deleting the entry (del net[key])
+  if (value == NULL) {
+    return PyDict_DelItem(self->nodes, key);
+  }
   return PyDict_SetItem(self->nodes, key, value);
 }
 
-PyObject * cMaBoSSNetwork_NodesGetItem(cMaBoSSNetworkObject* self, PyObject *key) 
+PyObject * cMaBoSSNetwork_NodesGetItem(cMaBoSSNetworkObject* self, PyObject *key)
 {
-  PyObject* item = PyDict_GetItem(self->nodes, key);
+  // PyDict_GetItem returns a borrowed reference, and NULL without setting an
+  // exception when the key is missing
+  PyObject* item = PyDict_GetItemWithError(self->nodes, key);
+  if (item == NULL) {
+    if (!PyErr_Occurred()) {
+      PyErr_SetObject(PyExc_KeyError, key);
+    }
+    return NULL;
+  }
   Py_INCREF(item);
   return item;
 }
@@ -139,25 +163,19 @@ Py_ssize_t cMaBoSSNetwork_NodesLength(cMaBoSSNetworkObject* self)
   return PyObject_Length(self->nodes);
 }
 
-PyObject * cMaBoSSNetwork_Keys(cMaBoSSNetworkObject* self) 
+PyObject * cMaBoSSNetwork_Keys(cMaBoSSNetworkObject* self)
 {
-  PyObject* keys = PyDict_Keys(self->nodes);
-  Py_INCREF(keys);
-  return keys;
+  return PyDict_Keys(self->nodes);
 }
 
-PyObject * cMaBoSSNetwork_Values(cMaBoSSNetworkObject* self) 
+PyObject * cMaBoSSNetwork_Values(cMaBoSSNetworkObject* self)
 {
-  PyObject* values = PyDict_Values(self->nodes);
-  Py_INCREF(values);
-  return values;
+  return PyDict_Values(self->nodes);
 }
 
-PyObject * cMaBoSSNetwork_Items(cMaBoSSNetworkObject* self) 
+PyObject * cMaBoSSNetwork_Items(cMaBoSSNetworkObject* self)
 {
-  PyObject* items = PyDict_Items(self->nodes);
-  Py_INCREF(items);
-  return items;
+  return PyDict_Items(self->nodes);
 }
 
 PyObject* cMaBoSSNetwork_setOutput(cMaBoSSNetworkObject* self, PyObject *args) 
@@ -166,27 +184,40 @@ PyObject* cMaBoSSNetwork_setOutput(cMaBoSSNetworkObject* self, PyObject *args)
   if (!PyArg_ParseTuple(args, "O", &list))
     return NULL;
   
-  for (auto* node: self->network->getNodes()) 
+  for (auto* node: self->network->getNodes())
   {
-    if (PySequence_Contains(list, PyUnicode_FromString(node->getLabel().c_str()))) {
-      node->isInternal(false);
-    } else {
-      node->isInternal(true);
+    PyObject* label = PyUnicode_FromString(node->getLabel().c_str());
+    if (label == NULL) {
+      return NULL;
     }
+    int contains = PySequence_Contains(list, label);
+    Py_DECREF(label);
+    if (contains < 0) {
+      return NULL;
+    }
+    node->isInternal(contains == 0);
   }
   Py_RETURN_NONE;
 }
 
-PyObject* cMaBoSSNetwork_getOutput(cMaBoSSNetworkObject* self) 
+PyObject* cMaBoSSNetwork_getOutput(cMaBoSSNetworkObject* self)
 {
   PyObject* output = PyList_New(0);
-  for (auto* node: self->network->getNodes()) 
+  if (output == NULL) {
+    return NULL;
+  }
+  for (auto* node: self->network->getNodes())
   {
     if (!node->isInternal()) {
-      PyList_Append(output, PyUnicode_FromString(node->getLabel().c_str()));
+      PyObject* label = PyUnicode_FromString(node->getLabel().c_str());
+      if (label == NULL || PyList_Append(output, label) < 0) {
+        Py_XDECREF(label);
+        Py_DECREF(output);
+        return NULL;
+      }
+      Py_DECREF(label);
     }
   }
-  Py_INCREF(output);
   return output;
 }
 
@@ -196,27 +227,40 @@ PyObject* cMaBoSSNetwork_setObservedGraphNode(cMaBoSSNetworkObject* self, PyObje
   if (!PyArg_ParseTuple(args, "O", &list))
     return NULL;
   
-  for (auto* node: self->network->getNodes()) 
+  for (auto* node: self->network->getNodes())
   {
-    if (PySequence_Contains(list, PyUnicode_FromString(node->getLabel().c_str()))) {
-      node->inGraph(true);
-    } else {
-      node->inGraph(false);
+    PyObject* label = PyUnicode_FromString(node->getLabel().c_str());
+    if (label == NULL) {
+      return NULL;
     }
+    int contains = PySequence_Contains(list, label);
+    Py_DECREF(label);
+    if (contains < 0) {
+      return NULL;
+    }
+    node->inGraph(contains == 1);
   }
   Py_RETURN_NONE;
 }
 
-PyObject* cMaBoSSNetwork_getObservedGraphNode(cMaBoSSNetworkObject* self, PyObject *args) 
+PyObject* cMaBoSSNetwork_getObservedGraphNode(cMaBoSSNetworkObject* self, PyObject *args)
 {
   PyObject* output = PyList_New(0);
-  for (auto* node: self->network->getNodes()) 
+  if (output == NULL) {
+    return NULL;
+  }
+  for (auto* node: self->network->getNodes())
   {
     if (node->inGraph()) {
-      PyList_Append(output, PyUnicode_FromString(node->getLabel().c_str()));
+      PyObject* label = PyUnicode_FromString(node->getLabel().c_str());
+      if (label == NULL || PyList_Append(output, label) < 0) {
+        Py_XDECREF(label);
+        Py_DECREF(output);
+        return NULL;
+      }
+      Py_DECREF(label);
     }
   }
-  Py_INCREF(output);
   return output;
 }
 
@@ -227,15 +271,19 @@ PyObject* cMaBoSSNetwork_addNode(cMaBoSSNetworkObject* self, PyObject *args)
     return NULL;
   
   try{
-    PyObject * py_node = PyObject_CallFunction((PyObject *) &cMaBoSSNode, "sO", name, self->network);
+    // the node takes a reference on this network, so pass the Python object
+    PyObject * py_node = PyObject_CallFunction((PyObject *) &cMaBoSSNode, "sO", name, (PyObject *) self);
     if (py_node == NULL)
     {
       return NULL;
     }
-    
-    PyDict_SetItemString(self->nodes, name, (PyObject*) py_node);
-    Py_INCREF(py_node);
-    
+
+    int rc = PyDict_SetItemString(self->nodes, name, py_node);
+    Py_DECREF(py_node);
+    if (rc < 0) {
+      return NULL;
+    }
+
   } catch (BNException& e) {
     PyErr_SetString(PyBNException, e.getMessage().c_str());
     return NULL;
@@ -278,30 +326,50 @@ PyObject* cMaBoSSNetwork_setIState(cMaBoSSNetworkObject* self, PyObject *args)
   {
       std::vector<const Node*>* istate_nodes = new std::vector<const Node*>();
       std::map<std::vector<bool>, double> istate_map;
-      
+
       for (Py_ssize_t i = 0; i < PyList_Size(node); i++) {
-        Node* maboss_node = self->network->getNode(PyUnicode_AsUTF8(PyList_GetItem(node, i)));
-        istate_nodes->push_back(maboss_node);
+        PyObject* name = PyList_GetItem(node, i);
+        if (!PyUnicode_Check(name)) {
+          delete istate_nodes;
+          PyErr_SetString(PyExc_TypeError, "Node names must be strings");
+          return NULL;
+        }
+        istate_nodes->push_back(self->network->getNode(PyUnicode_AsUTF8(name)));
       }
-      
-      for (Py_ssize_t i = 0; i < PyList_Size(PyDict_Keys(istate)); i++) {
-        
+
+      // PyDict_Next walks the dict without building a keys list on every turn
+      PyObject *boolean_state, *proba;
+      Py_ssize_t pos = 0;
+      while (PyDict_Next(istate, &pos, &boolean_state, &proba)) {
+
         std::vector<bool> istate_state;
-        PyObject* boolean_state = PyList_GetItem(PyDict_Keys(istate), i);  
-    
+
+        if (!PyTuple_Check(boolean_state)) {
+          delete istate_nodes;
+          PyErr_SetString(PyExc_TypeError, "Initial state keys must be tuples");
+          return NULL;
+        }
+
         if (PyTuple_Size(boolean_state) != PyList_Size(node)) {
+          delete istate_nodes;
           PyErr_SetString(PyBNException, "The number of nodes and the number of boolean values do not match");
           return NULL;
         }
-    
+
         for (Py_ssize_t j=0; j < PyTuple_Size(boolean_state); j++) {
           istate_state.push_back(PyLong_AsLong(PyTuple_GetItem(boolean_state, j)) == 1);
         }
-        istate_map.insert(std::pair<std::vector<bool>, double>(istate_state, PyFloat_AsDouble(PyDict_GetItem(istate, boolean_state))));
+        istate_map.insert(std::pair<std::vector<bool>, double>(istate_state, PyFloat_AsDouble(proba)));
       }
-      
+
+      if (PyErr_Occurred()) {
+        delete istate_nodes;
+        return NULL;
+      }
+
+      // setStatesProbas takes ownership of istate_nodes
       IStateGroup::setStatesProbas(self->network, istate_nodes, istate_map);
-    } 
+    }
   } catch (BNException& e) {
     PyErr_SetString(PyBNException, e.getMessage().c_str());
     return NULL;
@@ -318,8 +386,15 @@ PyObject* cMaBoSSNetwork_getIState(cMaBoSSNetworkObject* self)
 PyObject * cMaBoSSNetwork_new(PyTypeObject* type, PyObject *args, PyObject* kwargs) 
 {
   cMaBoSSNetworkObject* py_network = (cMaBoSSNetworkObject *) type->tp_alloc(type, 0);
-  py_network->network = new Network();
+  if (py_network == NULL) {
+    return NULL;
+  }
   py_network->nodes = PyDict_New();
+  if (py_network->nodes == NULL) {
+    Py_DECREF(py_network);
+    return NULL;
+  }
+  py_network->network = new Network();
   return (PyObject*) py_network;
 }
 
@@ -362,19 +437,21 @@ int cMaBoSSNetwork_init(PyObject* self, PyObject *args, PyObject* kwargs)
       
     IStateGroup::checkAndComplete(py_network->network);
     // Building dictionary of nodes
-    for (auto* node: py_network->network->getNodes()) 
+    for (auto* node: py_network->network->getNodes())
     {
-      PyObject * py_node = PyObject_CallFunction((PyObject *) &cMaBoSSNode, "sO", node->getLabel().c_str(), py_network);
+      PyObject * py_node = PyObject_CallFunction((PyObject *) &cMaBoSSNode, "sO", node->getLabel().c_str(), (PyObject *) py_network);
       if (py_node == NULL)
       {
         return -1;
       }
-      PyDict_SetItemString(py_network->nodes, node->getLabel().c_str(), (PyObject*) py_node);
-      Py_INCREF(py_node);
+      int rc = PyDict_SetItemString(py_network->nodes, node->getLabel().c_str(), py_node);
+      Py_DECREF(py_node);
+      if (rc < 0) {
+        return -1;
+      }
     }
- 
+
   } catch (BNException& e) {
-    py_network = NULL;
     PyErr_SetString(PyBNException, e.getMessage().c_str());
     return -1;
   }
