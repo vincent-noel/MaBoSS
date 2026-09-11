@@ -90,10 +90,10 @@ PyTypeObject cPopMaBoSSResult = {
     0,                              /* tp_getattro */
     0,                              /* tp_setattro */
     0,                              /* tp_as_buffer */
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,                              /* tp_flags */
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,         /* tp_flags */
   "cPopMaBoSS Result object",                   /* tp_doc */
-    0,                              /* tp_traverse */
-    0,                              /* tp_clear */
+  (traverseproc) cPopMaBoSSResult_traverse,     /* tp_traverse */
+  (inquiry) cPopMaBoSSResult_clear,             /* tp_clear */
     0,                              /* tp_richcompare */
     0,                              /* tp_weaklistoffset */
     0,                              /* tp_iter */
@@ -111,10 +111,29 @@ PyTypeObject cPopMaBoSSResult = {
   cPopMaBoSSResult_new,                      /* tp_new */   
 };
 
+int cPopMaBoSSResult_traverse(cPopMaBoSSResultObject *self, visitproc visit, void *arg)
+{
+  Py_VISIT(self->py_network);
+  Py_VISIT(self->py_config);
+  return 0;
+}
+
+int cPopMaBoSSResult_clear(cPopMaBoSSResultObject *self)
+{
+  Py_CLEAR(self->py_network);
+  Py_CLEAR(self->py_config);
+  self->network = NULL;
+  self->config = NULL;
+  return 0;
+}
+
 void cPopMaBoSSResult_dealloc(cPopMaBoSSResultObject *self)
 {
+  PyObject_GC_UnTrack(self);
+  cPopMaBoSSResult_clear(self);
   delete self->engine;
-  
+  self->engine = NULL;
+
 #ifdef __GLIBC__
   malloc_trim(0);
 #endif
@@ -122,25 +141,35 @@ void cPopMaBoSSResult_dealloc(cPopMaBoSSResultObject *self)
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-PyObject * cPopMaBoSSResult_new(PyTypeObject* type, PyObject *args, PyObject* kwargs) 
+PyObject * cPopMaBoSSResult_new(PyTypeObject* type, PyObject *args, PyObject* kwargs)
 {
-  cPopMaBoSSResultObject* res;
-  res = (cPopMaBoSSResultObject *) type->tp_alloc(type, 0);
-
-  return (PyObject*) res;
+  // tp_alloc zeroes the struct
+  return (PyObject*) type->tp_alloc(type, 0);
 }
 
 PyObject* cPopMaBoSSResult_get_fp_table(cPopMaBoSSResultObject* self) {
 
   PyObject *dict = PyDict_New();
+  if (dict == NULL) {
+    return NULL;
+  }
 
   for (auto& result: self->engine->getFixPointsDists()) {
-    PyObject *tuple = PyTuple_Pack(2, 
+    // neither PyTuple_Pack nor PyDict_SetItem steals, so build with
+    // Py_BuildValue("N") and release the key and the tuple afterwards
+    PyObject *tuple = Py_BuildValue("NN",
       PyFloat_FromDouble(result.second.second),
       PyUnicode_FromString(result.second.first.getName(self->network).c_str())
     );
-
-    PyDict_SetItem(dict, PyLong_FromUnsignedLong(result.first), tuple);
+    PyObject *key = PyLong_FromUnsignedLong(result.first);
+    if (tuple == NULL || key == NULL || PyDict_SetItem(dict, key, tuple) < 0) {
+      Py_XDECREF(tuple);
+      Py_XDECREF(key);
+      Py_DECREF(dict);
+      return NULL;
+    }
+    Py_DECREF(tuple);
+    Py_DECREF(key);
   }
 
   return dict;

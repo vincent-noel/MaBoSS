@@ -56,6 +56,10 @@
 
 typedef struct {
   PyObject_HEAD
+  // py_network / py_config keep the wrappers alive; network and runconfig are
+  // cached raw pointers borrowed from them and are never freed here
+  PyObject* py_network;
+  PyObject* py_config;
   Network* network;
   RunConfig* runconfig;
   FinalStateSimulationEngine* engine;
@@ -65,6 +69,8 @@ typedef struct {
 } cMaBoSSResultFinalObject;
 
 void cMaBoSSResultFinal_dealloc(cMaBoSSResultFinalObject *self);
+int cMaBoSSResultFinal_traverse(cMaBoSSResultFinalObject *self, visitproc visit, void *arg);
+int cMaBoSSResultFinal_clear(cMaBoSSResultFinalObject *self);
 PyObject * cMaBoSSResultFinal_new(PyTypeObject* type, PyObject *args, PyObject* kwargs);
 PyObject* cMaBoSSResultFinal_get_last_probtraj(cMaBoSSResultFinalObject* self);
 PyObject* cMaBoSSResultFinal_get_last_nodes_probtraj(cMaBoSSResultFinalObject* self, PyObject* args);

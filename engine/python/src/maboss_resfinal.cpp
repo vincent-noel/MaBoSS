@@ -46,6 +46,7 @@
 */
 
 #include "maboss_resfinal.h"
+#include "maboss_res.h"
 
 #include <fstream>
 
@@ -53,13 +54,14 @@
 #include <malloc.h>
 #endif
 
+// network/runconfig/engine are C++ pointers, not PyObject*, so they must never
+// be exposed through T_OBJECT_EX: Python would incref a C++ object header
 PyMemberDef cMaBoSSResultFinal_members[] = {
-    {(char*)"network", T_OBJECT_EX, offsetof(cMaBoSSResultFinalObject, network), 0, (char*)"network"},
-    {(char*)"runconfig", T_OBJECT_EX, offsetof(cMaBoSSResultFinalObject, runconfig), 0, (char*)"runconfig"},
-    {(char*)"engine", T_OBJECT_EX, offsetof(cMaBoSSResultFinalObject, engine), 0, (char*)"engine"},
-    {(char*)"start_time", T_LONG, offsetof(cMaBoSSResultFinalObject, start_time), 0, (char*)"start_time"},
-    {(char*)"end_time", T_LONG, offsetof(cMaBoSSResultFinalObject, end_time), 0, (char*)"end_time"},
-    {(char*)"last_probtraj", T_OBJECT_EX, offsetof(cMaBoSSResultFinalObject, last_probtraj), 0, (char*)"last_probtraj"},
+    {(char*)"network", T_OBJECT, offsetof(cMaBoSSResultFinalObject, py_network), READONLY, (char*)"network"},
+    {(char*)"start_time", T_LONG, offsetof(cMaBoSSResultFinalObject, start_time), READONLY, (char*)"start_time"},
+    {(char*)"end_time", T_LONG, offsetof(cMaBoSSResultFinalObject, end_time), READONLY, (char*)"end_time"},
+    // T_OBJECT yields None while the cache is still empty
+    {(char*)"last_probtraj", T_OBJECT, offsetof(cMaBoSSResultFinalObject, last_probtraj), READONLY, (char*)"last_probtraj"},
     {NULL}  /* Sentinel */
 };
 
@@ -75,7 +77,7 @@ PyMethodDef cMaBoSSResultFinal_methods[] = {
 PyTypeObject cMaBoSSResultFinal = {
   PyVarObject_HEAD_INIT(NULL, 0)
   build_type_name("cMaBoSSResultFinalObject"),               /* tp_name */
-  sizeof(cMaBoSSResultFinal),               /* tp_basicsize */
+  sizeof(cMaBoSSResultFinalObject),         /* tp_basicsize */
     0,                              /* tp_itemsize */
   (destructor) cMaBoSSResultFinal_dealloc,      /* tp_dealloc */
     0,                              /* tp_vectorcall_offset */
@@ -92,10 +94,10 @@ PyTypeObject cMaBoSSResultFinal = {
     0,                              /* tp_getattro */
     0,                              /* tp_setattro */
     0,                              /* tp_as_buffer */
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,                              /* tp_flags */
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,         /* tp_flags */
   "cMaBoSS Result final object",                   /* tp_doc */
-    0,                              /* tp_traverse */
-    0,                              /* tp_clear */
+  (traverseproc) cMaBoSSResultFinal_traverse,  /* tp_traverse */
+  (inquiry) cMaBoSSResultFinal_clear,          /* tp_clear */
     0,                              /* tp_richcompare */
     0,                              /* tp_weaklistoffset */
     0,                              /* tp_iter */
@@ -113,10 +115,31 @@ PyTypeObject cMaBoSSResultFinal = {
   cMaBoSSResultFinal_new,                      /* tp_new */   
 };
 
+int cMaBoSSResultFinal_traverse(cMaBoSSResultFinalObject *self, visitproc visit, void *arg)
+{
+  Py_VISIT(self->py_network);
+  Py_VISIT(self->py_config);
+  Py_VISIT(self->last_probtraj);
+  return 0;
+}
+
+int cMaBoSSResultFinal_clear(cMaBoSSResultFinalObject *self)
+{
+  Py_CLEAR(self->last_probtraj);
+  Py_CLEAR(self->py_network);
+  Py_CLEAR(self->py_config);
+  self->network = NULL;
+  self->runconfig = NULL;
+  return 0;
+}
+
 void cMaBoSSResultFinal_dealloc(cMaBoSSResultFinalObject *self)
 {
+  PyObject_GC_UnTrack(self);
+  cMaBoSSResultFinal_clear(self);
   delete self->engine;
-  
+  self->engine = NULL;
+
 #ifdef __GLIBC__
   malloc_trim(0);
 #endif
@@ -124,18 +147,19 @@ void cMaBoSSResultFinal_dealloc(cMaBoSSResultFinalObject *self)
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-PyObject * cMaBoSSResultFinal_new(PyTypeObject* type, PyObject *args, PyObject* kwargs) 
+PyObject * cMaBoSSResultFinal_new(PyTypeObject* type, PyObject *args, PyObject* kwargs)
 {
-  cMaBoSSResultFinalObject* res;
-  res = (cMaBoSSResultFinalObject *) type->tp_alloc(type, 0);  
-  res->last_probtraj = Py_None;
-  return (PyObject*) res;
+  // tp_alloc zeroes the struct, so the cache starts out NULL ("not computed")
+  return (PyObject*) type->tp_alloc(type, 0);
 }
 
-PyObject* cMaBoSSResultFinal_get_last_probtraj(cMaBoSSResultFinalObject* self) 
+PyObject* cMaBoSSResultFinal_get_last_probtraj(cMaBoSSResultFinalObject* self)
 {
-  if (self->last_probtraj == Py_None) {
+  if (self->last_probtraj == NULL) {
     self->last_probtraj = self->engine->getNumpyLastStatesDists();
+    if (self->last_probtraj == NULL) {
+      return NULL;
+    }
   }
   Py_INCREF(self->last_probtraj);
 
@@ -152,17 +176,10 @@ PyObject* cMaBoSSResultFinal_get_last_nodes_probtraj(cMaBoSSResultFinalObject* s
     return NULL;
   }
   
-  if (pList != Py_None) {
-  
-    PyObject* pItem;
-    int n = PyList_Size(pList);
-    
-    for (int i=0; i<n; i++) {
-        pItem = PyList_GetItem(pList, i);
-        list_nodes.push_back(self->network->getNode(std::string(PyUnicode_AsUTF8(pItem))));
-    }
-  }  
-  
+  if (!cMaBoSSResult_parse_node_list(self->network, pList, list_nodes)) {
+    return NULL;
+  }
+
   return self->engine->getNumpyLastNodesDists(list_nodes);
 }
 
@@ -175,7 +192,7 @@ PyObject* cMaBoSSResultFinal_display_final_states(cMaBoSSResultFinalObject* self
 
   std::ostream* output_final = new std::ofstream(filename);
   CSVFinalStateDisplayer * final_displayer = new CSVFinalStateDisplayer(
-    self->network, *output_final, PyObject_IsTrue(PyBool_FromLong(hexfloat))
+    self->network, *output_final, (bool) hexfloat
   );
 
   self->engine->displayFinal(final_displayer);

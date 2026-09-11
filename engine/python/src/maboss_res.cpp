@@ -57,15 +57,16 @@
 #include <malloc.h>
 #endif
 
+// network/runconfig/engine are C++ pointers, not PyObject*, so they must never
+// be exposed through T_OBJECT_EX: Python would incref a C++ object header
 PyMemberDef cMaBoSSResult_members[] = {
-    {(char*)"network", T_OBJECT_EX, offsetof(cMaBoSSResultObject, network), 0, (char*)"network"},
-    {(char*)"runconfig", T_OBJECT_EX, offsetof(cMaBoSSResultObject, runconfig), 0, (char*)"runconfig"},
-    {(char*)"engine", T_OBJECT_EX, offsetof(cMaBoSSResultObject, engine), 0, (char*)"engine"},
-    {(char*)"start_time", T_LONG, offsetof(cMaBoSSResultObject, start_time), 0, (char*)"start_time"},
-    {(char*)"end_time", T_LONG, offsetof(cMaBoSSResultObject, end_time), 0, (char*)"end_time"},
-    {(char*)"probtraj", T_OBJECT_EX, offsetof(cMaBoSSResultObject, probtraj), 0, (char*)"probtraj"},
-    {(char*)"last_probtraj", T_OBJECT_EX, offsetof(cMaBoSSResultObject, last_probtraj), 0, (char*)"last_probtraj"},
-    {(char*)"observed_graph", T_OBJECT_EX, offsetof(cMaBoSSResultObject, observed_graph), 0, (char*)"observed_graph"},
+    {(char*)"network", T_OBJECT, offsetof(cMaBoSSResultObject, py_network), READONLY, (char*)"network"},
+    {(char*)"start_time", T_LONG, offsetof(cMaBoSSResultObject, start_time), READONLY, (char*)"start_time"},
+    {(char*)"end_time", T_LONG, offsetof(cMaBoSSResultObject, end_time), READONLY, (char*)"end_time"},
+    // T_OBJECT yields None while the cache is still empty
+    {(char*)"probtraj", T_OBJECT, offsetof(cMaBoSSResultObject, probtraj), READONLY, (char*)"probtraj"},
+    {(char*)"last_probtraj", T_OBJECT, offsetof(cMaBoSSResultObject, last_probtraj), READONLY, (char*)"last_probtraj"},
+    {(char*)"observed_graph", T_OBJECT, offsetof(cMaBoSSResultObject, observed_graph), READONLY, (char*)"observed_graph"},
     {NULL}  /* Sentinel */
 };
 
@@ -105,10 +106,10 @@ PyTypeObject cMaBoSSResult = {
     0,                              /* tp_getattro */
     0,                              /* tp_setattro */
     0,                              /* tp_as_buffer */
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,                              /* tp_flags */
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,         /* tp_flags */
   "cMaBoSS Result object",                   /* tp_doc */
-    0,                              /* tp_traverse */
-    0,                              /* tp_clear */
+  (traverseproc) cMaBoSSResult_traverse,      /* tp_traverse */
+  (inquiry) cMaBoSSResult_clear,              /* tp_clear */
     0,                              /* tp_richcompare */
     0,                              /* tp_weaklistoffset */
     0,                              /* tp_iter */
@@ -126,51 +127,121 @@ PyTypeObject cMaBoSSResult = {
   cMaBoSSResult_new,                      /* tp_new */    
 };
 
+int cMaBoSSResult_traverse(cMaBoSSResultObject *self, visitproc visit, void *arg)
+{
+  Py_VISIT(self->py_network);
+  Py_VISIT(self->py_config);
+  Py_VISIT(self->probtraj);
+  Py_VISIT(self->last_probtraj);
+  Py_VISIT(self->observed_graph);
+  Py_VISIT(self->observed_durations);
+  return 0;
+}
+
+int cMaBoSSResult_clear(cMaBoSSResultObject *self)
+{
+  Py_CLEAR(self->probtraj);
+  Py_CLEAR(self->last_probtraj);
+  Py_CLEAR(self->observed_graph);
+  Py_CLEAR(self->observed_durations);
+  Py_CLEAR(self->py_network);
+  Py_CLEAR(self->py_config);
+  self->network = NULL;
+  self->runconfig = NULL;
+  return 0;
+}
+
 void cMaBoSSResult_dealloc(cMaBoSSResultObject *self)
 {
+  PyObject_GC_UnTrack(self);
+  cMaBoSSResult_clear(self);
   delete self->engine;
-  
+  self->engine = NULL;
+
 #ifdef __GLIBC__
   malloc_trim(0);
-#endif 
+#endif
 
   Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
-PyObject * cMaBoSSResult_new(PyTypeObject* type, PyObject *args, PyObject* kwargs) 
+PyObject * cMaBoSSResult_new(PyTypeObject* type, PyObject *args, PyObject* kwargs)
 {
-  cMaBoSSResultObject* res;
-  res = (cMaBoSSResultObject *) type->tp_alloc(type, 0);
-  res->probtraj = Py_None;
-  res->last_probtraj = Py_None;
-  res->observed_graph = Py_None;
-  res->observed_durations = Py_None;
-  return (PyObject*) res;
+  // tp_alloc zeroes the struct, so every cache starts out NULL ("not computed")
+  return (PyObject*) type->tp_alloc(type, 0);
+}
+
+// Resolves a Python list of node names against the network. Returns false with a
+// Python exception set on bad input; Network::getNode throws BNException for an
+// unknown name, which must not be allowed to escape through the C boundary.
+bool cMaBoSSResult_parse_node_list(Network* network, PyObject* pList, std::vector<Node*>& list_nodes)
+{
+  if (pList == NULL || pList == Py_None) {
+    return true;
+  }
+
+  if (!PyList_Check(pList)) {
+    PyErr_SetString(PyExc_TypeError, "Expected a list of node names");
+    return false;
+  }
+
+  Py_ssize_t n = PyList_Size(pList);
+  for (Py_ssize_t i = 0; i < n; i++) {
+    PyObject* pItem = PyList_GetItem(pList, i);
+    if (!PyUnicode_Check(pItem)) {
+      PyErr_SetString(PyExc_TypeError, "Node names must be strings");
+      return false;
+    }
+    try {
+      list_nodes.push_back(network->getNode(std::string(PyUnicode_AsUTF8(pItem))));
+    } catch (BNException& e) {
+      PyErr_SetString(PyBNException, e.getMessage().c_str());
+      return false;
+    }
+  }
+  return true;
 }
 
 PyObject* cMaBoSSResult_get_fp_table(cMaBoSSResultObject* self) {
 
   PyObject *dict = PyDict_New();
+  if (dict == NULL) {
+    return NULL;
+  }
 
   for (auto& result: self->engine->getFixPointsDists()) {
-    PyObject *tuple = PyTuple_Pack(2, 
+    // neither PyTuple_Pack nor PyDict_SetItem steals, so build with
+    // Py_BuildValue("N") and release the key and the tuple afterwards
+    PyObject *tuple = Py_BuildValue("NN",
       PyFloat_FromDouble(result.second.second),
       PyUnicode_FromString(result.second.first.getName(self->network).c_str())
     );
-
-    PyDict_SetItem(dict, PyLong_FromUnsignedLong(result.first), tuple);
+    PyObject *key = PyLong_FromUnsignedLong(result.first);
+    if (tuple == NULL || key == NULL || PyDict_SetItem(dict, key, tuple) < 0) {
+      Py_XDECREF(tuple);
+      Py_XDECREF(key);
+      Py_DECREF(dict);
+      return NULL;
+    }
+    Py_DECREF(tuple);
+    Py_DECREF(key);
   }
 
   return dict;
 }
 
+// the four getters below cache their (often very large) result on the object;
+// NULL means "not computed yet"
 PyObject* cMaBoSSResult_get_observed_graph(cMaBoSSResultObject* self) {
 
-  if (self->observed_graph == Py_None)
+  if (self->observed_graph == NULL)
   {
     self->observed_graph = self->engine->getNumpyObservedGraph();
+    if (self->observed_graph == NULL) {
+      return NULL;
+    }
   }
-  
+
   Py_INCREF(self->observed_graph);
 
   return self->observed_graph;
@@ -178,31 +249,40 @@ PyObject* cMaBoSSResult_get_observed_graph(cMaBoSSResultObject* self) {
 
 PyObject* cMaBoSSResult_get_observed_durations(cMaBoSSResultObject* self) {
 
-  if (self->observed_durations == Py_None)
+  if (self->observed_durations == NULL)
   {
     self->observed_durations = self->engine->getNumpyObservedDurations();
+    if (self->observed_durations == NULL) {
+      return NULL;
+    }
   }
-  
+
   Py_INCREF(self->observed_durations);
 
   return self->observed_durations;
 }
 
 PyObject* cMaBoSSResult_get_probtraj(cMaBoSSResultObject* self) {
-  if (self->probtraj == Py_None) {
+  if (self->probtraj == NULL) {
     self->probtraj = self->engine->getMergedCumulator()->getNumpyStatesDists(self->network);
+    if (self->probtraj == NULL) {
+      return NULL;
+    }
   }
-  
+
   Py_INCREF(self->probtraj);
 
   return self->probtraj;
 }
 
 PyObject* cMaBoSSResult_get_last_probtraj(cMaBoSSResultObject* self) {
-  if (self->last_probtraj == Py_None) {
+  if (self->last_probtraj == NULL) {
     self->last_probtraj = self->engine->getMergedCumulator()->getNumpyLastStatesDists(self->network);
+    if (self->last_probtraj == NULL) {
+      return NULL;
+    }
   }
-  
+
   Py_INCREF(self->last_probtraj);
   return self->last_probtraj;
 }
@@ -217,15 +297,10 @@ PyObject* cMaBoSSResult_get_nodes_probtraj(cMaBoSSResultObject* self, PyObject* 
     return NULL;
   }
   
-  if (pList != Py_None) {
-    PyObject* pItem;
-    int n = PyList_Size(pList);
-    for (int i=0; i<n; i++) {
-        pItem = PyList_GetItem(pList, i);
-        list_nodes.push_back(self->network->getNode(std::string(PyUnicode_AsUTF8(pItem))));
-    }
+  if (!cMaBoSSResult_parse_node_list(self->network, pList, list_nodes)) {
+    return NULL;
   }
-  
+
   return self->engine->getMergedCumulator()->getNumpyNodesDists(self->network, list_nodes);
 }
 
@@ -239,15 +314,10 @@ PyObject* cMaBoSSResult_get_last_nodes_probtraj(cMaBoSSResultObject* self, PyObj
     return NULL;
   }
   
-  if (pList != Py_None) {
-    PyObject* pItem;
-    int n = PyList_Size(pList);
-    for (int i=0; i<n; i++) {
-        pItem = PyList_GetItem(pList, i);
-        list_nodes.push_back(self->network->getNode(std::string(PyUnicode_AsUTF8(pItem))));
-    }
+  if (!cMaBoSSResult_parse_node_list(self->network, pList, list_nodes)) {
+    return NULL;
   }
-  
+
   return self->engine->getMergedCumulator()->getNumpyLastNodesDists(self->network, list_nodes);
 }
 

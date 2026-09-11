@@ -56,6 +56,10 @@
 
 typedef struct {
   PyObject_HEAD
+  // py_network / py_config keep the wrappers alive; network and runconfig are
+  // cached raw pointers borrowed from them and are never freed here
+  PyObject* py_network;
+  PyObject* py_config;
   Network* network;
   RunConfig* runconfig;
   MaBEstEngine* engine;
@@ -68,7 +72,10 @@ typedef struct {
 } cMaBoSSResultObject;
 
 void cMaBoSSResult_dealloc(cMaBoSSResultObject *self);
+int cMaBoSSResult_traverse(cMaBoSSResultObject *self, visitproc visit, void *arg);
+int cMaBoSSResult_clear(cMaBoSSResultObject *self);
 PyObject * cMaBoSSResult_new(PyTypeObject* type, PyObject *args, PyObject* kwargs);
+bool cMaBoSSResult_parse_node_list(Network* network, PyObject* pList, std::vector<Node*>& list_nodes);
 PyObject* cMaBoSSResult_get_fp_table(cMaBoSSResultObject* self);
 PyObject* cMaBoSSResult_get_observed_graph(cMaBoSSResultObject* self);
 PyObject* cMaBoSSResult_get_observed_durations(cMaBoSSResultObject* self);

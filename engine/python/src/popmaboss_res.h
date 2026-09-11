@@ -58,6 +58,10 @@
 
 typedef struct {
   PyObject_HEAD
+  // py_network / py_config keep the wrappers alive; network and config are
+  // cached raw pointers borrowed from them and are never freed here
+  PyObject* py_network;
+  PyObject* py_config;
   PopNetwork* network;
   RunConfig* config;
   PopMaBEstEngine* engine;
@@ -66,6 +70,8 @@ typedef struct {
 } cPopMaBoSSResultObject;
 
 void cPopMaBoSSResult_dealloc(cPopMaBoSSResultObject *self);
+int cPopMaBoSSResult_traverse(cPopMaBoSSResultObject *self, visitproc visit, void *arg);
+int cPopMaBoSSResult_clear(cPopMaBoSSResultObject *self);
 PyObject * cPopMaBoSSResult_new(PyTypeObject* type, PyObject *args, PyObject* kwargs);
 PyObject* cPopMaBoSSResult_get_fp_table(cPopMaBoSSResultObject* self);
 PyObject* cPopMaBoSSResult_get_probtraj(cPopMaBoSSResultObject* self);
