@@ -84,10 +84,10 @@ PyTypeObject cMaBoSSNode = {
     0,                              /* tp_getattro */
     0,                              /* tp_setattro */
     0,                              /* tp_as_buffer */
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,                              /* tp_flags */
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,         /* tp_flags */
   "cMaBoSS Node object",                   /* tp_doc */
-    0,                              /* tp_traverse */
-    0,                              /* tp_clear */
+  (traverseproc) cMaBoSSNode_traverse,      /* tp_traverse */
+  (inquiry) cMaBoSSNode_clear,              /* tp_clear */
     0,                              /* tp_richcompare */
     0,                              /* tp_weaklistoffset */
     0,                              /* tp_iter */
@@ -105,9 +105,28 @@ PyTypeObject cMaBoSSNode = {
   cMaBoSSNode_new,                      /* tp_new */    
 };
 
+int cMaBoSSNode_traverse(cMaBoSSNodeObject *self, visitproc visit, void *arg)
+{
+  Py_VISIT(self->py_network);
+  return 0;
+}
+
+int cMaBoSSNode_clear(cMaBoSSNodeObject *self)
+{
+  Py_CLEAR(self->py_network);
+  self->network = NULL;
+  self->node = NULL;
+  return 0;
+}
+
 void cMaBoSSNode_dealloc(cMaBoSSNodeObject *self)
 {
-    delete self->node;
+    PyObject_GC_UnTrack(self);
+    // self->node belongs to the Network (Network::getOrMakeNode stores it in
+    // node_map, and ~Network deletes it): it must not be deleted here
+    self->node = NULL;
+    self->network = NULL;
+    Py_CLEAR(self->py_network);
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
@@ -201,16 +220,16 @@ PyObject * cMaBoSSNode_setRawRateDown(cMaBoSSNodeObject* self, PyObject* args)
     }    
     
     self->node->setRateUpExpression(rate_down_expr);
-    
+
   } catch (BNException& e) {
     PyErr_SetString(PyBNException, e.getMessage().c_str());
     return NULL;
   }
-  
+
   Py_RETURN_NONE;
 }
 
-PyObject* cMaBoSSNode_setRate(cMaBoSSNodeObject* self, PyObject* args) 
+PyObject* cMaBoSSNode_setRate(cMaBoSSNodeObject* self, PyObject* args)
 {
   PyObject* rate_up = NULL;
   PyObject* rate_down = NULL;
@@ -315,18 +334,22 @@ PyObject* cMaBoSSNode_setRate(cMaBoSSNodeObject* self, PyObject* args)
   Py_RETURN_NONE;
 }
 
-PyObject* cMaBoSSNode_getRateUp(cMaBoSSNodeObject* self) 
+PyObject* cMaBoSSNode_getRateUp(cMaBoSSNodeObject* self)
 {
-  PyObject* rate_up_str = PyUnicode_FromString(self->node->getRateUpExpression()->toString().c_str());
-  Py_INCREF(rate_up_str);
-  return rate_up_str;
+  const Expression* expr = self->node->getRateUpExpression();
+  if (expr == NULL) {
+    Py_RETURN_NONE;
+  }
+  return PyUnicode_FromString(expr->toString().c_str());
 }
 
-PyObject* cMaBoSSNode_getRateDown(cMaBoSSNodeObject* self) 
+PyObject* cMaBoSSNode_getRateDown(cMaBoSSNodeObject* self)
 {
-  PyObject* rate_down_str = PyUnicode_FromString(self->node->getRateDownExpression()->toString().c_str());
-  Py_INCREF(rate_down_str);
-  return rate_down_str;
+  const Expression* expr = self->node->getRateDownExpression();
+  if (expr == NULL) {
+    Py_RETURN_NONE;
+  }
+  return PyUnicode_FromString(expr->toString().c_str());
 }
 
 PyObject * cMaBoSSNode_setSchedule(cMaBoSSNodeObject* self, PyObject* args)
@@ -336,15 +359,16 @@ PyObject * cMaBoSSNode_setSchedule(cMaBoSSNodeObject* self, PyObject* args)
     return NULL;
   
   try{
-    if (schedule != NULL && schedule != Py_None && PyObject_IsInstance(schedule, (PyObject *)&PyDict_Type)) 
+    if (schedule != NULL && schedule != Py_None && PyObject_IsInstance(schedule, (PyObject *)&PyDict_Type))
     {
-      for (Py_ssize_t i = 0; i < PyList_Size(PyDict_Keys(schedule)); i++) {
-        PyObject* time = PyList_GetItem(PyDict_Keys(schedule), i);  
+      // PyDict_Next avoids rebuilding (and leaking) a keys list on every turn
+      PyObject *time, *flip;
+      Py_ssize_t pos = 0;
+      while (PyDict_Next(schedule, &pos, &time, &flip)) {
         if (!PyObject_IsInstance(time, (PyObject*)&PyFloat_Type) && !PyObject_IsInstance(time, (PyObject*)&PyLong_Type)) {
           PyErr_SetString(PyBNException, "The time of the schedule must be float or int values");
-          return NULL;          
+          return NULL;
         }
-        PyObject* flip = PyDict_GetItem(schedule, time);
         if (!flip || (!PyObject_IsInstance(flip, (PyObject*)&PyUnicode_Type) && !PyObject_IsInstance(flip, (PyObject*)&PyFloat_Type) && !PyObject_IsInstance(flip, (PyObject*)&PyLong_Type))) {
           PyErr_SetString(PyBNException, "The values of the schedule dictionary must be int, float or string");
           return NULL;
@@ -358,17 +382,24 @@ PyObject * cMaBoSSNode_setSchedule(cMaBoSSNodeObject* self, PyObject* args)
           value = new ConstantExpression(PyFloat_AsDouble(flip));
         }
         else if (PyObject_IsInstance(flip, (PyObject*) &PyLong_Type))
-        { 
+        {
           value = new ConstantExpression(PyLong_AsDouble(flip));
-        } 
-        else 
+        }
+        else
         {
           value = self->network->parseSingleExpression(PyUnicode_AsUTF8(flip));
         }
-        
-        (*self->node->getScheduledFlips())[PyFloat_AsDouble(time)] = value;
+
+        // replacing an entry must not orphan the expression already stored there
+        std::map<double, Expression*>* flips = self->node->getScheduledFlips();
+        double key = PyFloat_AsDouble(time);
+        auto existing = flips->find(key);
+        if (existing != flips->end()) {
+          delete existing->second;
+        }
+        (*flips)[key] = value;
       }
-    }    
+    }
   } catch (BNException& e) {
     PyErr_SetString(PyBNException, e.getMessage().c_str());
     return NULL;
@@ -380,13 +411,25 @@ PyObject * cMaBoSSNode_setSchedule(cMaBoSSNodeObject* self, PyObject* args)
 
 PyObject * cMaBoSSNode_getSchedule(cMaBoSSNodeObject* self)
 {
-  if (self->node->getScheduledFlips() != NULL) 
+  if (self->node->getScheduledFlips() != NULL)
   {
     PyObject* schedule = PyDict_New();
-    for (auto const& it : *(self->node->getScheduledFlips())) {
-      PyDict_SetItem(schedule, PyFloat_FromDouble(it.first), PyUnicode_FromString(it.second->toString().c_str()));
+    if (schedule == NULL) {
+      return NULL;
     }
-    Py_INCREF(schedule);
+    for (auto const& it : *(self->node->getScheduledFlips())) {
+      // PyDict_SetItem does not steal, so both temporaries must be released
+      PyObject* key = PyFloat_FromDouble(it.first);
+      PyObject* value = PyUnicode_FromString(it.second->toString().c_str());
+      if (key == NULL || value == NULL || PyDict_SetItem(schedule, key, value) < 0) {
+        Py_XDECREF(key);
+        Py_XDECREF(value);
+        Py_DECREF(schedule);
+        return NULL;
+      }
+      Py_DECREF(key);
+      Py_DECREF(value);
+    }
     return schedule;
   }
   Py_RETURN_NONE;
@@ -395,8 +438,12 @@ PyObject * cMaBoSSNode_getSchedule(cMaBoSSNodeObject* self)
 PyObject * cMaBoSSNode_new(PyTypeObject* type, PyObject *args, PyObject* kwargs) 
 {
   cMaBoSSNodeObject * py_node = (cMaBoSSNodeObject *) type->tp_alloc(type, 0);
+  if (py_node == NULL) {
+    return NULL;
+  }
   py_node->network = NULL;
   py_node->node = NULL;
+  py_node->py_network = NULL;
   return (PyObject*) py_node;
 }
 
@@ -413,33 +460,40 @@ int cMaBoSSNode_init(PyObject *self, PyObject *args, PyObject *kwargs)
 
   cMaBoSSNodeObject * py_node = (cMaBoSSNodeObject *) self;
 
+  if (!PyUnicode_Check(name)) {
+    PyErr_SetString(PyExc_TypeError, "Node name must be a string");
+    return -1;
+  }
+
   try
   {
 
     if (PyObject_IsInstance(py_network, (PyObject*)&cMaBoSSNetwork))
     {
       py_node->network = ((cMaBoSSNetworkObject*) py_network)->network;
-      
+
     } else if (PyObject_IsInstance(py_network, (PyObject*)&cPopMaBoSSNetwork))
     {
       py_node->network = ((cPopMaBoSSNetworkObject*) py_network)->network;
-      
+
     } else {
-      py_node = NULL;
       PyErr_SetString(PyBNException, "Invalid network object");
       return -1;
     }
-    
+
     if (py_node->network != NULL){
       py_node->node = py_node->network->getOrMakeNode(PyUnicode_AsUTF8(name));
     }
-    
-  } catch (BNException& e) 
+
+    // keep the network alive for as long as this node is reachable
+    Py_INCREF(py_network);
+    Py_XSETREF(py_node->py_network, py_network);
+
+  } catch (BNException& e)
   {
-    py_node = NULL;
     PyErr_SetString(PyBNException, e.getMessage().c_str());
     return -1;
   }
-  
+
   return 0;
 }

@@ -54,11 +54,14 @@
 
 typedef struct {
   PyObject_HEAD
-  Node* node;
-  Network* network;
+  Node* node;        // owned by network, never freed here
+  Network* network;  // cached from py_network, never freed here
+  PyObject* py_network;
 } cMaBoSSNodeObject;
 
 void cMaBoSSNode_dealloc(cMaBoSSNodeObject *self);
+int cMaBoSSNode_traverse(cMaBoSSNodeObject *self, visitproc visit, void *arg);
+int cMaBoSSNode_clear(cMaBoSSNodeObject *self);
 PyObject* cMaBoSSNode_getLabel(cMaBoSSNodeObject* self);
 PyObject* cMaBoSSNode_setLogic(cMaBoSSNodeObject* self, PyObject* args);
 PyObject* cMaBoSSNode_getLogic(cMaBoSSNodeObject* self);
