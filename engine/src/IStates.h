@@ -295,8 +295,11 @@ public:
         } 
       }
     }
-    if (to_delete < network->getIStateGroup()->size())
+    if (to_delete < network->getIStateGroup()->size()) {
+      // the vector owns its groups, so erasing the entry must also free it
+      delete network->getIStateGroup()->at(to_delete);
       network->getIStateGroup()->erase(network->getIStateGroup()->begin() + (std::ptrdiff_t) to_delete);
+    }
   }
   
   static void setStatesProbas(Network * network, std::vector<const Node*>* nodes, std::map<std::vector<bool>, double>& probas) {

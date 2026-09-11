@@ -276,5 +276,10 @@ void IStateGroup::display(Network* network, std::ostream& os)
 }
 
 void IStateGroup::reset(Network * network) {
+  // the vector owns its groups (~Network deletes them the same way), so
+  // clearing it without deleting them first leaks every group
+  for (auto * istate_group : *(network->getIStateGroup())) {
+    delete istate_group;
+  }
   network->getIStateGroup()->clear();
 }
