@@ -98,10 +98,10 @@ PyTypeObject cMaBoSSSim = {
     0,                              /* tp_getattro */
     0,                              /* tp_setattro */
     0,                              /* tp_as_buffer */
-  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,                              /* tp_flags */
+  Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE | Py_TPFLAGS_HAVE_GC,         /* tp_flags */
   "cMaBoSS Simulation object",                   /* tp_doc */
-    0,                              /* tp_traverse */
-    0,                              /* tp_clear */
+  (traverseproc) cMaBoSSSim_traverse,           /* tp_traverse */
+  (inquiry) cMaBoSSSim_clear,                   /* tp_clear */
     0,                              /* tp_richcompare */
     0,                              /* tp_weaklistoffset */
     0,                              /* tp_iter */
@@ -119,8 +119,29 @@ PyTypeObject cMaBoSSSim = {
   cMaBoSSSim_new,                      /* tp_new */    
 };
 
+// the members are typed pointers, so go through PyObject* explicitly rather
+// than letting the Py_VISIT / Py_CLEAR macros cast them
+int cMaBoSSSim_traverse(cMaBoSSSimObject *self, visitproc visit, void *arg)
+{
+  Py_VISIT((PyObject *) self->network);
+  Py_VISIT((PyObject *) self->config);
+  Py_VISIT((PyObject *) self->param);
+  return 0;
+}
+
+int cMaBoSSSim_clear(cMaBoSSSimObject *self)
+{
+  PyObject* tmp;
+  tmp = (PyObject *) self->network; self->network = NULL; Py_XDECREF(tmp);
+  tmp = (PyObject *) self->config;  self->config  = NULL; Py_XDECREF(tmp);
+  tmp = (PyObject *) self->param;   self->param   = NULL; Py_XDECREF(tmp);
+  return 0;
+}
+
 void cMaBoSSSim_dealloc(cMaBoSSSimObject *self)
 {
+    PyObject_GC_UnTrack(self);
+    cMaBoSSSim_clear(self);
     Py_TYPE(self)->tp_free((PyObject *) self);
 }
 
@@ -144,42 +165,58 @@ int cMaBoSSSim_init(PyObject* self, PyObject *args, PyObject* kwargs)
   cMaBoSSSimObject* py_simulation = (cMaBoSSSimObject *) self;
 
   try {
-    if (net != Py_None) 
+    PyObject* new_network = NULL;
+    if (net != Py_None)
     {
-      py_simulation->network = (cMaBoSSNetworkObject*) net;
-      
+      // borrowed from the caller: take our own reference
+      if (!PyObject_IsInstance(net, (PyObject*) &cMaBoSSNetwork)) {
+        PyErr_SetString(PyExc_TypeError, "net must be a MaBoSSNet object");
+        return -1;
+      }
+      Py_INCREF(net);
+      new_network = net;
+
     } else {
-      py_simulation->network = (cMaBoSSNetworkObject*) PyObject_CallFunction((PyObject *) &cMaBoSSNetwork, 
+      new_network = PyObject_CallFunction((PyObject *) &cMaBoSSNetwork,
         "OOO", network_file, network_str, use_sbml_names
       );
     }
-    
-    if (py_simulation->network == NULL) {
+
+    if (new_network == NULL) {
       return -1;
     }
-    
+    Py_XSETREF(py_simulation->network, (cMaBoSSNetworkObject*) new_network);
+
+    PyObject* new_config = NULL;
     if (cfg != Py_None)
     {
-      py_simulation->config = (cMaBoSSConfigObject*) cfg;
-      
+      if (!PyObject_IsInstance(cfg, (PyObject*) &cMaBoSSConfig)) {
+        PyErr_SetString(PyExc_TypeError, "cfg must be a MaBoSSCfg object");
+        return -1;
+      }
+      Py_INCREF(cfg);
+      new_config = cfg;
+
     } else {
-      py_simulation->config = (cMaBoSSConfigObject*) PyObject_CallFunction((PyObject *) &cMaBoSSConfig, 
-        "OOOO", py_simulation->network, config_file, config_files, config_str
+      new_config = PyObject_CallFunction((PyObject *) &cMaBoSSConfig,
+        "OOOO", (PyObject *) py_simulation->network, config_file, config_files, config_str
       );
     }
-    
-    if (py_simulation->config == NULL) {
+
+    if (new_config == NULL) {
       return -1;
     }
-    
-    py_simulation->param = (cMaBoSSParamObject*) PyObject_CallFunction((PyObject *) &cMaBoSSParam,
-      "OO", py_simulation->network, py_simulation->config
+    Py_XSETREF(py_simulation->config, (cMaBoSSConfigObject*) new_config);
+
+    PyObject* new_param = PyObject_CallFunction((PyObject *) &cMaBoSSParam,
+      "OO", (PyObject *) py_simulation->network, (PyObject *) py_simulation->config
     );
-    
-    if (py_simulation->param == NULL) {
+
+    if (new_param == NULL) {
       return -1;
     }
-    
+    Py_XSETREF(py_simulation->param, (cMaBoSSParamObject*) new_param);
+
     // Error checking
     IStateGroup::checkAndComplete(py_simulation->network->network);
     py_simulation->network->network->getSymbolTable()->checkSymbols();
@@ -195,6 +232,9 @@ int cMaBoSSSim_init(PyObject* self, PyObject *args, PyObject* kwargs)
 PyObject * cMaBoSSSim_new(PyTypeObject* type, PyObject *args, PyObject* kwargs) 
 {
   cMaBoSSSimObject* py_simulation = (cMaBoSSSimObject *) type->tp_alloc(type, 0);
+  if (py_simulation == NULL) {
+    return NULL;
+  }
   py_simulation->network = NULL;
   py_simulation->config = NULL;
   py_simulation->param = NULL;
@@ -212,51 +252,80 @@ PyObject* cMaBoSSSim_run(cMaBoSSSimObject* self, PyObject *args, PyObject* kwarg
   ))
     return NULL;
     
-  bool b_only_last_state = PyObject_IsTrue(PyBool_FromLong(only_last_state));
+  bool b_only_last_state = (only_last_state != 0);
   time_t start_time, end_time;
 
   RandomGenerator::resetGeneratedNumberCount();
   if (b_only_last_state) {
-  
-    FinalStateSimulationEngine* simulation = new FinalStateSimulationEngine(self->network->network, self->config->config);
-    time(&start_time);
-    simulation->run(NULL);
+
+    // go through tp_new so the object is GC-tracked and zero-initialised
+    cMaBoSSResultFinalObject* res = (cMaBoSSResultFinalObject*) cMaBoSSResultFinal_new(&cMaBoSSResultFinal, NULL, NULL);
+    if (res == NULL) {
+      return NULL;
+    }
+
+    FinalStateSimulationEngine* simulation = NULL;
+    try {
+      simulation = new FinalStateSimulationEngine(self->network->network, self->config->config);
+      time(&start_time);
+      simulation->run(NULL);
+    } catch (BNException& e) {
+      delete simulation;
+      Py_DECREF(res);
+      PyErr_SetString(PyBNException, e.getMessage().c_str());
+      return NULL;
+    }
 
 #ifdef __GLIBC__
   malloc_trim(0);
 #endif
 
     time(&end_time);
-    cMaBoSSResultFinalObject* res = (cMaBoSSResultFinalObject*) PyObject_New(cMaBoSSResultFinalObject, &cMaBoSSResultFinal);
     res->network = self->network->network;
     res->runconfig = self->config->config;
     res->engine = simulation;
     res->start_time = start_time;
     res->end_time = end_time;
-    res->last_probtraj = Py_None;
+    // keep the network and the config alive for as long as the result is
+    Py_INCREF(self->network);
+    res->py_network = (PyObject *) self->network;
+    Py_INCREF(self->config);
+    res->py_config = (PyObject *) self->config;
     return (PyObject*) res;
   } else {
 
-    MaBEstEngine* simulation = new MaBEstEngine(self->network->network, self->config->config);
-    time(&start_time);
-    simulation->run(NULL);
-    
+    cMaBoSSResultObject* res = (cMaBoSSResultObject*) cMaBoSSResult_new(&cMaBoSSResult, NULL, NULL);
+    if (res == NULL) {
+      return NULL;
+    }
+
+    MaBEstEngine* simulation = NULL;
+    try {
+      simulation = new MaBEstEngine(self->network->network, self->config->config);
+      time(&start_time);
+      simulation->run(NULL);
+    } catch (BNException& e) {
+      delete simulation;
+      Py_DECREF(res);
+      PyErr_SetString(PyBNException, e.getMessage().c_str());
+      return NULL;
+    }
+
 #ifdef __GLIBC__
   malloc_trim(0);
 #endif
 
     time(&end_time);
-    
-    cMaBoSSResultObject* res = (cMaBoSSResultObject*) PyObject_New(cMaBoSSResultObject, &cMaBoSSResult);
+
     res->network = self->network->network;
     res->runconfig = self->config->config;
     res->engine = simulation;
     res->start_time = start_time;
     res->end_time = end_time;
-    res->probtraj = Py_None;
-    res->last_probtraj = Py_None;
-    res->observed_graph = Py_None;
-    res->observed_durations = Py_None;
+    Py_INCREF(self->network);
+    res->py_network = (PyObject *) self->network;
+    Py_INCREF(self->config);
+    res->py_config = (PyObject *) self->config;
     return (PyObject*) res;
   }
 }
@@ -323,9 +392,18 @@ PyObject* cMaBoSSSim_mutate(cMaBoSSSimObject* self, PyObject *args, PyObject* kw
   ))
     return NULL;
 
+  if (!PyUnicode_Check(node_name)) {
+    PyErr_SetString(PyExc_TypeError, "node_name must be a string");
+    return NULL;
+  }
+  if (!PyUnicode_Check(mutation)) {
+    PyErr_SetString(PyExc_TypeError, "mutation must be a string");
+    return NULL;
+  }
+
   std::string node_name_str = PyUnicode_AsUTF8(node_name);
   std::string mutation_str = PyUnicode_AsUTF8(mutation);
-  
+
   try {
     Node* node = self->network->network->getNode(node_name_str);
   
@@ -358,17 +436,22 @@ PyObject* cMaBoSSSim_copy(cMaBoSSSimObject* self) {
   std::ostringstream cfg;
   self->config->config->dump(self->network->network, cfg, MaBEstEngine::VERSION, false);
    
-  PyObject* network_str = PyUnicode_FromString(bnd.str().c_str());
-  Py_INCREF(network_str);
-  PyObject* config_str = PyUnicode_FromString(cfg.str().c_str());
-  Py_INCREF(config_str);
-  
   PyObject *args = PyTuple_New(0);
-  PyObject *kwargs = Py_BuildValue("{s:O,s:O}", "network_str", PyUnicode_FromString(bnd.str().c_str()), "config_str", PyUnicode_FromString(cfg.str().c_str()));
-
-  cMaBoSSSimObject* simulation = (cMaBoSSSimObject *) PyObject_Call(
-    (PyObject *) &cMaBoSSSim, args, kwargs
+  // "N" steals, so the two strings are owned by the dict rather than leaked
+  PyObject *kwargs = Py_BuildValue("{s:N,s:N}",
+    "network_str", PyUnicode_FromString(bnd.str().c_str()),
+    "config_str", PyUnicode_FromString(cfg.str().c_str())
   );
+  if (args == NULL || kwargs == NULL) {
+    Py_XDECREF(args);
+    Py_XDECREF(kwargs);
+    return NULL;
+  }
 
-  return (PyObject *) simulation;
+  PyObject* simulation = PyObject_Call((PyObject *) &cMaBoSSSim, args, kwargs);
+
+  Py_DECREF(args);
+  Py_DECREF(kwargs);
+
+  return simulation;
 }

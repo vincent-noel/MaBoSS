@@ -61,6 +61,8 @@ typedef struct {
 } cMaBoSSSimObject;
 
 void cMaBoSSSim_dealloc(cMaBoSSSimObject *self);
+int cMaBoSSSim_traverse(cMaBoSSSimObject *self, visitproc visit, void *arg);
+int cMaBoSSSim_clear(cMaBoSSSimObject *self);
 int cMaBoSSSim_init(PyObject* self, PyObject *args, PyObject* kwargs);
 PyObject * cMaBoSSSim_new(PyTypeObject* type, PyObject *args, PyObject* kwargs);
 PyObject* cMaBoSSSim_run(cMaBoSSSimObject* self, PyObject *args, PyObject* kwargs);

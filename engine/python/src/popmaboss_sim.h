@@ -60,6 +60,8 @@ typedef struct {
 } cPopMaBoSSSimObject;
 
 void cPopMaBoSSSim_dealloc(cPopMaBoSSSimObject *self);
+int cPopMaBoSSSim_traverse(cPopMaBoSSSimObject *self, visitproc visit, void *arg);
+int cPopMaBoSSSim_clear(cPopMaBoSSSimObject *self);
 PyObject * cPopMaBoSSSim_new(PyTypeObject* type, PyObject *args, PyObject* kwargs);
 int cPopMaBoSSSim_init(PyObject* self, PyObject *args, PyObject* kwargs);
 PyObject* cPopMaBoSSSim_update_parameters(cPopMaBoSSSimObject* self, PyObject *args, PyObject* kwargs);
