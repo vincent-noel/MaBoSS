@@ -55,11 +55,17 @@
 
 typedef struct {
   PyObject_HEAD
+  // py_network / py_config keep the wrappers alive; network and config are
+  // cached raw pointers borrowed from them and are never freed here
+  PyObject* py_network;
+  PyObject* py_config;
   Network* network;
   RunConfig* config;
 } cMaBoSSParamObject;
 
 void cMaBoSSParam_dealloc(PyObject *self);
+int cMaBoSSParam_traverse(cMaBoSSParamObject *self, visitproc visit, void *arg);
+int cMaBoSSParam_clear(cMaBoSSParamObject *self);
 PyObject* cMaBoSSParam_new(PyTypeObject* type, PyObject *args, PyObject* kwargs);
 int cMaBoSSParam_init(PyObject* self, PyObject *args, PyObject* kwargs);
 PyObject* cMaBoSSParam_update_parameters(cMaBoSSParamObject* self, PyObject *args, PyObject* kwargs);
