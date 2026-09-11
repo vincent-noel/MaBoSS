@@ -371,11 +371,7 @@ PyObject* FinalStateSimulationEngine::getNumpyLastStatesDists() const
   for(auto& final_state: final_states) {
 
     void* ptr = PyArray_GETPTR2(result, 0, i);
-    PyArray_SETITEM(
-      result, 
-      (char*) ptr,
-      PyFloat_FromDouble(final_state.second)
-    );
+    *(double *) ptr = final_state.second;
 
     PyList_SetItem(
       list_states, i,
@@ -391,7 +387,7 @@ PyObject* FinalStateSimulationEngine::getNumpyLastStatesDists() const
     PyFloat_FromDouble(max_time)
   );
 
-  return PyTuple_Pack(3, PyArray_Return(result), timepoints, list_states);
+  return Py_BuildValue("NNN", PyArray_Return(result), timepoints, list_states);
 }
 
 std::vector<Node*> FinalStateSimulationEngine::getNodes() const {
@@ -422,14 +418,7 @@ PyObject* FinalStateSimulationEngine::getNumpyLastNodesDists(std::vector<Node*> 
       if (NetworkState(final_state.first).getNodeState(node)){
         void* ptr_val = PyArray_GETPTR2(result, 0, i);
 
-        PyArray_SETITEM(
-          result, 
-          (char*) ptr_val,
-          PyFloat_FromDouble(
-            PyFloat_AsDouble(PyArray_GETITEM(result, (char*) ptr_val))
-            + final_state.second
-          )
-        );
+        *(double *) ptr_val += final_state.second;
       }
     }
 
@@ -443,7 +432,7 @@ PyObject* FinalStateSimulationEngine::getNumpyLastNodesDists(std::vector<Node*> 
     PyFloat_FromDouble(max_time)
   );
 
-  return PyTuple_Pack(3, PyArray_Return(result), timepoints, list_nodes);
+  return Py_BuildValue("NNN", PyArray_Return(result), timepoints, list_nodes);
 }
 
 

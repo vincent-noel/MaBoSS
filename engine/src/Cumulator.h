@@ -980,11 +980,7 @@ PyObject* getNumpyStatesDists(Network* network) const
       const S& state = iter.next2(tick_value);
       double proba = tick_value.tm_slice / ratio;
       void* ptr = PyArray_GETPTR2(result, nn, pos_states[state]);
-      PyArray_SETITEM(
-        result, 
-        (char*) ptr,
-        PyFloat_FromDouble(proba)
-      );
+      *(double *) ptr = proba;
       
       if (COMPUTE_ERRORS) {
         double tm_slice_square = tick_value.tm_slice_square;
@@ -997,11 +993,7 @@ PyObject* getNumpyStatesDists(Network* network) const
           err_proba = 0.;
         }
         void* ptr = PyArray_GETPTR2(errors, nn, pos_states[state]);
-        PyArray_SETITEM(
-          errors, 
-          (char*) ptr,
-          PyFloat_FromDouble(err_proba)
-        );
+        *(double *) ptr = err_proba;
       }
     }
   }
@@ -1018,7 +1010,7 @@ PyObject* getNumpyStatesDists(Network* network) const
     PyList_SetItem(timepoints, i, PyFloat_FromDouble(((double) i) * time_tick));
   }
 
-  return PyTuple_Pack(4, PyArray_Return(result), timepoints, pylist_state, PyArray_Return(errors));
+  return Py_BuildValue("NNNN", PyArray_Return(result), timepoints, pylist_state, PyArray_Return(errors));
 }
 
 
@@ -1047,11 +1039,7 @@ PyObject* getNumpyLastStatesDists(Network* network) const
     double proba = tick_value.tm_slice / ratio;
 
     void* ptr = PyArray_GETPTR2(result, 0, pos_states[state]);
-    PyArray_SETITEM(
-      result, 
-      (char*) ptr,
-      PyFloat_FromDouble(proba)
-    );
+    *(double *) ptr = proba;
     
     if (COMPUTE_ERRORS) {
       double tm_slice_square = tick_value.tm_slice_square;
@@ -1064,11 +1052,7 @@ PyObject* getNumpyLastStatesDists(Network* network) const
         err_proba = 0.;
       }
       void* ptr = PyArray_GETPTR2(errors, 0, pos_states[state]);
-      PyArray_SETITEM(
-        errors, 
-        (char*) ptr,
-        PyFloat_FromDouble(err_proba)
-      );
+      *(double *) ptr = err_proba;
     }
   }
 
@@ -1090,7 +1074,7 @@ PyObject* getNumpyLastStatesDists(Network* network) const
     )
   );
 
-  return PyTuple_Pack(4, PyArray_Return(result), timepoints, pylist_state, PyArray_Return(errors));
+  return Py_BuildValue("NNNN", PyArray_Return(result), timepoints, pylist_state, PyArray_Return(errors));
 }
 
 std::vector<Node*> getNodes(Network* network) const {
@@ -1166,19 +1150,11 @@ PyObject* getNumpyNodesDists(Network* network, std::vector<Node*> output_nodes) 
     for (auto node: output_nodes) 
     {
       void* ptr_val = PyArray_GETPTR2(result, nn, pos_nodes[node]);
-      PyArray_SETITEM(
-        result, 
-        (char*) ptr_val,
-        PyFloat_FromDouble(node_probas[node])
-      );
+      *(double *) ptr_val = node_probas[node];
       
       if (COMPUTE_ERRORS) {  
         void* ptr = PyArray_GETPTR2(errors, nn, pos_nodes[node]);
-        PyArray_SETITEM(
-          errors, 
-          (char*) ptr,
-          PyFloat_FromDouble(node_errors[node])
-        );
+        *(double *) ptr = node_errors[node];
       }
     }
   }
@@ -1195,7 +1171,7 @@ PyObject* getNumpyNodesDists(Network* network, std::vector<Node*> output_nodes) 
     PyList_SetItem(timepoints, i, PyFloat_FromDouble(((double) i) * time_tick));
   }
 
-  return PyTuple_Pack(4, PyArray_Return(result), timepoints, pylist_nodes, PyArray_Return(errors));
+  return Py_BuildValue("NNNN", PyArray_Return(result), timepoints, pylist_nodes, PyArray_Return(errors));
 }
 
 
@@ -1259,19 +1235,11 @@ PyObject* getNumpyLastNodesDists(Network* network, std::vector<Node*> output_nod
   for (auto node: output_nodes) 
   {
     void* ptr_val = PyArray_GETPTR2(result, 0, pos_nodes[node]);
-    PyArray_SETITEM(
-      result, 
-      (char*) ptr_val,
-      PyFloat_FromDouble(node_probas[node])
-    );
+    *(double *) ptr_val = node_probas[node];
     
     if (COMPUTE_ERRORS) {  
       void* ptr = PyArray_GETPTR2(errors, 0, pos_nodes[node]);
-      PyArray_SETITEM(
-        errors, 
-        (char*) ptr,
-        PyFloat_FromDouble(node_errors[node])
-      );
+      *(double *) ptr = node_errors[node];
     }
   }
 
@@ -1286,7 +1254,7 @@ PyObject* getNumpyLastNodesDists(Network* network, std::vector<Node*> output_nod
   PyObject* timepoints = PyList_New(1);
   PyList_SetItem(timepoints, 0, PyFloat_FromDouble(((double) (getMaxTickIndex()-1)) * time_tick));
 
-  return PyTuple_Pack(4, PyArray_Return(result), timepoints, pylist_nodes, PyArray_Return(errors));
+  return Py_BuildValue("NNNN", PyArray_Return(result), timepoints, pylist_nodes, PyArray_Return(errors));
 }
 
 PyObject* getNumpySimpleStatesDists(Network* network) const 
@@ -1376,11 +1344,7 @@ PyObject* getNumpySimpleStatesDists(Network* network) const
     }
      
     void* ptr = PyArray_GETPTR2(result, nn, 0);
-    PyArray_SETITEM(
-      result, 
-      (char*) ptr,
-      PyFloat_FromDouble(pop)
-    );
+    *(double *) ptr = pop;
      
     if (COMPUTE_ERRORS)
     {
@@ -1393,29 +1357,17 @@ PyObject* getNumpySimpleStatesDists(Network* network) const
         // network_state_entropy -= log2(size_proba.second)*size_proba.second;
       }
       void* ptr = PyArray_GETPTR2(errors, nn, 0);
-      PyArray_SETITEM(
-        errors, 
-        (char*) ptr,
-        PyFloat_FromDouble(network_state_variance)
-      );
+      *(double *) ptr = network_state_variance;
     }
     
     for (const auto& network_state : network_state_probas) 
     {
       void* ptr = PyArray_GETPTR2(result, nn, pos_states[network_state.first]);
-      PyArray_SETITEM(
-        result, 
-        (char*) ptr,
-        PyFloat_FromDouble(network_state.second/pop)
-      );
+      *(double *) ptr = network_state.second/pop;
     
       if (COMPUTE_ERRORS) {      
         void* ptr = PyArray_GETPTR2(errors, nn, pos_states[network_state.first]);
-        PyArray_SETITEM(
-          errors, 
-          (char*) ptr,
-          PyFloat_FromDouble(network_state_errors[network_state.first])
-        );
+        *(double *) ptr = network_state_errors[network_state.first];
       }
     }
   }
@@ -1437,7 +1389,7 @@ PyObject* getNumpySimpleStatesDists(Network* network) const
     PyList_SetItem(timepoints, i, PyFloat_FromDouble(((double) i) * time_tick));
   }
 
-  return PyTuple_Pack(4, PyArray_Return(result), timepoints, pylist_state, PyArray_Return(errors));
+  return Py_BuildValue("NNNN", PyArray_Return(result), timepoints, pylist_state, PyArray_Return(errors));
 }
 
 PyObject* getNumpySimpleLastStatesDists(Network* network) const 
@@ -1526,11 +1478,7 @@ PyObject* getNumpySimpleLastStatesDists(Network* network) const
   }
   
   void* ptr = PyArray_GETPTR2(result, 0, 0);
-  PyArray_SETITEM(
-    result, 
-    (char*) ptr,
-    PyFloat_FromDouble(pop)
-  );
+  *(double *) ptr = pop;
     
   if (COMPUTE_ERRORS)
   {
@@ -1543,29 +1491,17 @@ PyObject* getNumpySimpleLastStatesDists(Network* network) const
       // network_state_entropy -= log2(size_proba.second)*size_proba.second;
     }
     void* ptr = PyArray_GETPTR2(errors, 0, 0);
-    PyArray_SETITEM(
-      errors, 
-      (char*) ptr,
-      PyFloat_FromDouble(network_state_variance)
-    );
+    *(double *) ptr = network_state_variance;
   }
   
   for (const auto& network_state : network_state_probas) 
   {
     void* ptr = PyArray_GETPTR2(result, 0, pos_states[network_state.first]);
-    PyArray_SETITEM(
-      result, 
-      (char*) ptr,
-      PyFloat_FromDouble(network_state.second/pop)
-    );
+    *(double *) ptr = network_state.second/pop;
   
     if (COMPUTE_ERRORS) {      
       void* ptr = PyArray_GETPTR2(errors, 0, pos_states[network_state.first]);
-      PyArray_SETITEM(
-        errors, 
-        (char*) ptr,
-        PyFloat_FromDouble(network_state_errors[network_state.first])
-      );
+      *(double *) ptr = network_state_errors[network_state.first];
     }
   }
 
@@ -1584,7 +1520,7 @@ PyObject* getNumpySimpleLastStatesDists(Network* network) const
   PyObject* timepoints = PyList_New(1);
   PyList_SetItem(timepoints, 0, PyFloat_FromDouble(((double) (getMaxTickIndex()-1)) * time_tick));
 
-  return PyTuple_Pack(4, PyArray_Return(result), timepoints, pylist_state, PyArray_Return(errors));
+  return Py_BuildValue("NNNN", PyArray_Return(result), timepoints, pylist_state, PyArray_Return(errors));
 }
 
   

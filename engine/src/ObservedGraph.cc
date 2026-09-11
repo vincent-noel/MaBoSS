@@ -330,13 +330,13 @@ PyObject* ObservedGraph::getNumpyObservedGraph(const Network* network) const
         for (auto& cell: row.second) {
             void* ptr_val = PyArray_GETPTR2(graph, i, j);
 
-            PyArray_SETITEM(graph, (char*) ptr_val, PyLong_FromUnsignedLong(cell.second));
+            *(double *) ptr_val = cell.second;
             j++;
         }
         i++;
     }
 
-    return PyTuple_Pack(2, PyArray_Return(graph), states);
+    return Py_BuildValue("NN", PyArray_Return(graph), states);
 }
 
 
@@ -355,12 +355,12 @@ PyObject* ObservedGraph::getNumpyObservedDurations(const Network* network) const
         for (auto& cell: row.second) {
             void* ptr_val = PyArray_GETPTR2(graph, i, j);
 
-            PyArray_SETITEM(graph, (char*) ptr_val, PyFloat_FromDouble(cell.second));
+            *(double *) ptr_val = cell.second;
             j++;
         }
         i++;
     }
 
-    return PyTuple_Pack(2, PyArray_Return(graph), states);
+    return Py_BuildValue("NN", PyArray_Return(graph), states);
 }
 #endif
