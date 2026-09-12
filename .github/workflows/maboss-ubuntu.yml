@@ -717,7 +717,7 @@ jobs:
         CUSTOM_BUILD_NUMBER: ${{ matrix.repo.build_number }}
         LIBSBML_PACKAGE: ${{ matrix.repo.libsbml_package }}
       run: |
-        conda build -c ${{ matrix.repo.name }} -c ${{ matrix.repo.libsbml_source }} ${{ matrix.repo.folder }}/maboss
+        conda-build -c ${{ matrix.repo.name }} -c ${{ matrix.repo.libsbml_source }} ${{ matrix.repo.folder }}/maboss
 
     - name: Upload MaBoSS Ananconda package on vincent-noel
       run: |

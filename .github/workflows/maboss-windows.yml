@@ -690,7 +690,7 @@ jobs:
         BISON_ROOT: C:\Miniconda\envs\test\Library\bin\
         LIBSBML_PACKAGE: ${{ matrix.repo.libsbml_package }}
       run: |
-        conda build -c ${{ matrix.repo.name }} -c ${{ matrix.repo.libsbml_source }} ${{ matrix.repo.folder }}/maboss
+        conda-build -c ${{ matrix.repo.name }} -c ${{ matrix.repo.libsbml_source }} ${{ matrix.repo.folder }}/maboss
     
     - name: Build Anaconda package
       if: matrix.repo.name == 'conda-forge'
@@ -698,7 +698,7 @@ jobs:
         CUSTOM_BUILD_NUMBER: ${{ matrix.repo.id }}
         LIBSBML_PACKAGE: ${{ matrix.repo.libsbml_package }}
       run: |
-        conda build -c ${{ matrix.repo.name }} ${{ matrix.repo.folder }}/maboss
+        conda-build -c ${{ matrix.repo.name }} ${{ matrix.repo.folder }}/maboss
           
     - name: Upload MaBoSS Ananconda package on vincent-noel
       run: |
