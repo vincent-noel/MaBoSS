@@ -609,7 +609,7 @@ jobs:
             
     steps:
     - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         auto-update-conda: true
         conda-remove-defaults: "true"
@@ -667,7 +667,7 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
-    - uses: conda-incubator/setup-miniconda@v3
+    - uses: conda-incubator/setup-miniconda@v4
       with:
         auto-update-conda: true
         conda-remove-defaults: "true"
