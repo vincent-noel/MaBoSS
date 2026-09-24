@@ -29,14 +29,14 @@ echo "Testing default cell fate model"
 rm -rf tmp; mkdir -p tmp
 $LAUNCHER $MABOSS cellfate/cellfate.bnd -c cellfate/cellfate.cfg -o tmp/res
 if [ $? != 0 ]; then exit 1; fi
-python compare_probtrajs.py cellfate/refer/res_probtraj.csv tmp/res_probtraj.csv --exact
+${PYTHON:-python} compare_probtrajs.py cellfate/refer/res_probtraj.csv tmp/res_probtraj.csv --exact
 check_file "projtraj"
 
 echo
 echo "Testing cell fate model with scheduling"
 $LAUNCHER $MABOSS cellfate/cellfate.bnd -c cellfate/cellfate_schedule.cfg -o tmp/res_schedule
 if [ $? != 0 ]; then exit 1; fi
-python compare_probtrajs.py cellfate/refer/res_schedule_probtraj.csv tmp/res_schedule_probtraj.csv --exact
+${PYTHON:-python} compare_probtrajs.py cellfate/refer/res_schedule_probtraj.csv tmp/res_schedule_probtraj.csv --exact
 check_file "projtraj"
 
 exit $return_code

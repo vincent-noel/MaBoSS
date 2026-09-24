@@ -1,0 +1,23 @@
+# UndefinedBehaviorSanitizer suppressions for MaBoSS.
+#
+# As with lsan.supp, these are KNOWN pre-existing findings, listed so that the
+# sanitizer job can halt on any *new* undefined behaviour. Delete each entry as
+# the issue behind it is fixed.
+#
+# Use it with:
+#     UBSAN_OPTIONS=suppressions=engine/tests/sanitizers/ubsan.supp:halt_on_error=1
+#
+# ---------------------------------------------------------------------------
+# GLibCRandomGenerator relies on signed integer wraparound
+#
+# RandomGenerator.h:233 and :239 add elements of an `int r[SIZE_R]` feedback
+# register and expect the result to wrap, reproducing glibc's TYPE_3 random().
+# glibc does this on int32_t, where it is also formally UB but universally
+# supported; here it is plain signed overflow.
+#
+# It happens to produce the right stream with current compilers, but it is UB
+# an optimizer is free to break -- and if the stream changes, every reference
+# CSV in engine/tests/maboss becomes invalid at once. The fix is to do the
+# feedback arithmetic in uint32_t; the known-answer vectors in
+# engine/tests/unit/test_random.cc make that change verifiable.
+signed-integer-overflow:RandomGenerator.h
