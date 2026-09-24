@@ -131,8 +131,11 @@ class PopNetwork : public Network {
 
   PopNetwork();
   ~PopNetwork();
-  PopNetwork(const PopNetwork& network);
-  PopNetwork& operator=(const PopNetwork& network);
+  // Not copyable, for the same reason as Network (which it derives from): the
+  // division rules and the death-rate expression were shared by the raw
+  // pointer, so ~PopNetwork() freed them twice.
+  PopNetwork(const PopNetwork& network) = delete;
+  PopNetwork& operator=(const PopNetwork& network) = delete;
 
   int parse(const char* file = NULL, std::map<std::string, NodeIndex>* nodes_indexes = NULL, bool is_temp_file = false);
   int parseExpression(const char* content, std::map<std::string, NodeIndex>* nodes_indexes = NULL);

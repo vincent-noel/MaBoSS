@@ -10,6 +10,7 @@
 #include <doctest/doctest.h>
 
 #include <algorithm>
+#include <type_traits>
 
 #include "BNException.h"
 #include "Network.h"
@@ -157,31 +158,23 @@ TEST_CASE("referring to an undeclared node is an error") {
   );
 }
 
-TEST_CASE("copying a network yields an independent object graph" * doctest::skip()) {
-  // KNOWN BUG, and the reason this case is skipped rather than merely failing:
-  // running it segfaults and takes the whole test binary with it.
+TEST_CASE("a network cannot be copied") {
+  // Network owns its Nodes, their expression trees, the initial-state groups
+  // and the SymbolTable. Copying used to duplicate those raw pointers, so
+  // ~Network() double-freed every Node and the SymbolTable, and the copy
+  // constructor left istate_group_list uninitialised for the destructor to
+  // dereference. Both operations are now deleted.
   //
-  // Network::operator=() shallow-copies node_map, nodes, input_nodes,
-  // non_input_nodes and symbol_table -- all raw pointers -- while
-  // ~Network() deletes every Node in node_map and the SymbolTable. Copying a
-  // Network and letting both copies die therefore double-frees each node.
-  // Network::Network(const Network&) delegates to operator=() without running
-  // the default constructor body, so the copy's istate_group_list is never
-  // initialised either, and the destructor dereferences that indeterminate
-  // pointer.
-  //
-  // Nothing in the engine copies a Network today, but the copy constructor is
-  // public and PopNetwork's copy constructor forwards to it. Un-skip this case
-  // once ownership moves to smart pointers.
-  std::unique_ptr<Network> original = parse_abc_network();
+  // A faithful deep copy would have to clone each expression tree while
+  // remapping the Node* it holds to the copy's own nodes; Expression::clone()
+  // keeps the original pointer, so that needs new machinery. Until it exists,
+  // not compiling is the correct behaviour.
+  CHECK_FALSE(std::is_copy_constructible<Network>::value);
+  CHECK_FALSE(std::is_copy_assignable<Network>::value);
 
-  Network copy(*original);
-  CHECK(copy.getNodeCount() == original->getNodeCount());
-  CHECK(labels_of(copy.getNodes()) == labels_of(original->getNodes()));
-
-  for (size_t i = 0; i < copy.getNodes().size(); ++i) {
-    CHECK(copy.getNodes()[i] != original->getNodes()[i]);
-  }
+  // Still usable the way the engine actually uses it: by pointer.
+  std::unique_ptr<Network> network = parse_abc_network();
+  CHECK(network->getNodeCount() == 3);
 }
 
 } // TEST_SUITE
