@@ -30,7 +30,7 @@ $LAUNCHER $POPMABOSS -c popmaboss/Fork.cfg -o tmp/res_fork popmaboss/Fork.bnd > 
 
 if [ $? != 0 ]; then exit 1; fi
 
-python compare_probtrajs.py popmaboss/refer/res_fork_pop_probtraj.csv tmp/res_fork_pop_probtraj.csv 1e-2 1e-4
+${PYTHON:-python} compare_probtrajs.py popmaboss/refer/res_fork_pop_probtraj.csv tmp/res_fork_pop_probtraj.csv 1e-2 1e-4
 check_file "pop_projtraj"
 
 
@@ -38,7 +38,7 @@ $LAUNCHER $POPMABOSS -c popmaboss/Fork.pcfg -o tmp/res_fork popmaboss/Fork.bnd >
 
 if [ $? != 0 ]; then exit 1; fi
 
-python compare_probtrajs.py popmaboss/refer/res_fork_pop_probtraj.csv tmp/res_fork_pop_probtraj.csv 1e-2 1e-4
+${PYTHON:-python} compare_probtrajs.py popmaboss/refer/res_fork_pop_probtraj.csv tmp/res_fork_pop_probtraj.csv 1e-2 1e-4
 check_file "pop_projtraj"
 
 
@@ -46,7 +46,7 @@ $LAUNCHER $POPMABOSS -c popmaboss/Log_Growth.cfg -o tmp/res_log_growth popmaboss
 
 if [ $? != 0 ]; then exit 1; fi
 
-python compare_probtrajs.py popmaboss/refer/res_log_growth_pop_probtraj.csv tmp/res_log_growth_pop_probtraj.csv --exact
+${PYTHON:-python} compare_probtrajs.py popmaboss/refer/res_log_growth_pop_probtraj.csv tmp/res_log_growth_pop_probtraj.csv --exact
 check_file "pop_projtraj"
 
 
@@ -54,7 +54,7 @@ $LAUNCHER $POPMABOSS -c popmaboss/Assymetric.cfg -o tmp/res_assymetric popmaboss
 
 if [ $? != 0 ]; then exit 1; fi
 
-python compare_probtrajs.py popmaboss/refer/res_assymetric_pop_probtraj.csv tmp/res_assymetric_pop_probtraj.csv 5e-2 5e-2
+${PYTHON:-python} compare_probtrajs.py popmaboss/refer/res_assymetric_pop_probtraj.csv tmp/res_assymetric_pop_probtraj.csv 5e-2 5e-2
 check_file "pop_projtraj"
 
 
@@ -62,7 +62,7 @@ $LAUNCHER $POPMABOSS -c popmaboss/ICD_phenomenological_TDC_ratio.cfg -o tmp/res_
 
 if [ $? != 0 ]; then exit 1; fi
 
-python compare_probtrajs.py popmaboss/refer/res_icd_custom_pop_probtraj.csv tmp/res_icd_custom_pop_probtraj.csv 5e-2 5e-2
+${PYTHON:-python} compare_probtrajs.py popmaboss/refer/res_icd_custom_pop_probtraj.csv tmp/res_icd_custom_pop_probtraj.csv 5e-2 5e-2
 check_file "custom pop_projtraj"
 
 rm -rf tmp; 

@@ -30,19 +30,19 @@ rm -rf tmp; mkdir -p tmp
 
 if [ $? != 0 ]; then exit 1; fi
 
-python compare_probtrajs.py ensemble/refer/res_probtraj.csv tmp/res_probtraj.csv --exact
+${PYTHON:-python} compare_probtrajs.py ensemble/refer/res_probtraj.csv tmp/res_probtraj.csv --exact
 check_file "projtraj"
-python compare_probtrajs.py ensemble/refer/res_model_0_probtraj.csv tmp/res_model_0_probtraj.csv --exact
+${PYTHON:-python} compare_probtrajs.py ensemble/refer/res_model_0_probtraj.csv tmp/res_model_0_probtraj.csv --exact
 check_file "projtraj_model_0"
-python compare_probtrajs.py ensemble/refer/res_model_1_probtraj.csv tmp/res_model_1_probtraj.csv --exact
+${PYTHON:-python} compare_probtrajs.py ensemble/refer/res_model_1_probtraj.csv tmp/res_model_1_probtraj.csv --exact
 check_file "projtraj_model_1"
-python compare_probtrajs.py ensemble/refer/res_model_2_probtraj.csv tmp/res_model_2_probtraj.csv --exact
+${PYTHON:-python} compare_probtrajs.py ensemble/refer/res_model_2_probtraj.csv tmp/res_model_2_probtraj.csv --exact
 check_file "projtraj_model_2"
-python compare_probtrajs.py ensemble/refer/res_model_3_probtraj.csv tmp/res_model_3_probtraj.csv --exact
+${PYTHON:-python} compare_probtrajs.py ensemble/refer/res_model_3_probtraj.csv tmp/res_model_3_probtraj.csv --exact
 check_file "projtraj_model_3"
-python compare_probtrajs.py ensemble/refer/res_model_4_probtraj.csv tmp/res_model_4_probtraj.csv --exact
+${PYTHON:-python} compare_probtrajs.py ensemble/refer/res_model_4_probtraj.csv tmp/res_model_4_probtraj.csv --exact
 check_file "projtraj_model_4"
-python compare_probtrajs.py ensemble/refer/res_model_5_probtraj.csv tmp/res_model_5_probtraj.csv --exact
+${PYTHON:-python} compare_probtrajs.py ensemble/refer/res_model_5_probtraj.csv tmp/res_model_5_probtraj.csv --exact
 check_file "projtraj_model_5"
 
 # rm -rf tmp; 

@@ -32,10 +32,10 @@ if [ "$MULTI_THREAD_ONLY" = "" ]; then
     if [ $? != 0 ]; then exit 1; fi
 
     if [[ -z "$FINAL" ]]; then
-	python compare_probtrajs.py cellcycle/refer/Cell_cycle_thread_1_probtraj.csv tmp/Cell_cycle_thread_1_probtraj.csv --exact
+	${PYTHON:-python} compare_probtrajs.py cellcycle/refer/Cell_cycle_thread_1_probtraj.csv tmp/Cell_cycle_thread_1_probtraj.csv --exact
 	check_file "projtraj"
 	
-	python compare_statdist.py cellcycle/refer/Cell_cycle_thread_1_statdist.csv tmp/Cell_cycle_thread_1_statdist.csv --exact # || echo '**** error test #1.b (non regression) ****'
+	${PYTHON:-python} compare_statdist.py cellcycle/refer/Cell_cycle_thread_1_statdist.csv tmp/Cell_cycle_thread_1_statdist.csv --exact # || echo '**** error test #1.b (non regression) ****'
 	check_file "statdist"
     else
 	diff_sort cellcycle/refer/Cell_cycle_thread_1_finalprob.csv tmp/Cell_cycle_thread_1_finalprob.csv
@@ -55,18 +55,18 @@ echo "Non regression test: Cell Cycle 6 threads"
 
 echo
 if [[ -z "$FINAL" ]]; then
-    python compare_probtrajs.py cellcycle/refer/Cell_cycle_thread_6_probtraj.csv tmp/Cell_cycle_thread_6_probtraj.csv --exact
+    ${PYTHON:-python} compare_probtrajs.py cellcycle/refer/Cell_cycle_thread_6_probtraj.csv tmp/Cell_cycle_thread_6_probtraj.csv --exact
     check_file "projtraj"
 
     echo "Non regression test: checking differences between one and 6 threads results"
-    python compare_statdist.py cellcycle/refer/Cell_cycle_thread_6_statdist.csv tmp/Cell_cycle_thread_6_statdist.csv --exact #|| echo '**** error test #2.b (non regression) ****'
+    ${PYTHON:-python} compare_statdist.py cellcycle/refer/Cell_cycle_thread_6_statdist.csv tmp/Cell_cycle_thread_6_statdist.csv --exact #|| echo '**** error test #2.b (non regression) ****'
     check_file "statdist"
 
     if [[ -z  "$MULTI_THREAD_ONLY" ]]; then
-	python compare_probtrajs.py tmp/Cell_cycle_thread_1_probtraj.csv tmp/Cell_cycle_thread_6_probtraj.csv # || echo '**** error test #3 (multi threads) ****'
+	${PYTHON:-python} compare_probtrajs.py tmp/Cell_cycle_thread_1_probtraj.csv tmp/Cell_cycle_thread_6_probtraj.csv # || echo '**** error test #3 (multi threads) ****'
 	check_file "probtraj"
 
-	python compare_statdist.py tmp/Cell_cycle_thread_1_statdist.csv tmp/Cell_cycle_thread_6_statdist.csv --exact # || echo '**** error test #3 (multi threads) ****'
+	${PYTHON:-python} compare_statdist.py tmp/Cell_cycle_thread_1_statdist.csv tmp/Cell_cycle_thread_6_statdist.csv --exact # || echo '**** error test #3 (multi threads) ****'
 	check_file "statdist"
     fi
 else

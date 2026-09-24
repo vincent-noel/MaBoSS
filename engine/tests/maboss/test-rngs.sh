@@ -30,9 +30,9 @@ $LAUNCHER $MABOSS prngs/cellcycle.bnd -c prngs/cellcycle_runcfg.cfg -c prngs/phy
 if [ $? != 0 ]; then return_code=1; fi
 
 # echo "Comparing aproximatively the results of the different prngs"
-# python compare_probtrajs.py tmp/Cell_cycle_glibc_probtraj.csv tmp/Cell_cycle_mt_probtraj.csv # || echo '**** error test #3 (multi threads) ****'
+# ${PYTHON:-python} compare_probtrajs.py tmp/Cell_cycle_glibc_probtraj.csv tmp/Cell_cycle_mt_probtraj.csv # || echo '**** error test #3 (multi threads) ****'
 # check_file "probtrajs"
-# python compare_probtrajs.py tmp/Cell_cycle_glibc_probtraj.csv tmp/Cell_cycle_phys_probtraj.csv # || echo '**** error test #3 (multi threads) ****'
+# ${PYTHON:-python} compare_probtrajs.py tmp/Cell_cycle_glibc_probtraj.csv tmp/Cell_cycle_phys_probtraj.csv # || echo '**** error test #3 (multi threads) ****'
 # check_file "probtrajs"
 
 exit $return_code

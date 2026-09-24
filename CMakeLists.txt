@@ -29,6 +29,36 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
 
+###############################################################################
+#
+# Testing and diagnostics
+#
+
+# Tests are opt-in: packaging builds (conda, wheels, distro packages) must not
+# pull in a test framework, and the unit tests fetch doctest when no system
+# installation is available.
+option(MABOSS_TESTS "Build the MaBoSS test suite (ctest)" OFF)
+
+# Comma-separated sanitizer list, e.g. -DMABOSS_SANITIZE=address,undefined or
+# -DMABOSS_SANITIZE=thread. Applies to every target in this build tree.
+set(MABOSS_SANITIZE "" CACHE STRING "Sanitizers to build with (address, undefined, thread, ...)")
+
+if(MABOSS_SANITIZE)
+  if(MSVC)
+    message(FATAL_ERROR "MABOSS_SANITIZE is not supported with MSVC")
+  endif()
+  set(MABOSS_SANITIZE_FLAGS -fsanitize=${MABOSS_SANITIZE} -fno-omit-frame-pointer -g)
+  add_compile_options(${MABOSS_SANITIZE_FLAGS})
+  # add_link_options() would need CMake >= 3.13, so append to the linker flags
+  # directly to stay within this project's minimum.
+  string(REPLACE ";" " " MABOSS_SANITIZE_LINK_FLAGS "${MABOSS_SANITIZE_FLAGS}")
+  foreach(flag_var CMAKE_EXE_LINKER_FLAGS CMAKE_SHARED_LINKER_FLAGS CMAKE_MODULE_LINKER_FLAGS)
+    set(${flag_var} "${${flag_var}} ${MABOSS_SANITIZE_LINK_FLAGS}")
+  endforeach()
+  message(STATUS "Building with -fsanitize=${MABOSS_SANITIZE}")
+endif()
+
+
 # Global settings : bitset data structure
 if(NOT MAXNODES)
 set(MAXNODES 64)
@@ -240,6 +270,12 @@ else()
     COMPONENT libraries_headers
     FILES_MATCHING PATTERN "*.h"
   )
+
+  # Registered last, so the test suite can refer to the targets above.
+  if(MABOSS_TESTS)
+    enable_testing()
+    add_subdirectory(engine/tests)
+  endif()
 
 endif()
 
