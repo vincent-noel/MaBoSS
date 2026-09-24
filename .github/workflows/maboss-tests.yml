@@ -1,0 +1,144 @@
+name: MaBoSS test suite
+
+# Phase 0 of the modernization work: run the golden-output regression tests and
+# the C++ unit tests through ctest, and run them again under sanitizers, so
+# that later refactors have something to be checked against.
+#
+# The pre-existing per-job workflows (maboss-ubuntu.yml and friends) still
+# drive scripts/run_tests.sh directly; this workflow is the ctest entry point.
+
+on:
+  push:
+    branches: [ master, development ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  ctest:
+    name: ctest (${{ matrix.name }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: "64 nodes"
+            cmake_args: ""
+          - name: "128 nodes"
+            cmake_args: "-DMAXNODES=128"
+          - name: "dynamic bitset"
+            cmake_args: "-DDYNBITSET=1"
+          - name: "dynamic bitset, std alloc"
+            cmake_args: "-DDYNBITSET=1 -DDYNBITSET_STD_ALLOC=1"
+    env:
+      CC: gcc
+      CXX: g++
+      CPU_COUNT: 4
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flex bison
+          pip install numpy
+
+      - name: Configure
+        run: |
+          cmake -B build -S . \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DMABOSS_TESTS=ON \
+            -DBUILD_SERVER=1 -DBUILD_CLIENT=1 \
+            ${{ matrix.cmake_args }}
+
+      - name: Build
+        run: cmake --build build --parallel "${CPU_COUNT}"
+
+      - name: List registered tests
+        run: ctest --test-dir build -N
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure --parallel "${CPU_COUNT}"
+
+  sanitizers:
+    name: sanitizers (${{ matrix.sanitize }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # ThreadSanitizer is a natural next step but needs its own triage pass
+        # over the engines first (shared cumulators, the MBDynBitset allocator),
+        # so it is not wired up here yet.
+        sanitize: [ "address,undefined" ]
+    env:
+      CC: gcc
+      CXX: g++
+      CPU_COUNT: 4
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flex bison
+          pip install numpy
+
+      - name: Configure
+        run: |
+          cmake -B build -S . \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DMABOSS_TESTS=ON \
+            -DMABOSS_SANITIZE=${{ matrix.sanitize }}
+
+      - name: Build
+        run: cmake --build build --parallel "${CPU_COUNT}"
+
+      # The unit tests are clean under ASan/UBSan today, so they gate. ctest
+      # applies engine/tests/sanitizers/*.supp automatically for a sanitizer
+      # build, which covers the known parser leaks.
+      - name: Unit tests (gating)
+        run: ctest --test-dir build -L unit --output-on-failure
+
+      # The regression tests still report a small, documented leak backlog in
+      # the CLI and scheduling paths (see lsan.supp). Reporting only, until
+      # those are fixed -- at which point drop continue-on-error and fold this
+      # into the step above.
+      - name: Regression tests under sanitizers (reporting only)
+        continue-on-error: true
+        run: ctest --test-dir build -L regression --output-on-failure
+
+  clang-tidy:
+    name: clang-tidy (report only)
+    runs-on: ubuntu-24.04
+    env:
+      CC: clang
+      CXX: clang++
+      CPU_COUNT: 4
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y flex bison clang clang-tidy
+
+      - name: Configure
+        run: |
+          cmake -B build -S . \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DMABOSS_TESTS=ON
+
+      # The generated flex/bison sources are in the compilation database but
+      # must not be reported on, so the file list comes from git instead.
+      #
+      # Not gating yet: the point is to see the size of the backlog per check
+      # before deciding what to enforce.
+      - name: Run clang-tidy
+        continue-on-error: true
+        run: |
+          cmake --build build --target libMaBoSS --parallel "${CPU_COUNT}" || true
+          git ls-files 'engine/src/*.cc' 'engine/src/**/*.cc' > sources.txt
+          clang-tidy -p build --quiet $(cat sources.txt) 2>&1 | tee tidy.log || true
+          echo "### clang-tidy findings per check" >> "$GITHUB_STEP_SUMMARY"
+          grep -oE '\[[a-z0-9-]+\]$' tidy.log | sort | uniq -c | sort -rn \
+            | head -40 >> "$GITHUB_STEP_SUMMARY" || true

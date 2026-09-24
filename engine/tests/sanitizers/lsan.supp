@@ -1,0 +1,41 @@
+# LeakSanitizer suppressions for MaBoSS.
+#
+# Scope: this file contains only what is needed to keep the *gating* sanitizer
+# job -- the unit tests -- clean. It is a to-do list, not a permanent
+# exemption; delete each entry as the leak behind it is fixed.
+#
+# Applied automatically by ctest for a -DMABOSS_SANITIZE=... build, or by hand:
+#     LSAN_OPTIONS=suppressions=engine/tests/sanitizers/lsan.supp
+#
+# ---------------------------------------------------------------------------
+# Parser leaks (~190 bytes per parse, in ~12 allocations)
+#
+# The flex/bison actions allocate with new/strdup and do not free on every
+# path: BooleanGrammar.y:290 and :295, BooleanGrammar.l:112 and :120,
+# RunConfigGrammar.y:343, RunConfigGrammar.l:80.
+#
+# Harmless for the command line tools, which parse one model and exit. It does
+# accumulate for long-lived processes that parse repeatedly -- the cmaboss
+# Python module and ensemble runs -- which is why it is worth fixing rather
+# than suppressing forever.
+leak:ctbndlparse
+leak:ctbndllex
+leak:rcparse
+leak:rclex
+
+# ---------------------------------------------------------------------------
+# Deliberately NOT suppressed
+#
+# These show up when the regression tests run under ASan. They are left
+# unsuppressed on purpose: suppressing them would need a pattern broad enough
+# (`leak:main`) to hide real leaks too. The regression-test sanitizer job is
+# therefore reporting-only until they are fixed.
+#
+#   engine/src/MaBoSS.cc:838   `new Network()` and the RunConfig beside it are
+#                              not freed on every exit path (416 bytes, seen in
+#                              the ensemble test).
+#
+#   engine/src/engines/ProbTrajEngine.cc:278 and :280
+#                              buildSchedule() allocates the per-node schedule
+#                              expressions and never frees them (480 bytes in
+#                              10 objects, seen in the schedule test).
