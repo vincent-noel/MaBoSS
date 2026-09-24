@@ -284,22 +284,6 @@ void Network::displayHeader(std::ostream& os) const
   os << '\n';
 }
 
-Network::Network(const Network& network)
-{
-  *this = network;
-}
-
-Network& Network::operator=(const Network& network)
-{
-  node_map = network.node_map;
-  last_index = network.last_index;
-  input_nodes = network.input_nodes;
-  non_input_nodes = network.non_input_nodes;
-  nodes = network.nodes;
-  symbol_table = network.symbol_table;
-  return *this;
-}
-
 Network::~Network()
 {
   delete symbol_table;
