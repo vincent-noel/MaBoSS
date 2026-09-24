@@ -29,12 +29,12 @@ echo "Testing BNET compatibility"
 rm -rf tmp; mkdir -p tmp
 $LAUNCHER $MABOSS bnet/model.bnet -o tmp/bnet_model
 if [ $? != 0 ]; then exit 1; fi
-python compare_probtrajs.py bnet/refer/bnet_model_probtraj.csv tmp/bnet_model_probtraj.csv --exact
+${PYTHON:-python} compare_probtrajs.py bnet/refer/bnet_model_probtraj.csv tmp/bnet_model_probtraj.csv --exact
 check_file "projtraj"
 
 $LAUNCHER $MABOSS bnet/model_noheader.bnet -o tmp/bnet_model
 if [ $? != 0 ]; then exit 1; fi
-python compare_probtrajs.py bnet/refer/bnet_model_probtraj.csv tmp/bnet_model_probtraj.csv --exact
+${PYTHON:-python} compare_probtrajs.py bnet/refer/bnet_model_probtraj.csv tmp/bnet_model_probtraj.csv --exact
 check_file "projtraj"
 
 exit $return_code

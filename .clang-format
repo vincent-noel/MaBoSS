@@ -1,0 +1,41 @@
+# clang-format configuration for MaBoSS.
+#
+# This describes the style the engine is already written in, so that new and
+# edited code stays consistent with it.
+#
+# IMPORTANT: do not run this over the whole tree. Reformatting every file would
+# produce a diff touching essentially all of engine/src, destroy `git blame`,
+# and make the modernization commits unreviewable. Format only what you touch:
+#
+#     git clang-format            # stages-aware, formats just your diff
+#     clang-format -i <file>      # when a file is being rewritten anyway
+---
+Language: Cpp
+BasedOnStyle: LLVM
+
+# The engine indents with two spaces and puts the brace of a function
+# definition on its own line, while class, namespace and control-flow braces
+# stay attached -- that is the "Linux" brace style.
+IndentWidth: 2
+TabWidth: 8
+UseTab: Never
+BreakBeforeBraces: Linux
+
+# Existing lines run long; 100 keeps new code readable without inviting a
+# reflow of everything nearby.
+ColumnLimit: 100
+
+AccessModifierOffset: -1
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: Yes
+DerivePointerAlignment: false
+PointerAlignment: Left
+SpaceAfterTemplateKeyword: false
+Standard: c++11
+
+# Keep the engine's own headers grouped ahead of system ones, matching the
+# existing "own header, then project headers, then <system>" ordering.
+SortIncludes: CaseSensitive
+IncludeBlocks: Preserve

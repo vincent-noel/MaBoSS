@@ -1,0 +1,51 @@
+# clang-tidy configuration for MaBoSS.
+#
+# This is deliberately scoped to the modernization work rather than to "every
+# check clang-tidy has": the selected checks are the mechanical ones that can
+# be applied in bulk with `run-clang-tidy -fix` and reviewed as a single
+# no-behaviour-change commit.
+#
+# Usage:
+#     cmake -B build -S . -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DMABOSS_TESTS=ON
+#     run-clang-tidy -p build -header-filter='engine/src/.*' \
+#         $(git ls-files 'engine/src/*.cc' 'engine/src/**/*.cc')
+#
+# Pass the file list from git rather than letting run-clang-tidy walk the
+# compilation database: the database also contains the flex/bison output, which
+# is generated and must not be rewritten.
+
+Checks: >
+  -*,
+  bugprone-*,
+  modernize-*,
+  performance-*,
+  readability-const-return-type,
+  readability-redundant-member-init,
+  readability-redundant-string-cstr,
+  readability-simplify-boolean-expr,
+  readability-static-definition-in-anonymous-namespace,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-macro-parentheses,
+  -bugprone-narrowing-conversions,
+  -modernize-avoid-c-arrays,
+  -modernize-use-trailing-return-type,
+  -performance-avoid-endl,
+
+# Only diagnose MaBoSS's own headers. Without this, every warning inside
+# libSBML, libsedml and doctest is reported too.
+HeaderFilterRegex: 'engine/(src|tests)/.*\.h$'
+
+# Treat nothing as an error by default; CI decides what is blocking.
+WarningsAsErrors: ''
+
+FormatStyle: file
+
+CheckOptions:
+  # The engine is full of short, meaningful loop and index names (nn, tm, os).
+  # Do not let readability checks argue about them.
+  - key: readability-identifier-length.MinimumVariableNameLength
+    value: '1'
+  - key: modernize-use-default-member-init.UseAssignment
+    value: 'true'
+  - key: modernize-use-emplace.IgnoreImplicitConstructors
+    value: 'true'
