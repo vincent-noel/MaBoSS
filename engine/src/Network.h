@@ -90,8 +90,15 @@ public:
 
   Network();
 
-  Network(const Network& network);
-  Network& operator=(const Network& network);
+  // Not copyable. A Network owns its Nodes, their expression trees, the
+  // initial-state groups and the SymbolTable, and a faithful copy would have
+  // to clone the expression trees while remapping every Node* they hold to the
+  // copy's own nodes -- Expression::clone() keeps the original pointer, so
+  // there is no way to do that today. The previous implementation copied the
+  // raw pointers instead, which made ~Network() double-free every Node and the
+  // SymbolTable, and left istate_group_list uninitialised.
+  Network(const Network& network) = delete;
+  Network& operator=(const Network& network) = delete;
 
   int parse(const char* file = NULL, std::map<std::string, NodeIndex>* nodes_indexes = NULL, bool is_temp_file = false, bool useSBMLNames = false);
   int parseExpression(const char* content = NULL, std::map<std::string, NodeIndex>* nodes_indexes = NULL);
