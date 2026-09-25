@@ -227,11 +227,23 @@ endif()
 
 # --- Client/server, only when those executables were built ------------------
 if(BUILD_SERVER AND BUILD_CLIENT AND NOT WIN32 AND MABOSS_RUNS_SMALL)
+  # test-server.sh runs in two phases: cellcycle against $MABOSS_SERVER, then
+  # the 128-node ewing model against $MABOSS_SERVER_128n. It skips the second
+  # phase when that binary is not executable, so hand it an empty value unless
+  # this build actually produced a server that can handle more than 64 nodes --
+  # pointing it at the 64-node server instead makes the client fail with
+  # "maximum node count exceeded".
+  if(MABOSS_RUNS_128N)
+    set(maboss_server_128n $<TARGET_FILE:${MABOSS_SERVER_NAME}>)
+  else()
+    set(maboss_server_128n "")
+  endif()
+
   maboss_add_regression_test(NAME server SCRIPT test-server.sh
                              ENV MABOSS=${MABOSS_BIN}
                                  MABOSS_CLIENT=$<TARGET_FILE:${MABOSS_CLIENT_NAME}>
                                  MABOSS_SERVER=$<TARGET_FILE:${MABOSS_SERVER_NAME}>
-                                 MABOSS_SERVER_128n=$<TARGET_FILE:${MABOSS_SERVER_NAME}>)
+                                 MABOSS_SERVER_128n=${maboss_server_128n})
 endif()
 
 # --- MPI ---------------------------------------------------------------------
