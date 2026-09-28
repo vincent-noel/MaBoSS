@@ -564,5 +564,9 @@ void runconfig_setConfig(RunConfig* _config)
 
 void rc_scan_expression(const char* str)
 {
+    // Let yyerror() quote the expression. Without this, `expr` stays NULL and a
+    // syntax error builds std::string(NULL): libstdc++ throws std::logic_error
+    // (which RunConfig::parseExpression does not catch), libc++ crashes.
+    yy_set_expr(str);
     yy_switch_to_buffer(yy_scan_string(str));
 }

@@ -120,7 +120,7 @@ TEST_CASE("malformed config text is rejected") {
   std::unique_ptr<Network> network = parse_abc_network();
   RunConfig config;
 
-  CHECK_THROWS(config.parseExpression(network.get(), "time_tick = ;"));
+  CHECK_THROWS_AS(config.parseExpression(network.get(), "time_tick = ;"), BNException);
 }
 
 } // TEST_SUITE
