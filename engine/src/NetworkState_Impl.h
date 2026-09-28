@@ -63,75 +63,49 @@
 
 #ifdef USE_STATIC_BITSET
 #include <bitset>
-typedef std::bitset<MAXNODES> NetworkState_Impl;
+#include <cstddef>
+#include <functional>
 
-// #ifdef USE_UNORDERED_MAP
+// The network state for 65..MAXNODES nodes.
+//
+// Ordered containers keyed by the state (std::map<NetworkState_Impl, ...>,
+// std::set<NetworkState_Impl>) need an ordering, and std::bitset has no
+// operator<. It used to come from a specialization of
+// std::less<std::bitset<MAXNODES>>, but recent libc++ (LLVM 23) no longer calls
+// std::less<T> specializations inside std::map/std::set: it rewrites std::less<T>
+// into std::less<> and compares with `a < b` directly. operator< cannot be added
+// to std::bitset itself, so the state is a thin subclass that has one.
+template <std::size_t N>
+class MaBoSSBitset : public std::bitset<N> {
+public:
+  using std::bitset<N>::bitset;
+  MaBoSSBitset() = default;
+  MaBoSSBitset(const std::bitset<N>& bits) : std::bitset<N>(bits) { }
 
-namespace std {
-//   template <> struct HASH_STRUCT<bitset<MAXNODES> >
-//   {
-//     size_t operator()(const bitset<MAXNODES>& val) const {
-// #ifdef COMPARE_BITSET_AND_ULONG
-//       return val.to_ulong();
-// #else
-//       static const bitset<MAXNODES> MASK(0xFFFFFFFFUL);
-//       return (val & MASK).to_ulong();
-// #endif
-//     }
-//   };
-
-//   template <> struct equal_to<bitset<MAXNODES> >
-//   {
-//     size_t operator()(const bitset<MAXNODES>& val1, const bitset<MAXNODES>& val2) const {
-//       return val1 == val2;
-//     }
-//   };
-
-  // Added less operator, necessary for maps, sets. Code from https://stackoverflow.com/a/21245301/11713763
-  template <> struct less<bitset<MAXNODES> >
-  {
-    size_t operator()(const bitset<MAXNODES>& val1, const bitset<MAXNODES>& val2) const {
-    for (int i = MAXNODES-1; i >= 0; i--) {
-        if (val1[i] ^ val2[i]) return val2[i];
+  // The most significant differing bit decides. This is exactly the ordering
+  // the former std::less<std::bitset<MAXNODES>> specialization used, so the
+  // iteration order of these containers -- and hence of MaBoSS output -- does
+  // not change.
+  bool operator<(const MaBoSSBitset& other) const {
+    for (int i = static_cast<int>(N) - 1; i >= 0; i--) {
+      if ((*this)[i] ^ other[i]) {
+        return other[i];
+      }
     }
     return false;
+  }
+};
 
+typedef MaBoSSBitset<MAXNODES> NetworkState_Impl;
+
+namespace std {
+  template <std::size_t N> struct hash<MaBoSSBitset<N> > {
+    size_t operator()(const MaBoSSBitset<N>& val) const {
+      return std::hash<std::bitset<N> >{}(val);
     }
   };
 }
 
-// #else
-
-// template <int N> class sbitset : public std::bitset<N> {
-
-//  public:
-//   sbitset() : std::bitset<N>() { }
-//   sbitset(const sbitset<N>& sbitset) : std::bitset<N>(sbitset) { }
-//   sbitset(const std::bitset<N>& bitset) : std::bitset<N>(bitset) { }
-
-//   int operator<(const sbitset<N>& bitset1) const {
-// #ifdef COMPARE_BITSET_AND_ULONG
-//     return this->to_ulong() < bitset1.to_ulong();
-// #else
-//     for (int nn = N-1; nn >= 0; --nn) {
-//       int delta = this->test(nn) - bitset1.test(nn);
-//       if (delta < 0) {
-// 	return 1;
-//       }
-//       if (delta > 0) {
-// 	return 0;
-//       }
-//     }
-//     return 0;
-// #endif
-//   }
-// };
-
-// typedef sbitset<MAXNODES> NetworkState_Impl;
-// #endif
-
-
-// 
 #elif defined(USE_DYNAMIC_BITSET)
 #include "MBDynBitset.h"
 typedef MBDynBitset NetworkState_Impl;
