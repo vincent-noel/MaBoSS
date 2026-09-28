@@ -192,11 +192,14 @@ public:
   void displayOneLine(std::ostream& os, const Network* network, const std::string& sep = " -- ") const;
   void displayJSON(std::ostream& os, const Network* network, const std::string& sep = " -- ") const;
 
-#ifndef USE_UNORDERED_MAP
+  // Needed whatever the map type: recent libc++ (LLVM 23) sorts
+  // std::set<NetworkState> and std::map<NetworkState, ...> with `a < b` instead
+  // of calling the std::less<NetworkState> specialization below, which now just
+  // forwards here. Going through std::less<NetworkState_Impl> works for all
+  // three state representations.
   bool operator<(const NetworkState& network_state) const {
-    return state < network_state.state;
+    return std::less<NetworkState_Impl>{}(state, network_state.state);
   }
-#endif
   unsigned int hamming(Network* network, const NetworkState_Impl& state) const;
   unsigned int hamming(Network* network, const NetworkState& state) const;
 
@@ -371,13 +374,7 @@ namespace std {
   template <> struct less<NetworkState>
   {
     size_t operator()(const NetworkState& val1, const NetworkState& val2) const {
-#ifdef USE_DYNAMIC_BITSET
-      const NetworkState_Impl& state_1 = val1.getState(1);
-      const NetworkState_Impl& state_2 = val2.getState(1);
-      return std::less<NetworkState_Impl>{}(state_1, state_2);
-#else
-      return std::less<NetworkState_Impl>{}(val1.getState(), val2.getState());
-#endif
+      return val1 < val2;
     }
   };
 }
