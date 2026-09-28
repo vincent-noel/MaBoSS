@@ -33,7 +33,7 @@ AlwaysBreakTemplateDeclarations: Yes
 DerivePointerAlignment: false
 PointerAlignment: Left
 SpaceAfterTemplateKeyword: false
-Standard: c++11
+Standard: c++17
 
 # Keep the engine's own headers grouped ahead of system ones, matching the
 # existing "own header, then project headers, then <system>" ordering.

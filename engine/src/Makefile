@@ -10,7 +10,7 @@ ifndef MAXNODES
 MAXNODES = 64
 endif
 
-CXX_VERSION = c++11
+CXX_VERSION = c++17
 
 ifeq ($(USE_DYNAMIC_BITSET_STD_ALLOC), 1)
 INFIX := _dn
@@ -81,7 +81,6 @@ SEDML_LIB_STATIC = -lsedml-static -lnuml-static
 else
 SEDML_LIB_STATIC = -static -lsedml-static -lnuml-static
 endif
-CXX_VERSION = c++17
 
 SEDML_LIB_SRC := sedml/XMLPatcher.cc
 SEDML_LIB_OBJS := sedml/XMLPatcher$(INFIX).o
