@@ -134,11 +134,11 @@ public:
   {
     setSeed(_seed);
   }
-  bool isPseudoRandom() const {
+  bool isPseudoRandom() const override {
     return true;
   }
 
-  std::string getName() const {
+  std::string getName() const override {
     return "rand48";
   }
 
@@ -158,7 +158,7 @@ public:
     x[0] = RAND48_LOW(p[0]);
   }
 
-  unsigned int generateUInt32() {
+  unsigned int generateUInt32() override {
     incrGeneratedNumberCount();
 #ifdef USE_DUMMY_RANDOM
     return ~0U/2;
@@ -172,7 +172,7 @@ public:
     return (((unsigned int)x[2] << (RAND48_N - 1)) + (x[1] >> 1));
   }
 
-  virtual double generate() {
+  double generate() override {
     incrGeneratedNumberCount();
 #ifdef USE_DUMMY_RANDOM
     return 0.5;
@@ -187,7 +187,7 @@ public:
     return (two16m * (two16m * (two16m * x[0] + x[1]) + x[2]));
   }
 
-  virtual void setSeed(int _seed) {
+  void setSeed(int _seed) override {
     this->seed = _seed;
 	  RAND48_SEED(RAND48_X0, RAND48_LOW(_seed), RAND48_HIGH(_seed));
   }
@@ -246,15 +246,15 @@ class GLibCRandomGenerator final : public RandomGenerator
     glibc_srand(_seed);
   }
 
-  bool isPseudoRandom() const {
+  bool isPseudoRandom() const override {
     return true;
   }
 
-  std::string getName() const {
+  std::string getName() const override {
     return "glibc";
   }
 
-  unsigned int generateUInt32() {
+  unsigned int generateUInt32() override {
     incrGeneratedNumberCount();
 #ifdef USE_DUMMY_RANDOM
     return ~0U/2;
@@ -262,7 +262,7 @@ class GLibCRandomGenerator final : public RandomGenerator
     return glibc_rand();
   }
 
-  virtual double generate() {
+  double generate() override {
     incrGeneratedNumberCount();
 #ifdef USE_DUMMY_RANDOM
     return 0.5;
@@ -270,7 +270,7 @@ class GLibCRandomGenerator final : public RandomGenerator
     return double(glibc_rand()) / GLIBCRAND_MAX;
   }
 
-  virtual void setSeed(int _seed) {
+  void setSeed(int _seed) override {
     this->seed = _seed;
     glibc_srand(_seed);
   }
@@ -299,15 +299,15 @@ class MT19937RandomGenerator final : public RandomGenerator
     dis = std::uniform_real_distribution<double>(0.0, 1.0);
   }
 
-  bool isPseudoRandom() const {
+  bool isPseudoRandom() const override {
     return true;
   }
 
-  std::string getName() const {
+  std::string getName() const override {
     return "mt19937";
   }
 
-  unsigned int generateUInt32() {
+  unsigned int generateUInt32() override {
     incrGeneratedNumberCount();
 #ifdef USE_DUMMY_RANDOM
     return ~0U/2;
@@ -315,7 +315,7 @@ class MT19937RandomGenerator final : public RandomGenerator
     return mt19937_rand();
   }
 
-  virtual double generate() {
+  double generate() override {
     incrGeneratedNumberCount();
 #ifdef USE_DUMMY_RANDOM
     return 0.5;
@@ -323,7 +323,7 @@ class MT19937RandomGenerator final : public RandomGenerator
     return dis(generator);
   }
 
-  virtual void setSeed(int _seed) {
+  void setSeed(int _seed) override {
     this->seed = _seed;
     mt19937_srand(_seed);
   }
@@ -349,15 +349,15 @@ class PhysicalRandomGenerator final : public RandomGenerator {
 #endif
   }
 
-  bool isPseudoRandom() const {
+  bool isPseudoRandom() const override {
     return false;
   }
 
-  std::string getName() const {
+  std::string getName() const override {
     return "physical";
   }
 
-  unsigned int generateUInt32() {
+  unsigned int generateUInt32() override {
 
     incrGeneratedNumberCount();
 #ifndef _MSC_VER
@@ -386,7 +386,7 @@ unsigned int result;
 #endif
   }
 
-  double generate() {
+  double generate() override {
     double result = ((double)generateUInt32())/~0U; // fixed this 2014-10-17, but I think I added /2 because it did not work
 #ifdef RANDOM_TRACE
     std::cout << result << '\n';
@@ -394,9 +394,9 @@ unsigned int result;
     return result;
   }
 
-  void setSeed(int) {}
+  void setSeed(int) override {}
   
-  ~PhysicalRandomGenerator() {
+  ~PhysicalRandomGenerator() override {
 #ifndef _MSC_VER 
     if (fd >= 0) {
       close(fd);
