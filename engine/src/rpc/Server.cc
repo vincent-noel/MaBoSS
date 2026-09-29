@@ -50,7 +50,7 @@
 #include <fstream>
 #include <sstream>
 #include <sys/time.h>
-#include <signal.h>
+#include <csignal>
 
 #include "Client.h"
 #include "Server.h"

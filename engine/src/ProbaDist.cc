@@ -54,8 +54,8 @@ class Network;
 #include "Utils.h"
 #include "displayers/StatDistDisplayer.h"
 #include <iomanip>
-#include <math.h>
-#include <float.h>
+#include <cmath>
+#include <cfloat>
 
 /*
 static double abs(double d)

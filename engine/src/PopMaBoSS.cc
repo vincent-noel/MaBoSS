@@ -52,7 +52,7 @@
 #include "Function.h"
 #include <fstream>
 #include <ostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include "Utils.h"
 #include "RandomGenerator.h"
 #include "displayers/ProbTrajDisplayer.h"

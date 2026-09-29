@@ -52,7 +52,7 @@
 
 #include <string>
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 #include "ProbTrajEngine.h"
 #include "../Cumulator.h"

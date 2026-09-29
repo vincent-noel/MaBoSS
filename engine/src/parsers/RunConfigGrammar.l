@@ -49,7 +49,7 @@
      January-March 2011
 */
 
-#include <math.h>
+#include <cmath>
 
 //static char *yytokstr();
 static unsigned int input_lineno = 1;

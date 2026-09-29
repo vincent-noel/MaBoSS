@@ -46,7 +46,7 @@
 */
 
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 #include "Client.h"
 #include "Server.h"
 #include "../Utils.h"

@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include <cstdlib>
 #include <filesystem>
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
