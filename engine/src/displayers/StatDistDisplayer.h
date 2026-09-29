@@ -115,7 +115,7 @@ public:
   virtual void addProbaVariance(const NetworkState_Impl& state, double proba, double variance) = 0;
   virtual void endDisplay() = 0;
 
-  virtual ~StatDistDisplayer() { }
+  virtual ~StatDistDisplayer() = default;
 };
 
 class CSVStatDistDisplayer : public StatDistDisplayer {

@@ -166,9 +166,7 @@ public:
 #endif
       
     }
-  ~MetaEngine() {
-  
-  }
+  ~MetaEngine() = default;
   static void init();
   static void loadUserFuncs(const char* module);
 

@@ -226,8 +226,8 @@ public:
     size_t nb_ullongs = arr.size();
     MPI_Pack(&nb_ullongs, 1, my_MPI_SIZE_T, buff, size_pack, position, MPI_COMM_WORLD);
     
-    for (size_t i = 0; i < arr.size(); i++) {
-      MPI_Pack(&(arr[i]), 1, MPI_UNSIGNED_LONG_LONG, buff, size_pack, position, MPI_COMM_WORLD);
+    for (unsigned long long & i : arr) {
+      MPI_Pack(&i, 1, MPI_UNSIGNED_LONG_LONG, buff, size_pack, position, MPI_COMM_WORLD);
     }
     
 #elif defined(USE_DYNAMIC_BITSET)
@@ -291,8 +291,8 @@ public:
     size_t nb_ullongs = arr.size();
     MPI_Send(&nb_ullongs, 1, my_MPI_SIZE_T, dest, 0, MPI_COMM_WORLD);
     
-    for (size_t i = 0; i < arr.size(); i++) {
-      MPI_Send(&(arr[i]), 1, MPI_UNSIGNED_LONG_LONG, dest, 0, MPI_COMM_WORLD);
+    for (unsigned long long & i : arr) {
+      MPI_Send(&i, 1, MPI_UNSIGNED_LONG_LONG, dest, 0, MPI_COMM_WORLD);
     }
     
 #elif defined(USE_DYNAMIC_BITSET)
@@ -402,7 +402,7 @@ public:
     return hash; 
   }
 
- PopNetworkState() : mp(std::map<NetworkState_Impl, unsigned int>()), hash(0) , hash_init(false) { }
+ PopNetworkState() : hash(0) , hash_init(false) { }
  PopNetworkState(const PopNetworkState &p ) : hash(0), hash_init(false) { *this = p; }
 #ifdef USE_DYNAMIC_BITSET
  PopNetworkState(const PopNetworkState &p , int copy) : hash(0), hash_init(false) 
@@ -417,7 +417,7 @@ public:
 #endif
  PopNetworkState(std::map<NetworkState_Impl, unsigned int> mp ) : mp(mp), hash(0), hash_init(false) { }
 
- PopNetworkState(NetworkState_Impl state, unsigned int value) : mp(std::map<NetworkState_Impl, unsigned int>()), hash(0) , hash_init(false) {
+ PopNetworkState(NetworkState_Impl state, unsigned int value) : hash(0) , hash_init(false) {
 #ifdef USE_DYNAMIC_BITSET
   mp[NetworkState_Impl(state, 1)] = value;
 #else

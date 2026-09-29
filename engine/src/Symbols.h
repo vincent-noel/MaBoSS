@@ -61,7 +61,7 @@
 
 class SymbolExpression;
 
-typedef unsigned int SymbolIndex;
+using SymbolIndex = unsigned int;
 
 // symbol entry (i.e. variables)
 class Symbol {

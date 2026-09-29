@@ -66,7 +66,7 @@ public:
   virtual void begin(size_t size) = 0;
   virtual void displayFixedPoint(size_t num, const NetworkState& state, unsigned int val, unsigned int sample_count) = 0;
   virtual void end() = 0;
-  virtual ~FixedPointDisplayer(){};
+  virtual ~FixedPointDisplayer() = default;
 };
 
 class CSVFixedPointDisplayer final : public FixedPointDisplayer {
@@ -79,7 +79,7 @@ public:
   void begin(size_t size) override;
   void displayFixedPoint(size_t num, const NetworkState& state, unsigned int val, unsigned int sample_count) override;
   void end() override;
-  ~CSVFixedPointDisplayer() override{};
+  ~CSVFixedPointDisplayer() override = default;
 };
 
 class JsonFixedPointDisplayer final : public FixedPointDisplayer {
@@ -92,7 +92,7 @@ public:
   void begin(size_t size) override;
   void displayFixedPoint(size_t num, const NetworkState& state, unsigned int val, unsigned int sample_count) override;
   void end() override;
-  ~JsonFixedPointDisplayer() override{};
+  ~JsonFixedPointDisplayer() override = default;
 };
 
 #ifdef HDF5_COMPAT
@@ -104,7 +104,7 @@ public:
   void begin(size_t size) override;
   void displayFixedPoint(size_t num, const NetworkState& state, unsigned int val, unsigned int sample_count) override;
   void end() override;
-  ~HDF5FixedPointDisplayer() override{};
+  ~HDF5FixedPointDisplayer() override = default;
 };
 #endif
 
