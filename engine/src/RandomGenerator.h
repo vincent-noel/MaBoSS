@@ -92,7 +92,7 @@ class RandomGenerator {
 
   virtual void setSeed(int seed) = 0;
   
-  virtual ~RandomGenerator() {}
+  virtual ~RandomGenerator() = default;
   
   static void resetGeneratedNumberCount() {generated_number_count = 0;}
   static size_t getGeneratedNumberCount() {return generated_number_count;}

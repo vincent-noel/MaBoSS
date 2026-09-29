@@ -96,7 +96,13 @@ public:
   }
 };
 
-typedef MaBoSSBitset<MAXNODES> NetworkState_Impl;
+using NetworkState_Impl = MaBoSSBitset<MAXNODES>;
+
+// Guards against the state width drifting from MAXNODES. An automated rewrite
+// once turned the alias above into MaBoSSBitset<128>, which compiled everywhere
+// and silently truncated every 256-, 512- and 1024-node build.
+static_assert(NetworkState_Impl().size() == MAXNODES,
+              "NetworkState_Impl must hold exactly MAXNODES bits");
 
 namespace std {
   template <std::size_t N> struct hash<MaBoSSBitset<N> > {
@@ -108,10 +114,10 @@ namespace std {
 
 #elif defined(USE_DYNAMIC_BITSET)
 #include "MBDynBitset.h"
-typedef MBDynBitset NetworkState_Impl;
+using NetworkState_Impl = MBDynBitset;
 
 #else
-typedef unsigned long long NetworkState_Impl;
+using NetworkState_Impl = unsigned long long;
 #endif
 
 #endif

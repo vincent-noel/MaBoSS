@@ -66,7 +66,7 @@ class ArgumentList {
   std::vector<Expression*> expr_v;
 
 public:
-  ArgumentList() { }
+  ArgumentList() = default;
 
   void push_back(Expression* expr) {expr_v.push_back(expr);}
 
@@ -114,12 +114,12 @@ public:
   static std::map<std::string, Function*>* getFuncMap() {return func_map;}
   static void setFuncMap(std::map<std::string, Function*>* _func_map) {func_map = _func_map;}
   static void destroyFuncMap() { 
-     for (std::map<std::string, Function*>::iterator it = func_map->begin(); it != func_map->end(); ++it) {
-        delete it->second;
+     for (auto & it : *func_map) {
+        delete it.second;
       }
      delete func_map; 
     }
-    virtual ~Function() {}
+    virtual ~Function() = default;
 };
 
 #endif

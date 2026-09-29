@@ -216,9 +216,9 @@ int DataStreamer::parse_header_items(const std::string &header, std::vector<Head
     opos = pos+1;
     size_t pos2 = value.find("-");
     if (directive == STATUS || directive == ERROR_MESSAGE || directive == PROTOCOL_VERSION || directive == FLAGS || directive == COMMAND) {
-      header_item_v.push_back(HeaderItem(directive, value));
+      header_item_v.emplace_back(directive, value);
     } else if (pos2 != std::string::npos) {
-      header_item_v.push_back(HeaderItem(directive, atoll(value.substr(0, pos2).c_str()), atoll(value.substr(pos2+1).c_str())));
+      header_item_v.emplace_back(directive, atoll(value.substr(0, pos2).c_str()), atoll(value.substr(pos2+1).c_str()));
     } else {
       err_data = "dash - not found in value " + value + " after directive " + directive;
       return 1;

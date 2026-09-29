@@ -314,8 +314,7 @@ int run_ensemble_istates(std::vector<char *> ctbndl_files, std::vector<ConfigOpt
 
   std::map<std::string, NodeIndex> nodes_indexes;
   std::vector<Node*> first_network_nodes = first_network->getNodes();
-  for (unsigned int i=0; i < first_network_nodes.size(); i++) {
-    Node* t_node = first_network_nodes[i];
+  for (auto t_node : first_network_nodes) {
     nodes_indexes[t_node->getLabel()] = t_node->getIndex();
   }
 
@@ -424,8 +423,7 @@ int run_ensemble(std::vector<char *> ctbndl_files, std::vector<ConfigOpt> runcon
 
   std::map<std::string, NodeIndex> nodes_indexes;
   std::vector<Node*> first_network_nodes = first_network->getNodes();
-  for (unsigned int i=0; i < first_network_nodes.size(); i++) {
-    Node* t_node = first_network_nodes[i];
+  for (auto t_node : first_network_nodes) {
     nodes_indexes[t_node->getLabel()] = t_node->getIndex();
   }
 
@@ -633,7 +631,7 @@ int main(int argc, char* argv[])
 	runconfig_var_v.push_back(argv[++nn]);
       } else if (!strcmp(s, "--config-expr") || !strcmp(s, "-e")) {
 	if (nn == argc-1) {std::cerr << '\n' << prog << ": missing value after option " << s << '\n'; return usage();}
-	runconfig_file_or_expr_v.push_back(ConfigOpt(argv[++nn], true));
+	runconfig_file_or_expr_v.emplace_back(argv[++nn], true);
       } else if (!strcmp(s, "--dump-config") || !strcmp(s, "-d")) {
 	dump_config = true;
       } else if (!strcmp(s, "--generate-bnd-file") || !strcmp(s, "-g")) {
@@ -712,7 +710,7 @@ int main(int argc, char* argv[])
 	output = argv[++nn];
       } else if (!strcmp(s, "-c") || !strcmp(s, "--config")) {
 	if (nn == argc-1) {std::cerr << '\n' << prog << ": missing value after option " << s << '\n'; return usage();}
-	runconfig_file_or_expr_v.push_back(ConfigOpt(argv[++nn], false));
+	runconfig_file_or_expr_v.emplace_back(argv[++nn], false);
       } else if (!strcmp(s, "-s") || !strcmp(s, "--sedml")) {
   if (nn == argc-1) {std::cerr << '\n' << prog << ": missing value after option " << s << '\n'; return usage();}
   sedml_file = argv[++nn];

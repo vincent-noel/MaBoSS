@@ -67,9 +67,9 @@ struct ArgWrapper;
 
 #ifdef POPNETWORKSTATE_STD_MAP
 // EV 2021-11-12: use std::map instead of STATE_MAP (std::unordered_map) for PopNetworkStateMap
-typedef std::map<PopNetworkState, double> PopNetworkStateMap;
+using PopNetworkStateMap = std::map<PopNetworkState, double>;
 #else
-typedef STATE_MAP<PopNetworkState, double> PopNetworkStateMap;
+using PopNetworkStateMap = STATE_MAP<PopNetworkState, double>;
 #endif
 
 class PopMaBEstEngine : public MetaEngine {
