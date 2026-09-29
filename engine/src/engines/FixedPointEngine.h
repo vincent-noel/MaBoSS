@@ -45,8 +45,7 @@
      March 2021
 */
 
-#ifndef _FIXEDPOINTENGINE_H_
-#define _FIXEDPOINTENGINE_H_
+#pragma once
 
 #include <map>
 #include <vector>
@@ -98,4 +97,3 @@ public:
 
 };
 
-#endif

@@ -48,8 +48,7 @@
      Decembre 2020
 */
 
-#ifndef _PROBTRAJ_DISPLAYER_H_
-#define _PROBTRAJ_DISPLAYER_H_
+#pragma once
 
 #include <iostream>
 #include "../Network.h"
@@ -125,16 +124,16 @@ public:
     beginTimeTickDisplay();
   }
 
-  void setTH(double _TH) {
-    this->TH = _TH;
+  void setTH(double th) {
+    this->TH = th;
   }
 
   void setErrorTH(double _err_TH) {
     this->err_TH = _err_TH;
   }
 
-  void setH(double _H) {
-    this->H = _H;
+  void setH(double h) {
+    this->H = h;
   }
 
   void setHD(unsigned int ind, double HD) {
@@ -371,4 +370,3 @@ public:
 };
 #endif
 
-#endif

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <sedml/SedListOfStyles.h>
 #include <cstdlib>
 #include <vector>

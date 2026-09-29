@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _STOCHASTICSIMULATIONENGINE_H_
-#define _STOCHASTICSIMULATIONENGINE_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -96,4 +95,3 @@ public:
   NetworkState run(NetworkState& initial_state, std::ostream* output_traj = nullptr);
 };
 
-#endif

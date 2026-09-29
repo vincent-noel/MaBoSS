@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _NETWORKSTATE_IMPL_H
-#define _NETWORKSTATE_IMPL_H
+#pragma once
 
 #ifdef USE_DYNAMIC_BITSET
 
@@ -120,4 +119,3 @@ using NetworkState_Impl = MBDynBitset;
 using NetworkState_Impl = unsigned long long;
 #endif
 
-#endif

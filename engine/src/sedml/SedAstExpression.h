@@ -1,3 +1,5 @@
+#pragma once
+
 #include <sbml/math/ASTNodeType.h>
 #include <cstdlib>
 #include <vector>

@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _FINAL_STATE_SIMULATION_ENGINE_H_
-#define _FINAL_STATE_SIMULATION_ENGINE_H_
+#pragma once
 
 #include <string>
 #include <map>
@@ -116,4 +115,3 @@ public:
 
 };
 
-#endif

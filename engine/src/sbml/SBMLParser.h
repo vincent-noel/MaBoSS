@@ -46,8 +46,8 @@
      June 2021
 */
 
-#if defined SBML_COMPAT && !defined _SBML_PARSER_H_
-#define _SBML_PARSER_H_
+#pragma once
+#if defined SBML_COMPAT 
 #include "../Network.h"
 #include <sbml/packages/qual/extension/QualModelPlugin.h>
 #include <sbml/SBMLTypes.h>

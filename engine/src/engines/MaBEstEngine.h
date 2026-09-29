@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _MABESTENGINE_H_
-#define _MABESTENGINE_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -84,4 +83,3 @@ public:
   ~MaBEstEngine();
 };
 
-#endif

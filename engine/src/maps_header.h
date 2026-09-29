@@ -1,4 +1,6 @@
 
+#pragma once
+
 #ifndef NETWORKSTATE_STD_MAP
 
 #define USE_UNORDERED_MAP

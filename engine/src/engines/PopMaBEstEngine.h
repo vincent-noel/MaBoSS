@@ -45,8 +45,7 @@
      March 2021
 */
 
-#ifndef _POPMABESTENGINE_H_
-#define _POPMABESTENGINE_H_
+#pragma once
 
 #include <string>
 #include <map>
@@ -137,4 +136,3 @@ public:
 
 };
 
-#endif

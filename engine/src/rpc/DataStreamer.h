@@ -45,8 +45,7 @@
      May 2018
 */
 
-#ifndef _DATASTREAMER_H_
-#define _DATASTREAMER_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -107,4 +106,3 @@ public:
   static int parseStreamData(ServerData& server_data, const std::string& data);
 };
 
-#endif

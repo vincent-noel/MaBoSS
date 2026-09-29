@@ -47,8 +47,7 @@
      Decembre 2020
 */
 
-#ifndef _STATDIST_DISPLAYER_H_
-#define _STATDIST_DISPLAYER_H_
+#pragma once
 
 #include <iostream>
 #include <vector>
@@ -270,4 +269,3 @@ public:
 };
 #endif
 
-#endif

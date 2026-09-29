@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _BOOLEANGRAMMAR_H_
-#define _BOOLEANGRAMMAR_H_
+#pragma once
 
 #include <vector>
 #include <cstring>
@@ -156,4 +155,3 @@ class DivisionDecl {
     get_pop_network()->addDivisionRule(new_rule);
   }
 };
-#endif
