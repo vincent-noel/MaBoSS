@@ -74,10 +74,10 @@ public:
         NetworkState network_state;
 
         for (auto state_expr: *state_expr_list) {
-          state_value_list.push_back(state_expr->eval(NULL, network_state));
+          state_value_list.push_back(state_expr->eval(nullptr, network_state));
         }
         
-        pop_size = (unsigned int) t_pop_size->eval(NULL, network_state);  
+        pop_size = (unsigned int) t_pop_size->eval(nullptr, network_state);  
       }
       
       PopIStateGroupIndividual(std::vector<double> state_value_list, unsigned int pop_size) : state_value_list(state_value_list), pop_size(pop_size) {}
@@ -96,12 +96,12 @@ public:
     {
       this->proba_expr = proba_expr;
       NetworkState network_state;
-      proba_value = proba_expr->eval(NULL, network_state);
+      proba_value = proba_expr->eval(nullptr, network_state);
       
       this->individual_list = individual_list;
     }
     
-    PopProbaIState(double proba_value, std::vector<PopIStateGroupIndividual*>* individual_list) : proba_value(proba_value), proba_expr(NULL), individual_list(individual_list) {}
+    PopProbaIState(double proba_value, std::vector<PopIStateGroupIndividual*>* individual_list) : proba_value(proba_value), proba_expr(nullptr), individual_list(individual_list) {}
     
     std::vector<PopIStateGroupIndividual*>* getIndividualList() { return individual_list; }
     double getProbaValue() { return proba_value; }
@@ -148,12 +148,12 @@ public:
 
     ProbaIState(Expression* proba_expr, std::vector<Expression*>* state_expr_list) {
       NetworkState network_state;
-      proba_value = proba_expr->eval(NULL, network_state);
+      proba_value = proba_expr->eval(nullptr, network_state);
       
       state_value_list = new std::vector<double>();
       for (auto * state_expr : *state_expr_list)
       {
-        state_value_list->push_back(state_expr->eval(NULL, network_state));
+        state_value_list->push_back(state_expr->eval(nullptr, network_state));
 	    }
     }
   
@@ -167,7 +167,7 @@ public:
       this->proba_value = proba_value;
       state_value_list = new std::vector<double>();
       NetworkState network_state;
-      state_value_list->push_back(state_expr->eval(NULL, network_state));
+      state_value_list->push_back(state_expr->eval(nullptr, network_state));
     }
 
     ProbaIState(double proba_value, double istate_value) {

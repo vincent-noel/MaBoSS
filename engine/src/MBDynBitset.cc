@@ -94,7 +94,7 @@ class Mutex {
   pthread_mutex_t mutex;
 public:
   Mutex() {
-    pthread_mutex_init(&mutex, 0);
+    pthread_mutex_init(&mutex, nullptr);
   }
   void lock() {
     pthread_mutex_lock(&mutex);
@@ -209,7 +209,7 @@ MBDynBitsetAllocator* MBDynBitsetAllocator::allocators[MAXTHREADS];
 
 static void make_allocator_key()
 {
-  (void)pthread_key_create(&PTHREAD_ALLOCATOR_KEY, NULL);
+  (void)pthread_key_create(&PTHREAD_ALLOCATOR_KEY, nullptr);
 }
 
 void MBDynBitset::init_pthread()

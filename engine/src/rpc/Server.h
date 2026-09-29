@@ -147,7 +147,7 @@ class Server : public rpc_Server {
 
 public:
   static Server* getServer(const std::string& host, const std::string& port, const std::string& prog, const std::string& pidfile = "", bool quiet = false, bool verbose = false) {
-    if (NULL == server) {
+    if (nullptr == server) {
       server = new Server(host, port, prog, pidfile, quiet, verbose);
     }
     return server;

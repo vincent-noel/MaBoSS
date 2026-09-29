@@ -53,7 +53,7 @@
 bool NetworkState::computeNodeState(const Node* node, NodeState& node_state)
 {
   const Expression* expr = node->getLogicalInputExpression();
-  if (NULL != expr) {
+  if (nullptr != expr) {
     double d = expr->eval(node, *this);
     node_state = d != 0.;
     setNodeState(node, node_state);
@@ -195,7 +195,7 @@ unsigned int PopNetworkState::count(Expression * expr) const
   
   for (auto network_state_proba : mp) {
     NetworkState network_state = NetworkState(network_state_proba.first);
-    if (expr == NULL || (bool)expr->eval(NULL, network_state)) {
+    if (expr == nullptr || (bool)expr->eval(nullptr, network_state)) {
       res += network_state_proba.second;
     }
   }

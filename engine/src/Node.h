@@ -226,7 +226,7 @@ class Node {
       if (attr_name == ATTR_LOGIC) {
 	return getLogicalInputExpression();
       }
-      return NULL;
+      return nullptr;
     }
     return (*iter).second;
   }

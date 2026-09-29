@@ -147,7 +147,7 @@ public:
 
   static Expression* cloneAndShrinkRecursive(Expression* expr);
 
-  virtual const NotLogicalExpression* asNotLogicalExpression() const {return NULL;}
+  virtual const NotLogicalExpression* asNotLogicalExpression() const {return nullptr;}
 
   virtual ~Expression() {
   }
@@ -330,7 +330,7 @@ public:
 
   void display(std::ostream& os) const override {
     os << "#cell(";
-    if (expr != NULL) {
+    if (expr != nullptr) {
       expr->display(os);
     } else {
       os << "1";
@@ -826,41 +826,41 @@ class AliasExpression : public Expression {
   std::string identifier;
 
   const Expression* getAliasExpression(const Node* this_node) const {
-    if (NULL != this_node) {
+    if (nullptr != this_node) {
       return this_node->getAttributeExpression(identifier);
     }
-    return NULL;
+    return nullptr;
   }
 
   mutable const Expression* alias_expr;
 
 public:
-  AliasExpression(const std::string& identifier) : identifier(identifier), alias_expr(NULL) { }
+  AliasExpression(const std::string& identifier) : identifier(identifier), alias_expr(nullptr) { }
 
   Expression* clone() const override {return new AliasExpression(identifier);}
 
   double eval(const Node* this_node, const NetworkState& network_state) const override {
-    if (NULL == alias_expr) {
+    if (nullptr == alias_expr) {
       alias_expr = getAliasExpression(this_node);
     }
-    if (NULL != alias_expr) {
+    if (nullptr != alias_expr) {
       return alias_expr->eval(this_node, network_state);
     }
-    if (NULL != this_node) {
+    if (nullptr != this_node) {
       throw BNException("invalid use of alias attribute @" + identifier + " in node " + this_node->getLabel());
     }
     throw BNException("invalid use of alias attribute @" + identifier + " in unknown node");
   }
   
   double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
-    if (NULL == alias_expr) {
+    if (nullptr == alias_expr) {
       alias_expr = getAliasExpression(this_node);
     }
-    if (NULL != alias_expr) {
+    if (nullptr != alias_expr) {
       return alias_expr->eval(this_node, network_state, pop);
     }
     
-    if (NULL != this_node) {
+    if (nullptr != this_node) {
       throw BNException("invalid use of alias attribute @" + identifier + " in node " + this_node->getLabel());
     }
     throw BNException("invalid use of alias attribute @" + identifier + " in unknown node");
@@ -876,7 +876,7 @@ public:
 #ifdef SBML_COMPAT
   ASTNode* writeSBML(LogicalExprGenContext& genctx) const override {
     alias_expr = getAliasExpression(genctx.getNode());
-    if (NULL != alias_expr) {
+    if (nullptr != alias_expr) {
       return alias_expr->writeSBML(genctx);
     }
     else return new ASTNode(AST_CONSTANT_FALSE);
@@ -1117,10 +1117,10 @@ class FuncCallExpression : public Expression {
   double value;
 
 public:
-  FuncCallExpression(const std::string& funname, ArgumentList* arg_list) : funname(funname), arg_list(arg_list), function(NULL), value(0.) {
+  FuncCallExpression(const std::string& funname, ArgumentList* arg_list) : funname(funname), arg_list(arg_list), function(nullptr), value(0.) {
     function = Function::getFunction(funname);
 
-    if (function == NULL) {
+    if (function == nullptr) {
       throw BNException("unknown function " + funname);
     }
     function->check(arg_list);

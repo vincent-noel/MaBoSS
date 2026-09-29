@@ -277,7 +277,7 @@ class ProbaDistClusterFactory {
   double** similarity_cache;
 
  public:
-  ProbaDistClusterFactory(const std::vector<ProbaDist<NetworkState> >& proba_dist_v, unsigned int statdist_traj_count) : proba_dist_v(proba_dist_v), statdist_traj_count(statdist_traj_count), similarity_cache(NULL) {
+  ProbaDistClusterFactory(const std::vector<ProbaDist<NetworkState> >& proba_dist_v, unsigned int statdist_traj_count) : proba_dist_v(proba_dist_v), statdist_traj_count(statdist_traj_count), similarity_cache(nullptr) {
 #ifdef CLUSTER_OPTIM
     for (unsigned int nn = 0; nn < statdist_traj_count; ++nn) {
       proba_dist_not_clusterized[nn] = true;

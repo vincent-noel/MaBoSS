@@ -59,7 +59,7 @@ void XMLPatcher::changeXML(std::string xpath, std::string new_xml)
 {
     xmlDocPtr newDoc = xmlReadMemory(
         new_xml.c_str(), new_xml.size(),
-        NULL, NULL, 0
+        nullptr, nullptr, 0
     );
     xmlNodePtr newNode = xmlDocCopyNode(
         xmlDocGetRootElement(newDoc),
@@ -73,7 +73,7 @@ void XMLPatcher::changeXML(std::string xpath, std::string new_xml)
     const xmlChar *xpathExpr = (const xmlChar *) xpath.c_str();
     /* Evaluate xpath expression */
     xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression(xpathExpr, xpathCtx);
-    if(xpathObj == NULL) {
+    if(xpathObj == nullptr) {
         fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", xpathExpr);
         xmlXPathFreeContext(xpathCtx); 
         xmlFreeDoc(doc); 
@@ -117,7 +117,7 @@ void XMLPatcher::removeXML(std::string xpath)
     /* Evaluate xpath expression */
     
     xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression(xpathExpr, xpathCtx);
-    if(xpathObj == NULL) {
+    if(xpathObj == nullptr) {
         fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", xpathExpr);
         xmlXPathFreeContext(xpathCtx); 
         xmlFreeDoc(doc); 
@@ -139,7 +139,7 @@ void XMLPatcher::addXML(std::string xpath, std::string new_xml)
 {
     xmlDocPtr newDoc = xmlReadMemory(
         new_xml.c_str(), new_xml.size(),
-        NULL, NULL, 0
+        nullptr, nullptr, 0
     );
     xmlNodePtr newNode = xmlDocCopyNode(
         xmlDocGetRootElement(newDoc),
@@ -153,7 +153,7 @@ void XMLPatcher::addXML(std::string xpath, std::string new_xml)
     const xmlChar *xpathExpr = (const xmlChar *) xpath.c_str();
     /* Evaluate xpath expression */
     xmlXPathObjectPtr xpathObj = xmlXPathEvalExpression(xpathExpr, xpathCtx);
-    if(xpathObj == NULL) {
+    if(xpathObj == nullptr) {
         fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", xpathExpr);
         xmlXPathFreeContext(xpathCtx); 
         xmlFreeDoc(doc); 
@@ -179,7 +179,7 @@ std::string XMLPatcher::getXML()
     xmlChar *s;
     int size;
     xmlDocDumpMemory(doc, &s, &size);
-    if (s == NULL)
+    if (s == nullptr)
         throw std::bad_alloc();
     try {
         out = (char *)s;

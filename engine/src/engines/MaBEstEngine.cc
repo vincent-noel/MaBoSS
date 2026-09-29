@@ -94,7 +94,7 @@ MaBEstEngine::MaBEstEngine(Network* network, RunConfig* runconfig) :
   }
 
 
-  merged_cumulator = NULL;
+  merged_cumulator = nullptr;
   cumulator_v.resize(thread_count);
   unsigned int count = sample_count / thread_count;
   unsigned int firstcount = count + sample_count - count * thread_count;
@@ -154,7 +154,7 @@ void* MaBEstEngine::threadWrapper(void *arg)
 #ifdef USE_DYNAMIC_BITSET
   MBDynBitset::end_pthread();
 #endif
-  return NULL;
+  return nullptr;
 }
 
 void MaBEstEngine::runThread(Cumulator<NetworkState>* cumulator, unsigned int start_count_thread, unsigned int sample_count_thread, RandomGeneratorFactory* randgen_factory, long long int* elapsed_time, int seed, FixedPoints* fixpoint_map, ObservedGraph* _observed_graph, std::ostream* output_traj)
@@ -178,7 +178,7 @@ void MaBEstEngine::runThread(Cumulator<NetworkState>* cumulator, unsigned int st
     cumulator->rewind();
     network->initStates(network_state, random_generator);
     double tm = 0.;
-    if (NULL != output_traj) {
+    if (nullptr != output_traj) {
       (*output_traj) << "\nTrajectory #" << (nn+1) << '\n';
       (*output_traj) << " istate\t";
       network_state.displayOneLine(*output_traj, network);
@@ -240,7 +240,7 @@ void MaBEstEngine::runThread(Cumulator<NetworkState>* cumulator, unsigned int st
 	TH = computeTH(network, nodeTransitionRates, total_rate);
       }
 
-      if (NULL != output_traj) {
+      if (nullptr != output_traj) {
 	(*output_traj) << std::setprecision(10) << tm << '\t';
 	network_state.displayOneLine(*output_traj, network);
 	(*output_traj) << '\t' << TH << '\n';
@@ -301,7 +301,7 @@ void MaBEstEngine::run(std::ostream* output_traj)
 #ifdef STD_THREAD
     tid[nn] = new std::thread(MaBEstEngine::threadWrapper, warg);
 #else
-    pthread_create(&tid[nn], NULL, MaBEstEngine::threadWrapper, warg);
+    pthread_create(&tid[nn], nullptr, MaBEstEngine::threadWrapper, warg);
 #endif
     arg_wrapper_v.push_back(warg);
 
@@ -311,7 +311,7 @@ void MaBEstEngine::run(std::ostream* output_traj)
 #ifdef STD_THREAD
     tid[nn]->join();
 #else
-    pthread_join(tid[nn], NULL);
+    pthread_join(tid[nn], nullptr);
 #endif
   }
   probe.stop();

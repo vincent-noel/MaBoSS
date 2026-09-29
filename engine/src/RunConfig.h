@@ -87,11 +87,11 @@ class RunConfig {
   RunConfig();
   ~RunConfig();
   RunConfig(const RunConfig& other);
-  int parse(Network* network, const char* file = NULL);
+  int parse(Network* network, const char* file = nullptr);
   int parseExpression(Network* network, const char* expr);
   void setParameter(const std::string& param, double value);
   void setCustomPopOutputExpression(Expression* expr) { custom_pop_output_expression = expr; }
-  bool hasCustomPopOutput() const { return custom_pop_output_expression != NULL; }
+  bool hasCustomPopOutput() const { return custom_pop_output_expression != nullptr; }
   const Expression* getCustomPopOutputExpression() const { return custom_pop_output_expression; }
   RandomGeneratorFactory* getRandomGeneratorFactory() const;
   unsigned int getInitPop() const {return init_pop;}

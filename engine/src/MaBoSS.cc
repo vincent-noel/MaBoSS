@@ -173,7 +173,7 @@ static std::string format_extension(OutputFormat format) {
     return ".h5";
 #endif
   default:
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -183,13 +183,13 @@ static void display(ProbTrajEngine* engine, Network* network, const char* prefix
   StatDistDisplayer* statdist_displayer;
   FixedPointDisplayer* fp_displayer;
   
-  std::ostream* output_probtraj = NULL;
-  std::ostream* output_fp = NULL;
-  std::ostream* output_statdist = NULL;
-  std::ostream* output_statdist_cluster = NULL;
-  std::ostream* output_statdist_distrib = NULL;
-  std::ostream* output_observed_graph = NULL;
-  std::ostream* output_observed_durations = NULL;
+  std::ostream* output_probtraj = nullptr;
+  std::ostream* output_fp = nullptr;
+  std::ostream* output_statdist = nullptr;
+  std::ostream* output_statdist_cluster = nullptr;
+  std::ostream* output_statdist_distrib = nullptr;
+  std::ostream* output_observed_graph = nullptr;
+  std::ostream* output_observed_durations = nullptr;
   
   
 #ifdef HDF5_COMPAT
@@ -237,9 +237,9 @@ static void display(ProbTrajEngine* engine, Network* network, const char* prefix
     fp_displayer = new HDF5FixedPointDisplayer(network, hdf5_file);
 #endif
   } else {
-    probtraj_displayer = NULL;
-    statdist_displayer = NULL;
-    fp_displayer = NULL;
+    probtraj_displayer = nullptr;
+    statdist_displayer = nullptr;
+    fp_displayer = nullptr;
   }
   if (individual >= 0) {
     (static_cast<EnsembleEngine*>(engine))->displayIndividual(individual, probtraj_displayer, statdist_displayer, fp_displayer);
@@ -293,8 +293,8 @@ int run_ensemble_istates(std::vector<char *> ctbndl_files, std::vector<ConfigOpt
 {
   time_t start_time, end_time;
      
-  std::ostream* output_probtraj = NULL;
-  std::ostream* output_fp = NULL;
+  std::ostream* output_probtraj = nullptr;
+  std::ostream* output_fp = nullptr;
      
   std::vector<Network *> networks;
   RunConfig* runconfig = new RunConfig();      
@@ -367,7 +367,7 @@ int run_ensemble_istates(std::vector<char *> ctbndl_files, std::vector<ConfigOpt
   EnsembleEngine engine(networks, runconfig, save_individual_results, random_sampling);
 #endif
 
-  engine.run(NULL);
+  engine.run(nullptr);
   
   display(&engine, networks[0], output, format, hexfloat, -1);
         
@@ -400,8 +400,8 @@ int run_ensemble(std::vector<char *> ctbndl_files, std::vector<ConfigOpt> runcon
   
   time_t start_time, end_time;
      
-  std::ostream* output_probtraj = NULL;
-  std::ostream* output_fp = NULL;
+  std::ostream* output_probtraj = nullptr;
+  std::ostream* output_fp = nullptr;
   std::vector<Network *> networks;
   RunConfig* runconfig = new RunConfig();      
 
@@ -470,7 +470,7 @@ nodes[j]->isInternal(first_network_nodes[j]->isInternal());
 #else
   EnsembleEngine engine(networks, runconfig, save_individual_results, random_sampling);
 #endif
-  engine.run(NULL);
+  engine.run(nullptr);
   
   display(&engine, networks[0], output, format, hexfloat, -1);
         
@@ -568,18 +568,18 @@ int main(int argc, char* argv[])
 {
 
 #ifdef MPI_COMPAT  
-  MPI_Init(NULL, NULL);
+  MPI_Init(nullptr, nullptr);
   // Get the number of processes
   MPI_Comm_size(MPI_COMM_WORLD, &world_size);
   // Get the rank of the process
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 #endif
 
-  const char* output = NULL;
+  const char* output = nullptr;
   std::vector<ConfigOpt> runconfig_file_or_expr_v;
   std::vector<std::string> runconfig_var_v;
   std::string sedml_file = "";
-  const char* ctbndl_file = NULL;
+  const char* ctbndl_file = nullptr;
   bool single_simulation = false;
   bool final_simulation = false;
   bool ensemble = false;
@@ -595,12 +595,12 @@ int main(int argc, char* argv[])
   bool check = false;
   dont_shrink_logical_expressions = false; // global flag
   bool use_sbml_names = false;
-  const char* sbml_file = NULL;
+  const char* sbml_file = nullptr;
   OutputFormat format = CSV_FORMAT;
   MaBEstEngine::init();
 
   // for debug
-  if (getenv("MABOSS_VERBOSE") != NULL) {
+  if (getenv("MABOSS_VERBOSE") != nullptr) {
 #if USE_DYNAMIC_BITSET_STD_ALLOC
     std::cerr << "MaBoSS use dynamic_bitset [std allocator]\n";
 #elif defined(USE_DYNAMIC_BITSET)
@@ -738,7 +738,7 @@ int main(int argc, char* argv[])
 	std::cerr << '\n' << prog << ": unknown option " << s << std::endl;
 	return usage();
       }
-    } else if (!ensemble && ctbndl_file == NULL) {
+    } else if (!ensemble && ctbndl_file == nullptr) {
       ctbndl_file = argv[nn];
     } else if (ensemble) {
       ctbndl_files.push_back(argv[nn]);
@@ -747,7 +747,7 @@ int main(int argc, char* argv[])
     }
   }
 
-  if (!ensemble && sedml_file.empty() && NULL == ctbndl_file)
+  if (!ensemble && sedml_file.empty() && nullptr == ctbndl_file)
     {
       std::cerr << '\n'
 		<< prog << ": boolean network file is missing\n";
@@ -760,7 +760,7 @@ int main(int argc, char* argv[])
     return usage();
   }
     
-  if (!dump_config && !generate_config_template && !generate_logical_expressions && !check && !generate_bnd_file && sbml_file == NULL && sedml_file.empty() && output == NULL) {
+  if (!dump_config && !generate_config_template && !generate_logical_expressions && !check && !generate_bnd_file && sbml_file == nullptr && sedml_file.empty() && output == nullptr) {
     std::cerr << '\n' << prog << ": ouput option is not set\n";
     return usage();
   }
@@ -800,8 +800,8 @@ int main(int argc, char* argv[])
     return usage();
   }
 
-  std::ostream* output_run = NULL;
-  std::ostream* output_traj = NULL;
+  std::ostream* output_run = nullptr;
+  std::ostream* output_traj = nullptr;
   
 #ifdef USE_DYNAMIC_BITSET
   MBDynBitset::init_pthread();
@@ -837,7 +837,7 @@ int main(int argc, char* argv[])
         
       Network* network = new Network();
 
-      network->parse(ctbndl_file, NULL, false, use_sbml_names);
+      network->parse(ctbndl_file, nullptr, false, use_sbml_names);
 
       RunConfig* runconfig = new RunConfig();
 
@@ -877,7 +877,7 @@ int main(int argc, char* argv[])
         return 0;
       }
 
-      if (sbml_file != NULL)
+      if (sbml_file != nullptr)
       {
 #ifdef SBML_COMPAT
         SBMLExporter sbml_exporter(network, runconfig, sbml_file);
@@ -911,7 +911,7 @@ int main(int argc, char* argv[])
 	FinalStateSimulationEngine engine(network, runconfig);
 #endif
 
-	engine.run(NULL);
+	engine.run(nullptr);
   
   FinalStateDisplayer* final_displayer;
   if (format == CSV_FORMAT) {
@@ -919,7 +919,7 @@ int main(int argc, char* argv[])
   } else if (format == JSON_FORMAT) {
     final_displayer = new JsonFinalStateDisplayer(network, *output_final, hexfloat);
   } else {
-    final_displayer = NULL;
+    final_displayer = nullptr;
   }
   engine.displayFinal(final_displayer);
 
@@ -944,7 +944,7 @@ int main(int argc, char* argv[])
         
         ((std::ofstream*)output_run)->close();
         delete output_run;
-        if (NULL != output_traj) {
+        if (nullptr != output_traj) {
           ((std::ofstream*)output_traj)->close();
           delete output_traj;
         }

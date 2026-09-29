@@ -139,7 +139,7 @@ node_decl: NODE IDENTIFIER '{' node_decl_item_list '}'
 }
 | NODE IDENTIFIER '{' '}'
 {
-  NodeDecl* node_decl = new NodeDecl($2, NULL);
+  NodeDecl* node_decl = new NodeDecl($2, nullptr);
   free($2);
   delete node_decl;
 }
@@ -214,13 +214,13 @@ division_decl: DIVISION '{' division_decl_rate division_list_daughter '}'
 }
 | DIVISION '{' division_decl_rate '}'
 {
-  std::vector<DivisionDaughterDecl*>* empty_daughters = NULL;
+  std::vector<DivisionDaughterDecl*>* empty_daughters = nullptr;
   DivisionDecl* div_decl = new DivisionDecl(empty_daughters, $3);
   delete div_decl;
 }
 | DIVISION '{' division_list_daughter '}'
 {
-  Expression* empty_rate = NULL;
+  Expression* empty_rate = nullptr;
   DivisionDecl* div_decl = new DivisionDecl($3, empty_rate);
   for (auto * div_daughter_decl : *($3)) {
     delete div_daughter_decl;
@@ -267,7 +267,7 @@ death_decl: DEATH '{' death_decl_rate '}'
 
 death_decl_rate: RATE '=' expression ';'
 {
-  if (current_pop_network == NULL) 
+  if (current_pop_network == nullptr) 
       throw BNException("Please use PopMaBoSS to simulate PopMaBoSS models");
 
   current_pop_network->setDeathRate($3);
@@ -311,7 +311,7 @@ primary_expression: IDENTIFIER
 
 cell_number:
 {
-  $$ = NULL;
+  $$ = nullptr;
 }
 | expression
 {
@@ -329,7 +329,7 @@ postfix_expression: primary_expression
 }
 | IDENTIFIER '(' ')'
 {
-  $$ = new FuncCallExpression($1, NULL);
+  $$ = new FuncCallExpression($1, nullptr);
   free($1);
 }
 ;

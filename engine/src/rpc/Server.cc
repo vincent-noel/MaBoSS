@@ -74,7 +74,7 @@ static void unlink_tempfiles_handler(int sig)
   if (pidfile.length() > 0) {
     unlink(pidfile.c_str());
   }
-  if (NULL != RPC_portname) {
+  if (nullptr != RPC_portname) {
     unlink(RPC_portname);
   }
   exit(1);
@@ -100,7 +100,7 @@ int Server::manageRequests()
 
     signal(SIGCHLD, SIG_IGN);
     
-    time_t t = time(NULL);
+    time_t t = time(nullptr);
     char* now = ctime(&t);
     if (!quiet) {
       std::cerr << "\n" << prog << " [listen=" << host << ":" << port << "] Ready at " << now;
@@ -116,15 +116,15 @@ int Server::manageRequests()
 void Server::run(const ClientData& client_data, ServerData& server_data)
 {
   static const std::string hst = "==================";
-  std::ostream* output_run = NULL;
-  std::ostream* output_traj = NULL;
-  std::ostream* output_probtraj = NULL;
-  std::ostream* output_statdist = NULL;
-  std::ostream* output_fp = NULL;
+  std::ostream* output_run = nullptr;
+  std::ostream* output_traj = nullptr;
+  std::ostream* output_probtraj = nullptr;
+  std::ostream* output_statdist = nullptr;
+  std::ostream* output_fp = nullptr;
 
   std::ostringstream ostr;
   struct timeval tv;
-  gettimeofday(&tv, 0);
+  gettimeofday(&tv, nullptr);
   ostr << "/tmp/MaBoSS-server_" << tv.tv_sec << "_" << tv.tv_usec << "_" << getpid();
   std::string tmp_output = ostr.str();
 
@@ -150,7 +150,7 @@ void Server::run(const ClientData& client_data, ServerData& server_data)
     std::string network_file = tmp_output + "_network.bnd";
     filePutContents(network_file, client_data.getNetwork());
 
-    network->parse(network_file.c_str(), NULL, true);
+    network->parse(network_file.c_str(), nullptr, true);
 
     RunConfig* runconfig = new RunConfig();
     const std::string& config_vars = client_data.getConfigVars();
@@ -199,7 +199,7 @@ void Server::run(const ClientData& client_data, ServerData& server_data)
     if (final_simulation) {
       std::ostream* output_final = new std::ostringstream();
       FinalStateSimulationEngine engine(network, runconfig);
-      engine.run(NULL);
+      engine.run(nullptr);
       
       FinalStateDisplayer* final_displayer = new CSVFinalStateDisplayer(network, *output_final, hexfloat);
       engine.displayFinal(final_displayer);
@@ -232,7 +232,7 @@ void Server::run(const ClientData& client_data, ServerData& server_data)
       server_data.setProbTraj(ostringstream2str(output_probtraj));
       server_data.setRunLog(ostringstream2str(output_run));
       server_data.setFP(ostringstream2str(output_fp));
-      if (NULL != output_traj) {
+      if (nullptr != output_traj) {
 	server_data.setTraj(ostringstream2str(output_traj));
       }
 

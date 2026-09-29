@@ -56,14 +56,14 @@ extern FILE* ctbndlin;
 extern void ctbndl_scan_expression(const char *);
 extern int ctbndlparse();
 extern int ctbndllex_destroy();
-const bool backward_istate = getenv("MABOSS_BACKWARD_ISTATE") != NULL;
+const bool backward_istate = getenv("MABOSS_BACKWARD_ISTATE") != nullptr;
 
 const int DivisionRule::DAUGHTER_1 = 1;
 const int DivisionRule::DAUGHTER_2 = 2;
 
 PopNetwork::PopNetwork() : Network() 
 { 
-  deathRate = NULL; 
+  deathRate = nullptr; 
   divisionRules.clear();
   pop_istate_group_list = new std::vector<PopIStateGroup*>();
 }
@@ -73,7 +73,7 @@ int PopNetwork::parse(const char* file, std::map<std::string, NodeIndex>* nodes_
   set_pop_network(this);
   int res = Network::parse(file, nodes_indexes, is_temp_file);
   
-  set_pop_network(NULL);
+  set_pop_network(nullptr);
   return res;
 }
 
@@ -83,14 +83,14 @@ int PopNetwork::parseExpression(const char* content, std::map<std::string, NodeI
   set_pop_network(this);
   int res = Network::parseExpression(content, nodes_indexes);
   
-  set_pop_network(NULL);
+  set_pop_network(nullptr);
   return res;
 }
 
 Expression* PopNetwork::parseSingleExpression(const char* content, std::map<std::string, NodeIndex>* nodes_indexes)
 {
   set_pop_network(this);
-  set_expression(NULL);
+  set_expression(nullptr);
   const char * se = "SINGLE_EXPRESSION ";
   const char * ee = ";";
   std::string new_content = se;
@@ -98,7 +98,7 @@ Expression* PopNetwork::parseSingleExpression(const char* content, std::map<std:
   new_content += ee;
   Network::parseExpression(new_content.c_str(), nodes_indexes);
   
-  set_pop_network(NULL);
+  set_pop_network(nullptr);
   return get_expression();
 }
 
@@ -108,7 +108,7 @@ void DivisionRule::setRate(Expression* _rate) {
 }
 
 double DivisionRule::getRate(const NetworkState& state, const PopNetworkState& pop) {
-  return rate->eval(NULL, state, pop);
+  return rate->eval(nullptr, state, pop);
 }
 
 NetworkState DivisionRule::applyRules(int daughter, const NetworkState& state, const PopNetworkState& pop) {
@@ -118,15 +118,15 @@ NetworkState DivisionRule::applyRules(int daughter, const NetworkState& state, c
   NetworkState res(state);
 #endif
   for (auto daughter_rule : daughters[daughter]) {
-    res.setNodeState(daughter_rule.first, (bool)daughter_rule.second->eval(NULL, state, pop));
+    res.setNodeState(daughter_rule.first, (bool)daughter_rule.second->eval(nullptr, state, pop));
   }
   
   return res;
 }
 
 double PopNetwork::getDeathRate(const NetworkState& state, const PopNetworkState& pop) const {
-  if (deathRate != NULL)
-    return deathRate->eval(NULL, state, pop);
+  if (deathRate != nullptr)
+    return deathRate->eval(nullptr, state, pop);
   else
     return 0.;
 } 
@@ -140,7 +140,7 @@ void PopNetwork::display(std::ostream& os) const
 {
   Network::display(os);
   os << std::endl;
-  if (deathRate != NULL) {
+  if (deathRate != nullptr) {
     os << "death {" << std::endl << "  rate = ";
     deathRate->display(os);
     os << ";" << std::endl << "}" << std::endl << std::endl;

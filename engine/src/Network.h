@@ -100,12 +100,12 @@ public:
   Network(const Network& network) = delete;
   Network& operator=(const Network& network) = delete;
 
-  int parse(const char* file = NULL, std::map<std::string, NodeIndex>* nodes_indexes = NULL, bool is_temp_file = false, bool useSBMLNames = false);
-  int parseExpression(const char* content = NULL, std::map<std::string, NodeIndex>* nodes_indexes = NULL);
-  Expression* parseSingleExpression(const char* content, std::map<std::string, NodeIndex>* nodes_indexes = NULL);
+  int parse(const char* file = nullptr, std::map<std::string, NodeIndex>* nodes_indexes = nullptr, bool is_temp_file = false, bool useSBMLNames = false);
+  int parseExpression(const char* content = nullptr, std::map<std::string, NodeIndex>* nodes_indexes = nullptr);
+  Expression* parseSingleExpression(const char* content, std::map<std::string, NodeIndex>* nodes_indexes = nullptr);
   
   #ifdef SBML_COMPAT
-  int parseSBML(const char* file, std::map<std::string, NodeIndex>* nodes_indexes = NULL, bool useSBMLNames = false);
+  int parseSBML(const char* file, std::map<std::string, NodeIndex>* nodes_indexes = nullptr, bool useSBMLNames = false);
   #endif
   
   std::vector<IStateGroup*>* getIStateGroup() {
@@ -159,7 +159,7 @@ public:
     return MAX_NODE_SIZE;
   }
 
-  void compile(std::map<std::string, NodeIndex>* nodes_indexes = NULL);
+  void compile(std::map<std::string, NodeIndex>* nodes_indexes = nullptr);
 
   // vector of nodes which do not depend on other nodes
   const std::vector<Node*>& getInputNodes() const {return input_nodes;}

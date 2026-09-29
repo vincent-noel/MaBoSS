@@ -67,7 +67,7 @@ RunConfig::RunConfig()
   use_glibcrandgen = false;
   use_mtrandgen = false;
   seed_pseudorand = 0;
-  randgen_factory = NULL;
+  randgen_factory = nullptr;
   display_traj = false;
   thread_count = 1;
   statdist_traj_count = 0;
@@ -75,7 +75,7 @@ RunConfig::RunConfig()
   statdist_similarity_cache_max_size = 20000;
   init_pop = 1;
   pop_base = 1.0;
-  custom_pop_output_expression = NULL;
+  custom_pop_output_expression = nullptr;
 }
 
 RunConfig::~RunConfig()
@@ -93,7 +93,7 @@ RunConfig::RunConfig(const RunConfig& other)
   use_glibcrandgen = other.useGlibcRandGen();
   use_mtrandgen = other.useMTRandGen();
   seed_pseudorand = other.getSeedPseudoRandom();
-  randgen_factory = NULL;
+  randgen_factory = nullptr;
   display_traj = other.getDisplayTrajectories();
   thread_count = other.getThreadCount();
   statdist_traj_count = other.getStatDistTrajCount();
@@ -101,7 +101,7 @@ RunConfig::RunConfig(const RunConfig& other)
   statdist_similarity_cache_max_size = other.getStatDistSimilarityCacheMaxSize();
   init_pop = other.getInitPop();
   pop_base = other.getPopBase();
-  custom_pop_output_expression = other.getCustomPopOutputExpression() == NULL ? NULL : other.getCustomPopOutputExpression()->clone();
+  custom_pop_output_expression = other.getCustomPopOutputExpression() == nullptr ? nullptr : other.getCustomPopOutputExpression()->clone();
 }
 
 void RunConfig::setParameter(const std::string& param, double value)
@@ -145,7 +145,7 @@ void RunConfig::setParameter(const std::string& param, double value)
 
 RandomGeneratorFactory* RunConfig::getRandomGeneratorFactory() const
 {
-  if (NULL == randgen_factory) {
+  if (nullptr == randgen_factory) {
     if (use_physrandgen) {
       randgen_factory = new RandomGeneratorFactory(RandomGeneratorFactory::PHYSICAL);
     } else if (use_mtrandgen) {
@@ -225,9 +225,9 @@ int RunConfig::parse(Network* network, const char* file)
 {
   runconfig_setNetwork(network);
   runconfig_setConfig(this);
-  if (NULL != file) {
+  if (nullptr != file) {
     rcin = fopen(file, "r");
-    if (rcin == NULL) {
+    if (rcin == nullptr) {
       throw BNException("variable parsing: cannot open file:" + std::string(file) + " for reading");
     }
   }
@@ -236,10 +236,10 @@ int RunConfig::parse(Network* network, const char* file)
   try
   {
     int res = rcparse();
-    runconfig_setNetwork(NULL);
-    runconfig_setConfig(NULL);
+    runconfig_setNetwork(nullptr);
+    runconfig_setConfig(nullptr);
 
-    if (NULL != file)
+    if (nullptr != file)
       fclose(rcin);
     rclex_destroy();
 
@@ -247,10 +247,10 @@ int RunConfig::parse(Network* network, const char* file)
   }
   catch(const BNException&)
   {
-    runconfig_setNetwork(NULL);
-    runconfig_setConfig(NULL);
+    runconfig_setNetwork(nullptr);
+    runconfig_setConfig(nullptr);
 
-    if (NULL != file)
+    if (nullptr != file)
       fclose(rcin);
     rclex_destroy();
     
@@ -267,8 +267,8 @@ int RunConfig::parseExpression(Network* network, const char* expr)
   try
   {
     int res = rcparse();
-    runconfig_setNetwork(NULL);
-    runconfig_setConfig(NULL);
+    runconfig_setNetwork(nullptr);
+    runconfig_setConfig(nullptr);
     
     rclex_destroy();
     
@@ -276,8 +276,8 @@ int RunConfig::parseExpression(Network* network, const char* expr)
   }
   catch(const BNException&)
   {
-    runconfig_setNetwork(NULL);
-    runconfig_setConfig(NULL);
+    runconfig_setNetwork(nullptr);
+    runconfig_setConfig(nullptr);
     rclex_destroy();
     
     throw;
@@ -296,7 +296,7 @@ void RunConfig::dump(Network* network, std::ostream& os, std::string version, bo
 
 void RunConfig::dump_perform(Network* network, std::ostream& os, bool is_template, std::string version, bool header) const
 {
-  time_t now = time(NULL);
+  time_t now = time(nullptr);
 
   if (header) {
     os << "//\n";
@@ -379,7 +379,7 @@ void RunConfig::dump_perform(Network* network, std::ostream& os, bool is_templat
   
   for (const auto* node: network->getNodes())
   {
-    if (node->getScheduledFlips() != NULL && !node->getScheduledFlips()->empty())
+    if (node->getScheduledFlips() != nullptr && !node->getScheduledFlips()->empty())
     {
       os << '\n';
       if (is_template) {

@@ -74,7 +74,7 @@ void FixedPointEngine::MPI_Unpack_Fixpoints(FixedPoints* fp_map, char* buff, uns
   MPI_Unpack(buff, buff_size, &position, &nb_fixpoints, 1, MPI_UNSIGNED, MPI_COMM_WORLD);
   
   if (nb_fixpoints > 0) {
-    if (fp_map == NULL) {
+    if (fp_map == nullptr) {
       fp_map = new FixedPoints();
     }
     for (unsigned int j=0; j < nb_fixpoints; j++) {
@@ -94,7 +94,7 @@ void FixedPointEngine::MPI_Unpack_Fixpoints(FixedPoints* fp_map, char* buff, uns
 
 char* FixedPointEngine::MPI_Pack_Fixpoints(const FixedPoints* fp_map, int dest, unsigned int * buff_size)
 {
-  unsigned int nb_fixpoints = fp_map == NULL ? 0 : fp_map->size();
+  unsigned int nb_fixpoints = fp_map == nullptr ? 0 : fp_map->size();
   *buff_size = sizeof(unsigned int);
   
   if (nb_fixpoints > 0) {
@@ -121,7 +121,7 @@ char* FixedPointEngine::MPI_Pack_Fixpoints(const FixedPoints* fp_map, int dest, 
 
 void FixedPointEngine::MPI_Send_Fixpoints(const FixedPoints* fp_map, int dest) 
 {
-  int nb_fixpoints = fp_map == NULL ? 0 : fp_map->size();
+  int nb_fixpoints = fp_map == nullptr ? 0 : fp_map->size();
   MPI_Send(&nb_fixpoints, 1, MPI_INT, dest, 0, MPI_COMM_WORLD);
   
   if (nb_fixpoints > 0)
@@ -142,7 +142,7 @@ void FixedPointEngine::MPI_Recv_Fixpoints(FixedPoints* fp_map, int origin)
   int nb_fixpoints = -1;
   MPI_Recv(&nb_fixpoints, 1, MPI_INT, origin, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
   
-  if (nb_fixpoints > 0 && fp_map == NULL) {
+  if (nb_fixpoints > 0 && fp_map == nullptr) {
     fp_map = new FixedPoints();
   }
   

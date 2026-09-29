@@ -139,7 +139,7 @@ void* FinalStateSimulationEngine::threadWrapper(void *arg)
 #ifdef USE_DYNAMIC_BITSET
   MBDynBitset::end_pthread();
 #endif
-  return NULL;
+  return nullptr;
 }
 
 void FinalStateSimulationEngine::runThread(unsigned int start_count_thread, unsigned int sample_count_thread, RandomGeneratorFactory* randgen_factory, int seed, FixedPoints* final_state_map, std::ostream* output_traj)
@@ -156,7 +156,7 @@ void FinalStateSimulationEngine::runThread(unsigned int start_count_thread, unsi
 
     network->initStates(network_state, random_generator);
     double tm = 0.;
-    if (NULL != output_traj) {
+    if (nullptr != output_traj) {
       (*output_traj) << "\nTrajectory #" << (nn+1) << '\n';
       (*output_traj) << " istate\t";
       network_state.displayOneLine(*output_traj, network);
@@ -202,7 +202,7 @@ void FinalStateSimulationEngine::runThread(unsigned int start_count_thread, unsi
         tm += transition_time;
       }
 
-      if (NULL != output_traj) {
+      if (nullptr != output_traj) {
         (*output_traj) << std::setprecision(10) << tm << '\t';
         network_state.displayOneLine(*output_traj, network);
       }
@@ -263,7 +263,7 @@ void FinalStateSimulationEngine::run(std::ostream* output_traj)
 #ifdef STD_THREAD
     tid[nn] = new std::thread(FinalStateSimulationEngine::threadWrapper, warg);
 #else
-    pthread_create(&tid[nn], NULL, FinalStateSimulationEngine::threadWrapper, warg);
+    pthread_create(&tid[nn], nullptr, FinalStateSimulationEngine::threadWrapper, warg);
 #endif
   
     arg_wrapper_v.push_back(warg);
@@ -274,7 +274,7 @@ void FinalStateSimulationEngine::run(std::ostream* output_traj)
 #ifdef STD_THREAD
     tid[nn]->join();
 #else
-    pthread_join(tid[nn], NULL);
+    pthread_join(tid[nn], nullptr);
 #endif
   }
   epilogue();

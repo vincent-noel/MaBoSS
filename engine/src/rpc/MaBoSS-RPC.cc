@@ -53,7 +53,7 @@ static int rpc_hostNameToAddr(const char *name, struct in_addr *address)
 {
   struct hostent *hp;
 
-  if (NULL == (hp = gethostbyname(name))) {
+  if (nullptr == (hp = gethostbyname(name))) {
     return 0;
   }
 
@@ -126,7 +126,7 @@ char* rpc_readStringData(int fd)
 {
   size_t data_len = 0;
   size_t data_alloc = 0;
-  char* data = NULL;
+  char* data = nullptr;
   ssize_t size;
   char buffer[BUFFER_SIZE];
 
@@ -170,7 +170,7 @@ int rpc_Server::bind(const char** p_rpc_portname)
 
   if (port_h->domain == AF_INET) {
     if (p_rpc_portname) {
-      *p_rpc_portname = NULL;
+      *p_rpc_portname = nullptr;
     }
     if ((port_h->u.in.sockin_fd = socket(AF_INET, port_h->type, 0)) < 0) {
       std::string errmsg = std::string("eyedb fatal error: unable to create inet socket port [") + port_h->portname + "]";
@@ -184,7 +184,7 @@ int rpc_Server::bind(const char** p_rpc_portname)
     port_h->u.in.sock_in_name.sin_family = AF_INET;
     port_h->u.in.sock_in_name.sin_port   = htons(atoi(portname));
       
-    if (hostname == NULL || !*hostname) {
+    if (hostname == nullptr || !*hostname) {
       if (gethostname(hname, sizeof(hname)-1) < 0) {
 	perror("eyedb fatal error: gethostname failed");
 	return rpc_Error;
@@ -273,7 +273,7 @@ int rpc_Server::listen()
   for (;;) {
     fds_ready_to_read = fds_used;
     
-    n = select(fd+1, &fds_ready_to_read, 0, 0, 0);
+    n = select(fd+1, &fds_ready_to_read, nullptr, nullptr, nullptr);
 
     if (n < 0) {
       if (errno == EINTR) {
@@ -287,7 +287,7 @@ int rpc_Server::listen()
 
     if (FD_ISSET(fd, &fds_ready_to_read)) {
       rpc_PortHandle *port_h;
-      if ((port_h = portdb[fd]) != NULL) {
+      if ((port_h = portdb[fd]) != nullptr) {
 	/* we have a new connection */
 	struct sockaddr *sock_addr;
 	socklen_t length;
@@ -308,7 +308,7 @@ int rpc_Server::listen()
 	if (new_fd >= 0) {
 	  if (fork() == 0) {
 	    char* request = rpc_readStringData(new_fd);
-	    if (request != NULL) {
+	    if (request != nullptr) {
 	      manageRequest(new_fd, request);
 	      free(request);
 	    }
@@ -344,7 +344,7 @@ int rpc_Client::open()
     sock_in_name.sin_family = domain;
     sock_in_name.sin_port = htons(atoi(portname));
 
-    if (hostname == NULL || !*hostname) {
+    if (hostname == nullptr || !*hostname) {
       if (gethostname(hname, sizeof(hname)-1) < 0) {
 	perror("eyedb fatal error: gethostname failed");
 	return rpc_Error;

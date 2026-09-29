@@ -89,7 +89,7 @@ public:
   
   const Symbol* getSymbol(const std::string& symb) {
     if (symb_map.find(symb) == symb_map.end()) {
-      return NULL;
+      return nullptr;
     }
     return symb_map[symb];
   }
