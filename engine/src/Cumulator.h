@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _CUMULATOR_H_
-#define _CUMULATOR_H_
+#pragma once
 
 #include <string>
 #include <map>
@@ -1892,4 +1891,3 @@ static void mergePairOfMPICumulators(Cumulator<S>* ret_cumul, int world_rank, in
 
 };
 
-#endif

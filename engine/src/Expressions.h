@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _EXPRESSIONS_H_
-#define _EXPRESSIONS_H_
+#pragma once
 
 #include <cstdlib>
 #include <ostream>
@@ -1167,4 +1166,3 @@ public:
 
 extern bool dont_shrink_logical_expressions;
 
-#endif

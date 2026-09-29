@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _RANDOMGENERATOR_H_
-#define _RANDOMGENERATOR_H_
+#pragma once
 
 // DO NOT define USE_DUMMY_RANDOM: except for profiling purpose: this flag has been introduced to get an estimation of random number generation time
 //#define USE_DUMMY_RANDOM
@@ -494,4 +493,3 @@ public:
   }
 };
 
-#endif

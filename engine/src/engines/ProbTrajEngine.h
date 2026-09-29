@@ -45,8 +45,7 @@
      March 2019
 */
 
-#ifndef _PROBTRAJENGINE_H_
-#define _PROBTRAJENGINE_H_
+#pragma once
 
 #include <string>
 #include <map>
@@ -121,4 +120,3 @@ public:
 #endif
 };
 
-#endif

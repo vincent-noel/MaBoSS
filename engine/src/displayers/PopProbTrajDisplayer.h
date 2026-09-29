@@ -48,8 +48,7 @@
      Decembre 2020
 */
 
-#ifndef _POP_PROBTRAJ_DISPLAYER_H_
-#define _POP_PROBTRAJ_DISPLAYER_H_
+#pragma once
 
 #include <iostream>
 #include <iomanip>
@@ -431,4 +430,3 @@ public:
 };
 #endif
 
-#endif

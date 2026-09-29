@@ -47,8 +47,7 @@
    July 2018
 */
 
-#ifndef _FUNCTION_H_
-#define _FUNCTION_H_
+#pragma once
 
 #include <string>
 #include <map>
@@ -122,4 +121,3 @@ public:
     virtual ~Function() = default;
 };
 
-#endif

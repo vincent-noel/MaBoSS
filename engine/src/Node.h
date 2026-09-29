@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _NODE_H_
-#define _NODE_H_
+#pragma once
 
 #include <cstdlib>
 #include <string>
@@ -316,4 +315,3 @@ class Node {
   ~Node();
 };
 
-#endif

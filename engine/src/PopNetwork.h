@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _POPNETWORK_H_
-#define _POPNETWORK_H_
+#pragma once
 
 #include "IStates.h"
 #include "Network.h"
@@ -172,4 +171,3 @@ class PopNetwork : public Network {
 
 };
 
-#endif

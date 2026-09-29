@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _SYMBOLS_H_
-#define _SYMBOLS_H_
+#pragma once
 
 #include <string>
 #include <map>
@@ -166,4 +165,3 @@ public:
   }
 };
 
-#endif

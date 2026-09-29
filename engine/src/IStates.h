@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _ISTATES_H_
-#define _ISTATES_H_
+#pragma once
 
 #include <vector>
 
@@ -378,4 +377,3 @@ private:
 
 extern const bool backward_istate;
 
-#endif

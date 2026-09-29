@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _RUNCONFIG_H_
-#define _RUNCONFIG_H_
+#pragma once
 
 #include "RandomGenerator.h"
 #include "Network.h"
@@ -131,4 +130,3 @@ extern void runconfig_setConfig(RunConfig* config);
 extern void rc_set_file(const char* file);
 extern void rc_set_expr(const char* expr);
 
-#endif

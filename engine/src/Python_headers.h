@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _PYTHON_HEADERS_H_
-#define _PYTHON_HEADERS_H_
+#pragma once
 
 #ifdef PYTHON_API
 #define NO_IMPORT_ARRAY
@@ -58,4 +57,3 @@
 #include <numpy/arrayobject.h>
 #endif
 
-#endif
