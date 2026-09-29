@@ -130,7 +130,7 @@ class PopNetwork : public Network {
   std::vector<PopIStateGroup*>* pop_istate_group_list;
 
   PopNetwork();
-  ~PopNetwork();
+  ~PopNetwork() override;
   // Not copyable, for the same reason as Network (which it derives from): the
   // division rules and the death-rate expression were shared by the raw
   // pointer, so ~PopNetwork() freed them twice.
@@ -164,11 +164,11 @@ class PopNetwork : public Network {
     return ostr.str();
   }
 
-  void display(std::ostream& os) const;
+  void display(std::ostream& os) const override;
   void clearPopIstates() {
     pop_istate_group_list->clear();
   }
-  bool isPopNetwork() { return true; }
+  bool isPopNetwork() override { return true; }
 
 };
 

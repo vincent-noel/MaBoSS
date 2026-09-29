@@ -76,10 +76,10 @@ class CSVFixedPointDisplayer final : public FixedPointDisplayer {
   bool hexfloat;
 public:
   CSVFixedPointDisplayer(Network* network, std::ostream& os, bool hexfloat) : os(os), network(network), hexfloat(hexfloat) {}
-  void begin(size_t size);
-  void displayFixedPoint(size_t num, const NetworkState& state, unsigned int val, unsigned int sample_count);
-  void end();
-  ~CSVFixedPointDisplayer(){};
+  void begin(size_t size) override;
+  void displayFixedPoint(size_t num, const NetworkState& state, unsigned int val, unsigned int sample_count) override;
+  void end() override;
+  ~CSVFixedPointDisplayer() override{};
 };
 
 class JsonFixedPointDisplayer final : public FixedPointDisplayer {
@@ -89,10 +89,10 @@ class JsonFixedPointDisplayer final : public FixedPointDisplayer {
   bool hexfloat;
 public:
   JsonFixedPointDisplayer(Network* network, std::ostream& os, bool hexfloat) : os(os), network(network), hexfloat(hexfloat) {}
-  void begin(size_t size);
-  void displayFixedPoint(size_t num, const NetworkState& state, unsigned int val, unsigned int sample_count);
-  void end();
-  ~JsonFixedPointDisplayer(){};
+  void begin(size_t size) override;
+  void displayFixedPoint(size_t num, const NetworkState& state, unsigned int val, unsigned int sample_count) override;
+  void end() override;
+  ~JsonFixedPointDisplayer() override{};
 };
 
 #ifdef HDF5_COMPAT
@@ -101,10 +101,10 @@ class HDF5FixedPointDisplayer final : public FixedPointDisplayer {
   hid_t& hdf5_file;
 public:
   HDF5FixedPointDisplayer(Network* network, hid_t& hdf5_file) : network(network), hdf5_file(hdf5_file) {}
-  void begin(size_t size);
-  void displayFixedPoint(size_t num, const NetworkState& state, unsigned int val, unsigned int sample_count);
-  void end();
-  ~HDF5FixedPointDisplayer(){};
+  void begin(size_t size) override;
+  void displayFixedPoint(size_t num, const NetworkState& state, unsigned int val, unsigned int sample_count) override;
+  void end() override;
+  ~HDF5FixedPointDisplayer() override{};
 };
 #endif
 

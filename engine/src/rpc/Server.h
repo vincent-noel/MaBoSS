@@ -163,7 +163,7 @@ public:
   const std::string& getPidFile() const {return pidfile;}
 
   int manageRequests();
-  void manageRequest(int fd, const char* request);
+  void manageRequest(int fd, const char* request) override;
 };
 
 #endif

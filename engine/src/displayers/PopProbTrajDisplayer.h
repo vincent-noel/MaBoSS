@@ -66,7 +66,7 @@ public:
 
   CSVSimplePopProbTrajDisplayer(Network* network, std::ostream& os_probtraj, std::ostream& os_simple_probtraj, bool hexfloat = false) : CSVProbTrajDisplayer<PopNetworkState>(network, os_probtraj, hexfloat), os_simple_probtraj(os_simple_probtraj) { }
   
-  void beginDisplay()
+  void beginDisplay() override
   {
     CSVProbTrajDisplayer<PopNetworkState>::beginDisplay();
     
@@ -86,8 +86,8 @@ public:
 
   }
   
-  void beginTimeTickDisplay() {}
-  void endTimeTickDisplay()
+  void beginTimeTickDisplay() override {}
+  void endTimeTickDisplay() override
   {
     CSVProbTrajDisplayer<PopNetworkState>::endTimeTickDisplay();
     
@@ -199,7 +199,7 @@ public:
     }
     os_simple_probtraj << '\n';
   }
-  void endDisplay() {}
+  void endDisplay() override {}
 };
 
 class JSONSimpleProbTrajDisplayer final : public JSONProbTrajDisplayer<PopNetworkState> {
@@ -209,12 +209,12 @@ public:
   std::ostream& os_simple_probtraj;
   JSONSimpleProbTrajDisplayer(Network* network, std::ostream& os_probtraj, std::ostream& os_simple_probtraj, bool hexfloat = false) : JSONProbTrajDisplayer<PopNetworkState>(network, os_probtraj, hexfloat), os_simple_probtraj(os_simple_probtraj) { }
 
-  void beginDisplay() {
+  void beginDisplay() override {
     JSONProbTrajDisplayer<PopNetworkState>::beginDisplay();
     os_simple_probtraj << '[';
   }
 
-  void beginTimeTickDisplay() {
+  void beginTimeTickDisplay() override {
     JSONProbTrajDisplayer<PopNetworkState>::beginTimeTickDisplay();
 
     if (this->current_line > 0) {
@@ -223,7 +223,7 @@ public:
     os_simple_probtraj << '{';
   }
 
-  void endTimeTickDisplay() {
+  void endTimeTickDisplay() override {
     
     JSONProbTrajDisplayer<PopNetworkState>::endTimeTickDisplay();
 
@@ -320,7 +320,7 @@ public:
     os_simple_probtraj << "]";
     os_simple_probtraj << '}';
   }
-  void endDisplay() {
+  void endDisplay() override {
     JSONProbTrajDisplayer<PopNetworkState>::endDisplay();
     os_simple_probtraj << ']';
   }
@@ -338,7 +338,7 @@ class HDF5PopProbTrajDisplayer final : public HDF5ProbTrajDisplayer<PopNetworkSt
 public:
   HDF5PopProbTrajDisplayer(Network* network, hid_t file) : HDF5ProbTrajDisplayer(network, file) { }
 
-  void beginDisplay(){
+  void beginDisplay() override{
     HDF5ProbTrajDisplayer<PopNetworkState>::beginDisplay();
     dst_simple_size =  sizeof( double ) * (this->simple_states.size() + 1);
     dst_simple_offset = (size_t*) malloc( sizeof( size_t ) * (this->simple_states.size() + 1) );
@@ -377,10 +377,10 @@ public:
     free(field_names);
     free(field_type);
   }
-  void beginTimeTickDisplay(){
+  void beginTimeTickDisplay() override{
     HDF5ProbTrajDisplayer<PopNetworkState>::beginTimeTickDisplay();
   }
-  void endTimeTickDisplay(){
+  void endTimeTickDisplay() override{
     HDF5ProbTrajDisplayer<PopNetworkState>::endTimeTickDisplay();
     for (size_t i = 0; i < this->simple_states.size(); i++) {
       simple_probas[i] = 0.0;
@@ -422,7 +422,7 @@ public:
     H5TBwrite_records(file, "simple_probas", this->current_line, 1, dst_simple_size, dst_simple_offset, dst_simple_sizes, simple_probas);
   }
   
-  void endDisplay(){
+  void endDisplay() override{
     HDF5ProbTrajDisplayer<PopNetworkState>::endDisplay();
     free(dst_simple_sizes);
     free(dst_simple_offset);

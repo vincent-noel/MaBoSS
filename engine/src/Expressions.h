@@ -159,45 +159,45 @@ class TimeExpression : public Expression {
 public:
   TimeExpression() { }
 
-  Expression* clone() const {return new TimeExpression();}
+  Expression* clone() const override {return new TimeExpression();}
 
-  double eval(const Node*, const NetworkState&) const {
+  double eval(const Node*, const NetworkState&) const override {
     return 0;
   }
 
-  double eval(const Node*, const NetworkState&, const PopNetworkState&) const {
+  double eval(const Node*, const NetworkState&, const PopNetworkState&) const override {
     return 0;
   }
   
-  double eval(const NetworkState&, double time)
+  double eval(const NetworkState&, double time) override
   {
     return time;
   }
 
-  bool hasCycle(Node*) const {
+  bool hasCycle(Node*) const override {
     return false;
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os << "#time";
   }
 
-  bool isLogicalExpression() const {return false;}
+  bool isLogicalExpression() const override {return false;}
   
-  std::vector<Node*> getNodes() const{
+  std::vector<Node*> getNodes() const override{
     std::vector<Node*> vec;
     return vec;
   }
 
 #ifdef SBML_COMPAT
-  ASTNode* writeSBML(LogicalExprGenContext&) const {
+  ASTNode* writeSBML(LogicalExprGenContext&) const override {
     ASTNode* time_node = new ASTNode(AST_NAME_TIME);
     return time_node;
   }
 #endif
-  void generateLogicalExpression(LogicalExprGenContext&) const {}
+  void generateLogicalExpression(LogicalExprGenContext&) const override {}
 
-  ~TimeExpression() {
+  ~TimeExpression() override {
   }
 };
 
@@ -207,39 +207,39 @@ class NodeExpression : public Expression {
 public:
   NodeExpression(Node* node) : node(node) { }
 
-  Expression* clone() const {return new NodeExpression(node);}
+  Expression* clone() const override {return new NodeExpression(node);}
 
-  double eval(const Node*, const NetworkState& network_state) const {
+  double eval(const Node*, const NetworkState& network_state) const override {
     return (double)node->getNodeState(network_state);
   }
 
-  double eval(const Node*, const NetworkState& network_state, const PopNetworkState&) const {
+  double eval(const Node*, const NetworkState& network_state, const PopNetworkState&) const override {
     return (double)node->getNodeState(network_state);
   }
   
-  double eval(const NetworkState& network_state, double)
+  double eval(const NetworkState& network_state, double) override
   {
     return (double)node->getNodeState(network_state);
   }
 
-  bool hasCycle(Node* _node) const {
+  bool hasCycle(Node* _node) const override {
     return this->node == _node;
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os << node->getLabel();
   }
 
-  bool isLogicalExpression() const {return true;}
+  bool isLogicalExpression() const override {return true;}
   
-  std::vector<Node*> getNodes() const{
+  std::vector<Node*> getNodes() const override{
     std::vector<Node*> vec;
     vec.push_back(node);
     return vec;
   }
 
 #ifdef SBML_COMPAT
-  ASTNode* writeSBML(LogicalExprGenContext&) const {
+  ASTNode* writeSBML(LogicalExprGenContext&) const override {
     ASTNode* equ = new ASTNode(AST_RELATIONAL_EQ);
     ASTNode* a_node = new ASTNode(AST_NAME);
     a_node->setId(node->getLabel());
@@ -252,9 +252,9 @@ public:
     return equ;
   }
 #endif
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 
-  ~NodeExpression() {}
+  ~NodeExpression() override {}
 };
 
 
@@ -264,37 +264,37 @@ class StateExpression: public Expression {
 public:
 #ifdef USE_DYNAMIC_BITSET
   StateExpression(const NetworkState state, Network* network) : state(NetworkState(state, 1)), network(network) { }
-  Expression* clone() const {return new StateExpression(NetworkState(state, 1), network);}
+  Expression* clone() const override {return new StateExpression(NetworkState(state, 1), network);}
 #else
   StateExpression(const NetworkState state, Network* network) : state(state), network(network) { }
-  Expression* clone() const {return new StateExpression(NetworkState(state), network);}
+  Expression* clone() const override {return new StateExpression(NetworkState(state), network);}
 #endif
   
 
-  double eval(const Node*, const NetworkState& network_state) const {
+  double eval(const Node*, const NetworkState& network_state) const override {
     return state.getState() == network_state.getState() ? 1.0 : 0.0;
   }
 
-  double eval(const Node*, const NetworkState& network_state, const PopNetworkState&) const {
+  double eval(const Node*, const NetworkState& network_state, const PopNetworkState&) const override {
     return state.getState() == network_state.getState() ? 1.0 : 0.0;
   }
   
-  double eval(const NetworkState& network_state, double)
+  double eval(const NetworkState& network_state, double) override
   {
     return state.getState() == network_state.getState() ? 1.0 : 0.0;
   }
   
-  bool hasCycle(Node*) const {
+  bool hasCycle(Node*) const override {
     return false;
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     state.displayOneLine(os, network);
   }
 
-  bool isLogicalExpression() const {return true;}
+  bool isLogicalExpression() const override {return true;}
   
-  std::vector<Node*> getNodes() const{
+  std::vector<Node*> getNodes() const override{
     std::vector<Node*> vec;
     for (auto* node: network->getNodes())
       if (state.getNodeState(node))
@@ -302,9 +302,9 @@ public:
     return vec;
   }
   
-  void generateLogicalExpression(LogicalExprGenContext&) const {}
+  void generateLogicalExpression(LogicalExprGenContext&) const override {}
 
-  ~StateExpression() {
+  ~StateExpression() override {
   }
 };
 
@@ -314,21 +314,21 @@ class PopExpression : public Expression {
 public:
   PopExpression(Expression* expr) : expr(expr) { }
 
-  Expression* clone() const {return new PopExpression(expr->clone());}
+  Expression* clone() const override {return new PopExpression(expr->clone());}
 
-  double eval(const Node*, const NetworkState&) const {
+  double eval(const Node*, const NetworkState&) const override {
     return 0.;
   }
 
-  double eval(const Node*, const NetworkState&, const PopNetworkState& pop_state) const {
+  double eval(const Node*, const NetworkState&, const PopNetworkState& pop_state) const override {
     return (double) pop_state.count(expr);
   }
   
-  bool hasCycle(Node*) const {
+  bool hasCycle(Node*) const override {
     return false;
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os << "#cell(";
     if (expr != NULL) {
       expr->display(os);
@@ -338,13 +338,13 @@ public:
     os << ")";
   }
 
-  bool isLogicalExpression() const {return true;}
-  std::vector<Node*> getNodes() const{
+  bool isLogicalExpression() const override {return true;}
+  std::vector<Node*> getNodes() const override{
     return expr->getNodes();
   }
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 
-  ~PopExpression() {
+  ~PopExpression() override {
     delete expr;
   }
 };
@@ -359,15 +359,15 @@ protected:
 public:
   BinaryExpression(Expression* left, Expression* right) : left(left), right(right) { }
 
-  bool hasCycle(Node* node) const {
+  bool hasCycle(Node* node) const override {
     return left->hasCycle(node) || right->hasCycle(node);
   }
 
-  virtual bool isConstantExpression() const {
+  bool isConstantExpression() const override {
     return left->isConstantExpression() && right->isConstantExpression();
   }
  
-  virtual std::vector<Node*> getNodes() const{
+  std::vector<Node*> getNodes() const override{
     std::vector<Node*> vec1 = left->getNodes();
     std::vector<Node*> vec2 = right->getNodes();
     std::vector<Node*> vec(vec1.begin(), vec1.end());
@@ -379,7 +379,7 @@ public:
     return vec;
   }
   
-  virtual ~BinaryExpression() {
+  ~BinaryExpression() override {
     delete left;
     delete right;
   }
@@ -390,18 +390,18 @@ class MulExpression : public BinaryExpression {
 public:
   MulExpression(Expression* left, Expression* right) : BinaryExpression(left, right) { }
 
-  Expression* clone() const {return new MulExpression(left->clone(), right->clone());}
-  Expression* cloneAndShrink(bool& shrinked) const;
+  Expression* clone() const override {return new MulExpression(left->clone(), right->clone());}
+  Expression* cloneAndShrink(bool& shrinked) const override;
   
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     return left->eval(this_node, network_state) * right->eval(this_node, network_state);
   }
   
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     return left->eval(this_node, network_state, pop) * right->eval(this_node, network_state, pop);
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os <<  "(";
     left->display(os);
     os <<  " * ";
@@ -409,7 +409,7 @@ public:
     os <<  ")";
   }
 
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 };
 
 class DivExpression : public BinaryExpression {
@@ -417,17 +417,17 @@ class DivExpression : public BinaryExpression {
 public:
   DivExpression(Expression* left, Expression* right) : BinaryExpression(left, right) { }
 
-  Expression* clone() const {return new DivExpression(left->clone(), right->clone());}
+  Expression* clone() const override {return new DivExpression(left->clone(), right->clone());}
 
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     return left->eval(this_node, network_state) / right->eval(this_node, network_state);
   }
   
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     return left->eval(this_node, network_state, pop) / right->eval(this_node, network_state, pop);
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os <<  "(";
     left->display(os);
     os <<  " / ";
@@ -435,7 +435,7 @@ public:
     os << ")";
   }
 
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 };
 
 class AddExpression : public BinaryExpression {
@@ -443,18 +443,18 @@ class AddExpression : public BinaryExpression {
 public:
   AddExpression(Expression* left, Expression* right) : BinaryExpression(left, right) { }
 
-  Expression* clone() const {return new AddExpression(left->clone(), right->clone());}
-  Expression* cloneAndShrink(bool& shrinked) const;
+  Expression* clone() const override {return new AddExpression(left->clone(), right->clone());}
+  Expression* cloneAndShrink(bool& shrinked) const override;
 
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     return left->eval(this_node, network_state) + right->eval(this_node, network_state);
   }
 
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     return left->eval(this_node, network_state, pop) + right->eval(this_node, network_state, pop);
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os <<  "(";
     left->display(os);
     os <<  " + ";
@@ -462,7 +462,7 @@ public:
     os << ")";
   }
 
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 };
 
 class SubExpression : public BinaryExpression {
@@ -470,17 +470,17 @@ class SubExpression : public BinaryExpression {
 public:
   SubExpression(Expression* left, Expression* right) : BinaryExpression(left, right) { }
 
-  Expression* clone() const {return new SubExpression(left->clone(), right->clone());}
+  Expression* clone() const override {return new SubExpression(left->clone(), right->clone());}
 
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     return left->eval(this_node, network_state) - right->eval(this_node, network_state);
   }
   
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     return left->eval(this_node, network_state, pop) - right->eval(this_node, network_state, pop);
   }
   
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os <<  "(";
     left->display(os);
     os <<  " - ";
@@ -488,7 +488,7 @@ public:
     os << ")";
   }
 
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 };
 
 class EqualExpression : public BinaryExpression {
@@ -496,17 +496,17 @@ class EqualExpression : public BinaryExpression {
 public:
   EqualExpression(Expression* left, Expression* right) : BinaryExpression(left, right) { }
 
-  Expression* clone() const {return new EqualExpression(left->clone(), right->clone());}
+  Expression* clone() const override {return new EqualExpression(left->clone(), right->clone());}
 
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     return left->eval(this_node, network_state) == right->eval(this_node, network_state);
   }
 
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     return left->eval(this_node, network_state, pop) == right->eval(this_node, network_state, pop);
   }
   
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os <<  "(";
     left->display(os);
     os <<  " == ";
@@ -514,9 +514,9 @@ public:
     os << ")";
   }
 
-  virtual bool isLogicalExpression() const {return true;}
+  bool isLogicalExpression() const override {return true;}
 
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 };
 
 class NotEqualExpression : public BinaryExpression {
@@ -524,17 +524,17 @@ class NotEqualExpression : public BinaryExpression {
 public:
   NotEqualExpression(Expression* left, Expression* right) : BinaryExpression(left, right) { }
 
-  Expression* clone() const {return new NotEqualExpression(left->clone(), right->clone());}
+  Expression* clone() const override {return new NotEqualExpression(left->clone(), right->clone());}
 
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     return left->eval(this_node, network_state) != right->eval(this_node, network_state);
   }
 
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     return left->eval(this_node, network_state, pop) != right->eval(this_node, network_state, pop);
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os <<  "(";
     left->display(os);
     os <<  " != ";
@@ -542,9 +542,9 @@ public:
     os << ")";
   }
 
-  virtual bool isLogicalExpression() const {return true;}
+  bool isLogicalExpression() const override {return true;}
 
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 };
 
 class LetterExpression : public BinaryExpression {
@@ -552,17 +552,17 @@ class LetterExpression : public BinaryExpression {
 public:
   LetterExpression(Expression* left, Expression* right) : BinaryExpression(left, right) { }
 
-  Expression* clone() const {return new LetterExpression(left->clone(), right->clone());}
+  Expression* clone() const override {return new LetterExpression(left->clone(), right->clone());}
 
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     return left->eval(this_node, network_state) < right->eval(this_node, network_state);
   }
 
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     return left->eval(this_node, network_state, pop) < right->eval(this_node, network_state, pop);
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os <<  "(";
     left->display(os);
     os <<  " < ";
@@ -570,9 +570,9 @@ public:
     os << ")";
   }
 
-  virtual bool isLogicalExpression() const {return true;}
+  bool isLogicalExpression() const override {return true;}
 
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 };
 
 class LetterOrEqualExpression : public BinaryExpression {
@@ -580,17 +580,17 @@ class LetterOrEqualExpression : public BinaryExpression {
 public:
   LetterOrEqualExpression(Expression* left, Expression* right) : BinaryExpression(left, right) { }
 
-  Expression* clone() const {return new LetterOrEqualExpression(left->clone(), right->clone());}
+  Expression* clone() const override {return new LetterOrEqualExpression(left->clone(), right->clone());}
 
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     return left->eval(this_node, network_state) <= right->eval(this_node, network_state);
   }
 
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     return left->eval(this_node, network_state, pop) <= right->eval(this_node, network_state, pop);
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os <<  "(";
     left->display(os);
     os <<  " <= ";
@@ -598,9 +598,9 @@ public:
     os << ")";
   }
 
-  virtual bool isLogicalExpression() const {return true;}
+  bool isLogicalExpression() const override {return true;}
 
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 };
 
 class GreaterExpression : public BinaryExpression {
@@ -608,17 +608,17 @@ class GreaterExpression : public BinaryExpression {
 public:
   GreaterExpression(Expression* left, Expression* right) : BinaryExpression(left, right) { }
 
-  Expression* clone() const {return new GreaterExpression(left->clone(), right->clone());}
+  Expression* clone() const override {return new GreaterExpression(left->clone(), right->clone());}
 
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     return left->eval(this_node, network_state) > right->eval(this_node, network_state);
   }
 
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     return left->eval(this_node, network_state, pop) > right->eval(this_node, network_state, pop);
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os <<  "(";
     left->display(os);
     os <<  " > ";
@@ -626,9 +626,9 @@ public:
     os << ")";
   }
 
-  virtual bool isLogicalExpression() const {return true;}
+  bool isLogicalExpression() const override {return true;}
 
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 };
 
 class GreaterOrEqualExpression : public BinaryExpression {
@@ -636,17 +636,17 @@ class GreaterOrEqualExpression : public BinaryExpression {
 public:
   GreaterOrEqualExpression(Expression* left, Expression* right) : BinaryExpression(left, right) { }
 
-  Expression* clone() const {return new GreaterOrEqualExpression(left->clone(), right->clone());}
+  Expression* clone() const override {return new GreaterOrEqualExpression(left->clone(), right->clone());}
 
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     return left->eval(this_node, network_state) >= right->eval(this_node, network_state);
   }
 
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     return left->eval(this_node, network_state, pop) >= right->eval(this_node, network_state, pop);
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os <<  "(";
     left->display(os);
     os <<  " >= ";
@@ -654,9 +654,9 @@ public:
     os << ")";
   }
 
-  virtual bool isLogicalExpression() const {return true;}
+  bool isLogicalExpression() const override {return true;}
 
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 };
 
 class CondExpression : public Expression {
@@ -668,30 +668,30 @@ class CondExpression : public Expression {
 public:
   CondExpression(Expression* cond_expr, Expression* true_expr, Expression* false_expr) : cond_expr(cond_expr), true_expr(true_expr), false_expr(false_expr) { }
 
-  Expression* clone() const {return new CondExpression(cond_expr->clone(), true_expr->clone(), false_expr->clone());}
+  Expression* clone() const override {return new CondExpression(cond_expr->clone(), true_expr->clone(), false_expr->clone());}
 
-  Expression* cloneAndShrink(bool& shrinked) const;
+  Expression* cloneAndShrink(bool& shrinked) const override;
   //  Expression* cloneAndShrink(bool& shrinked) const {return new CondExpression(cond_expr->cloneAndShrink(shrinked), true_expr->cloneAndShrink(shrinked), false_expr->cloneAndShrink(shrinked));}
 
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     if (0. != cond_expr->eval(this_node, network_state)) {
       return true_expr->eval(this_node, network_state);
     }
     return false_expr->eval(this_node, network_state);
   }
 
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     if (0. != cond_expr->eval(this_node, network_state, pop)) {
       return true_expr->eval(this_node, network_state, pop);
     }
     return false_expr->eval(this_node, network_state, pop);
   }
 
-  bool hasCycle(Node* node) const {
+  bool hasCycle(Node* node) const override {
     return cond_expr->hasCycle(node) || true_expr->hasCycle(node) || false_expr->hasCycle(node);
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os <<  "(";
     cond_expr->display(os);
     os <<  " ? ";
@@ -701,15 +701,15 @@ public:
     os << ")";
   }
 
-  bool isConstantExpression() const {
+  bool isConstantExpression() const override {
     return cond_expr->isConstantExpression() && true_expr->isConstantExpression() && false_expr->isConstantExpression();
   }
 
-  bool isLogicalExpression() const {
+  bool isLogicalExpression() const override {
     return true_expr->isLogicalExpression() && false_expr->isLogicalExpression();
   }
 
-  std::vector<Node*> getNodes() const{
+  std::vector<Node*> getNodes() const override{
     std::vector<Node*> vec1 = cond_expr->getNodes();
     std::vector<Node*> vec2 = true_expr->getNodes();
     std::vector<Node*> vec3 = false_expr->getNodes();
@@ -727,9 +727,9 @@ public:
     return vec;
   }
   
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 
-  virtual ~CondExpression() {
+  ~CondExpression() override {
     delete cond_expr;
     delete true_expr;
     delete false_expr;
@@ -743,33 +743,33 @@ class ConstantExpression : public Expression {
 public:
   ConstantExpression(double value) : value(value) { }
 
-  Expression* clone() const {return new ConstantExpression(value);}
+  Expression* clone() const override {return new ConstantExpression(value);}
 
-  double eval(const Node*, const NetworkState&) const {
+  double eval(const Node*, const NetworkState&) const override {
     return value;
   }
   
-  double eval(const Node*, const NetworkState&, const PopNetworkState&) const {
+  double eval(const Node*, const NetworkState&, const PopNetworkState&) const override {
     return value;
   }
 
-  bool hasCycle(Node*) const {
+  bool hasCycle(Node*) const override {
     return false;
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os << value;
   }
 
-  bool isConstantExpression() const {return true;}
+  bool isConstantExpression() const override {return true;}
 
-  bool isLogicalExpression() const {return value == 0 || value == 1;}
+  bool isLogicalExpression() const override {return value == 0 || value == 1;}
   
-  std::vector<Node*> getNodes() const{
+  std::vector<Node*> getNodes() const override{
     return std::vector<Node*>();
   }
   
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 
 };
 
@@ -785,9 +785,9 @@ public:
     symbol_table->addSymbolExpression(this);
   }
 
-  Expression* clone() const {return new SymbolExpression(symbol_table, symbol);}
+  Expression* clone() const override {return new SymbolExpression(symbol_table, symbol);}
 
-  double eval(const Node*, const NetworkState&) const {
+  double eval(const Node*, const NetworkState&) const override {
     if (!value_set) {
       value = symbol_table->getSymbolValue(symbol);
       value_set = true;
@@ -795,7 +795,7 @@ public:
     return value;
   }
   
-  double eval(const Node*, const NetworkState&, const PopNetworkState&) const {
+  double eval(const Node*, const NetworkState&, const PopNetworkState&) const override {
     if (!value_set) {
       value = symbol_table->getSymbolValue(symbol);
       value_set = true;
@@ -803,21 +803,21 @@ public:
     return value;
   }
 
-  bool hasCycle(Node*) const {
+  bool hasCycle(Node*) const override {
     return false;
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os << symbol->getName();
   }
 
-  bool isConstantExpression() const {return true;}
+  bool isConstantExpression() const override {return true;}
   
-  std::vector<Node*> getNodes() const{
+  std::vector<Node*> getNodes() const override{
     return std::vector<Node*>();
   }
   
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 
   void unset() { value_set = false; }
 };
@@ -837,9 +837,9 @@ class AliasExpression : public Expression {
 public:
   AliasExpression(const std::string& identifier) : identifier(identifier), alias_expr(NULL) { }
 
-  Expression* clone() const {return new AliasExpression(identifier);}
+  Expression* clone() const override {return new AliasExpression(identifier);}
 
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     if (NULL == alias_expr) {
       alias_expr = getAliasExpression(this_node);
     }
@@ -852,7 +852,7 @@ public:
     throw BNException("invalid use of alias attribute @" + identifier + " in unknown node");
   }
   
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     if (NULL == alias_expr) {
       alias_expr = getAliasExpression(this_node);
     }
@@ -866,15 +866,15 @@ public:
     throw BNException("invalid use of alias attribute @" + identifier + " in unknown node");
   }
 
-  bool hasCycle(Node*) const {
+  bool hasCycle(Node*) const override {
     return false;
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os << '@' << identifier;
   }
 #ifdef SBML_COMPAT
-  ASTNode* writeSBML(LogicalExprGenContext& genctx) const {
+  ASTNode* writeSBML(LogicalExprGenContext& genctx) const override {
     alias_expr = getAliasExpression(genctx.getNode());
     if (NULL != alias_expr) {
       return alias_expr->writeSBML(genctx);
@@ -882,28 +882,28 @@ public:
     else return new ASTNode(AST_CONSTANT_FALSE);
   }
 #endif
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 };
 
 class OrLogicalExpression : public BinaryExpression {
 
 public:
   OrLogicalExpression(Expression* left, Expression* right) : BinaryExpression(left, right) { }
-  Expression* cloneAndShrink(bool& shrinked) const;
+  Expression* cloneAndShrink(bool& shrinked) const override;
 
-  Expression* clone() const {return new OrLogicalExpression(left->clone(), right->clone());}
+  Expression* clone() const override {return new OrLogicalExpression(left->clone(), right->clone());}
 
-  bool generationWillAddParenthesis() const {return true;}
+  bool generationWillAddParenthesis() const override {return true;}
 
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     return (double)((bool)left->eval(this_node, network_state) || (bool)right->eval(this_node, network_state));
   }
 
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     return (double)((bool)left->eval(this_node, network_state, pop) || (bool)right->eval(this_node, network_state, pop));
   }
   
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os <<  "(";
     left->display(os);
     os <<  " OR ";
@@ -911,10 +911,10 @@ public:
     os << ")";
   }
 
-  virtual bool isLogicalExpression() const {return true;}
+  bool isLogicalExpression() const override {return true;}
 
 #ifdef SBML_COMPAT
-  ASTNode* writeSBML(LogicalExprGenContext& genctx) const {
+  ASTNode* writeSBML(LogicalExprGenContext& genctx) const override {
     ASTNode* op = new ASTNode(AST_LOGICAL_OR);
     
     op->addChild(left->writeSBML(genctx));
@@ -922,7 +922,7 @@ public:
     return op;
   }
 #endif
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 };
 
 class AndLogicalExpression : public BinaryExpression {
@@ -930,25 +930,25 @@ class AndLogicalExpression : public BinaryExpression {
 public:
   AndLogicalExpression(Expression* left, Expression* right) : BinaryExpression(left, right) { }
 
-  Expression* clone() const {return new AndLogicalExpression(left->clone(), right->clone());}
-  Expression* cloneAndShrink(bool& shrinked) const;
+  Expression* clone() const override {return new AndLogicalExpression(left->clone(), right->clone());}
+  Expression* cloneAndShrink(bool& shrinked) const override;
 
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     return (double)((bool)left->eval(this_node, network_state) && (bool)right->eval(this_node, network_state));
   }
 
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     return (double)((bool)left->eval(this_node, network_state, pop) && (bool)right->eval(this_node, network_state, pop));
   }
 
-  double eval(const NetworkState& network_state, double time)
+  double eval(const NetworkState& network_state, double time) override
   {
     return (double)((bool)left->eval(network_state, time ) && (bool)right->eval(network_state, time));
   }
   
-  bool generationWillAddParenthesis() const {return true;}
+  bool generationWillAddParenthesis() const override {return true;}
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os <<  "(";
     left->display(os);
     os <<  " AND ";
@@ -956,9 +956,9 @@ public:
     os << ")";
   }
 
-  bool isLogicalExpression() const {return true;}
+  bool isLogicalExpression() const override {return true;}
 #ifdef SBML_COMPAT
-  ASTNode* writeSBML(LogicalExprGenContext& genctx) const {
+  ASTNode* writeSBML(LogicalExprGenContext& genctx) const override {
     ASTNode* op = new ASTNode(AST_LOGICAL_AND);
     
     op->addChild(left->writeSBML(genctx));
@@ -966,7 +966,7 @@ public:
     return op;
   }
 #endif
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 };
 
 class XorLogicalExpression : public BinaryExpression {
@@ -974,19 +974,19 @@ class XorLogicalExpression : public BinaryExpression {
 public:
   XorLogicalExpression(Expression* left, Expression* right) : BinaryExpression(left, right) { }
 
-  Expression* clone() const {return new XorLogicalExpression(left->clone(), right->clone());}
+  Expression* clone() const override {return new XorLogicalExpression(left->clone(), right->clone());}
 
-  Expression* cloneAndShrink(bool& shrinked) const;
+  Expression* cloneAndShrink(bool& shrinked) const override;
 
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     return (double)((bool)left->eval(this_node, network_state) ^ (bool)right->eval(this_node, network_state));
   }
 
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     return (double)((bool)left->eval(this_node, network_state, pop) ^ (bool)right->eval(this_node, network_state, pop));
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os <<  "(";
     left->display(os);
     os <<  " XOR ";
@@ -994,9 +994,9 @@ public:
     os << ")";
   }
 
-  bool isLogicalExpression() const {return true;}
+  bool isLogicalExpression() const override {return true;}
 #ifdef SBML_COMPAT
-  ASTNode* writeSBML(LogicalExprGenContext& genctx) const {
+  ASTNode* writeSBML(LogicalExprGenContext& genctx) const override {
     ASTNode* op = new ASTNode(AST_LOGICAL_XOR);
     
     op->addChild(left->writeSBML(genctx));
@@ -1004,7 +1004,7 @@ public:
     return op;
   }
 #endif
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 };
 
 class NotLogicalExpression : public Expression {
@@ -1013,44 +1013,44 @@ class NotLogicalExpression : public Expression {
 public:
   NotLogicalExpression(Expression* expr) : expr(expr) { }
 
-  Expression* clone() const {return new NotLogicalExpression(expr->clone());}
-  Expression* cloneAndShrink(bool& shrinked) const;
+  Expression* clone() const override {return new NotLogicalExpression(expr->clone());}
+  Expression* cloneAndShrink(bool& shrinked) const override;
 
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     return (double)(!((bool)expr->eval(this_node, network_state)));
   }
 
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     return (double)(!((bool)expr->eval(this_node, network_state, pop)));
   }
   
-  double eval(const NetworkState& network_state, double time) {
+  double eval(const NetworkState& network_state, double time) override {
     return (double)(!((bool)expr->eval(network_state, time)));
   }
   
-  bool hasCycle(Node* node) const {
+  bool hasCycle(Node* node) const override {
     return expr->hasCycle(node);
   }
 
-  const NotLogicalExpression* asNotLogicalExpression() const {return this;}
+  const NotLogicalExpression* asNotLogicalExpression() const override {return this;}
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os <<  "NOT ";
     expr->display(os);
   }
 
-  bool isLogicalExpression() const {return true;}
+  bool isLogicalExpression() const override {return true;}
 
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 #ifdef SBML_COMPAT
-  ASTNode* writeSBML(LogicalExprGenContext& genctx) const {
+  ASTNode* writeSBML(LogicalExprGenContext& genctx) const override {
     ASTNode* op = new ASTNode(AST_LOGICAL_NOT);
     
     op->addChild(expr->writeSBML(genctx));
     return op;
   }
 #endif
-  ~NotLogicalExpression() {
+  ~NotLogicalExpression() override {
     delete expr;
   }
 };
@@ -1061,50 +1061,50 @@ class ParenthesisExpression : public Expression {
 public:
   ParenthesisExpression(Expression* expr) : expr(expr) { }
 
-  Expression* clone() const {return new ParenthesisExpression(expr->clone());}
+  Expression* clone() const override {return new ParenthesisExpression(expr->clone());}
 
-  Expression* cloneAndShrink(bool& shrinked) const {
+  Expression* cloneAndShrink(bool& shrinked) const override {
     return new ParenthesisExpression(expr->cloneAndShrink(shrinked));
   }
 
-  bool generationWillAddParenthesis() const {return true;}
+  bool generationWillAddParenthesis() const override {return true;}
 
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     return expr->eval(this_node, network_state);
   }
 
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     return expr->eval(this_node, network_state, pop);
   }
 
-  const NotLogicalExpression* asNotLogicalExpression() const {return expr->asNotLogicalExpression();}
+  const NotLogicalExpression* asNotLogicalExpression() const override {return expr->asNotLogicalExpression();}
 
-  bool hasCycle(Node* node) const {
+  bool hasCycle(Node* node) const override {
     return expr->hasCycle(node);
   }
 
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os <<  '(';
     expr->display(os);
     os <<  ')';
   }
 
-  std::vector<Node*> getNodes() const{
+  std::vector<Node*> getNodes() const override{
     return expr->getNodes();
   }
-  bool isConstantExpression() const {return expr->isConstantExpression();}
-  bool isLogicalExpression() const {return expr->isLogicalExpression();}
+  bool isConstantExpression() const override {return expr->isConstantExpression();}
+  bool isLogicalExpression() const override {return expr->isLogicalExpression();}
 
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 
 #ifdef SBML_COMPAT
-  ASTNode* writeSBML(LogicalExprGenContext& genctx) const {
+  ASTNode* writeSBML(LogicalExprGenContext& genctx) const override {
 
     return expr->writeSBML(genctx);
   }
 #endif
 
-  virtual ~ParenthesisExpression() {
+  ~ParenthesisExpression() override {
     delete expr;
   }
 };
@@ -1134,36 +1134,36 @@ public:
     // }
  }
 
-  Expression* clone() const {return new FuncCallExpression(funname, arg_list->clone());}
+  Expression* clone() const override {return new FuncCallExpression(funname, arg_list->clone());}
 
-  double eval(const Node* this_node, const NetworkState& network_state) const {
+  double eval(const Node* this_node, const NetworkState& network_state) const override {
     if (is_const) {
       return value;
     }
     return function->eval(this_node, network_state, arg_list);
   }
 
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
     if (is_const) {
       return value;
     }
     return function->eval(this_node, network_state, pop, arg_list);
   }
-  void display(std::ostream& os) const {
+  void display(std::ostream& os) const override {
     os <<  funname << '(';
     arg_list->display(os);
     os <<  ')';
   }
 
-  bool hasCycle(Node* node) const {
+  bool hasCycle(Node* node) const override {
     return arg_list->hasCycle(node);
   }
 
-  bool isConstantExpression() const {return arg_list->isConstantExpression();}
+  bool isConstantExpression() const override {return arg_list->isConstantExpression();}
 
-  void generateLogicalExpression(LogicalExprGenContext& genctx) const;
+  void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 
-  virtual ~FuncCallExpression() {
+  ~FuncCallExpression() override {
     delete arg_list;
   }
 };

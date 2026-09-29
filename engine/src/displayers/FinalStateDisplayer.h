@@ -71,10 +71,10 @@ class CSVFinalStateDisplayer final : public FinalStateDisplayer {
 
 public:
   CSVFinalStateDisplayer(Network* network, std::ostream& os, bool hexfloat) : os(os), network(network), hexfloat(hexfloat) {}
-  void begin();
-  void displayFinalState(const NetworkState_Impl& state, double value);
-  void end();
-  ~CSVFinalStateDisplayer(){};
+  void begin() override;
+  void displayFinalState(const NetworkState_Impl& state, double value) override;
+  void end() override;
+  ~CSVFinalStateDisplayer() override{};
 };
 
 class JsonFinalStateDisplayer final : public FinalStateDisplayer {
@@ -85,10 +85,10 @@ class JsonFinalStateDisplayer final : public FinalStateDisplayer {
   unsigned int state_cnt;
 public:
   JsonFinalStateDisplayer(Network* network, std::ostream& os, bool hexfloat) : os(os), network(network), hexfloat(hexfloat), state_cnt(0) {}
-  void begin();
-  void displayFinalState(const NetworkState_Impl& state, double value);
-  void end();
-  ~JsonFinalStateDisplayer(){};
+  void begin() override;
+  void displayFinalState(const NetworkState_Impl& state, double value) override;
+  void end() override;
+  ~JsonFinalStateDisplayer() override{};
 };
 
 #endif
