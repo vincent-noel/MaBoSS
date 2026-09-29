@@ -45,14 +45,14 @@ class MBDynBitset {
   static void incr_refcount(uint64_t* data, size_t num_bytes);
 
 public:
-  MBDynBitset() : data(0), num_bits(0), num_bytes(0), num_64(0) {
+  MBDynBitset() : data(nullptr), num_bits(0), num_bytes(0), num_64(0) {
 #ifdef MB_COUNT
     new_default_cnt++;
 #endif
  }
 
   MBDynBitset(size_t nbits) {
-    data = 0;
+    data = nullptr;
     num_bits = 0;
     num_bytes = 0;
     num_64 = 0;
@@ -79,7 +79,7 @@ public:
 #ifdef MB_COUNT
     true_copy_cnt++;
 #endif
-    data = 0;
+    data = nullptr;
     num_bits = 0;
     num_bytes = 0;
     num_64 = 0;
@@ -107,7 +107,7 @@ public:
 	memcpy(data, bitset.data, num_bytes);
       }
     } else {
-      data = 0;
+      data = nullptr;
     }
     return *this;
   }

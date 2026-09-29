@@ -73,7 +73,7 @@ class NodeDeclItem {
 
 public:
   NodeDeclItem(const std::string& identifier, Expression* expr) : identifier(identifier), expr(expr) { }
-  NodeDeclItem(const std::string& identifier, const std::string& str) : identifier(identifier), expr(NULL), str(str) { }
+  NodeDeclItem(const std::string& identifier, const std::string& str) : identifier(identifier), expr(nullptr), str(str) { }
 
   const std::string& getIdentifier() const {return identifier;}
   Expression* getExpression() {return expr;}
@@ -83,10 +83,10 @@ public:
 class NodeDecl {
 
 public:
-  NodeDecl(const std::string& identifier, std::vector<NodeDeclItem*>* node_decl_item_list, Network* _network = NULL) {
+  NodeDecl(const std::string& identifier, std::vector<NodeDeclItem*>* node_decl_item_list, Network* _network = nullptr) {
     
     Network* network;
-    if (_network == NULL) {
+    if (_network == nullptr) {
       network = get_current_network();
     } else {
       network = _network;
@@ -107,13 +107,13 @@ public:
     if (reset) {
       node->reset();
     }
-    if (NULL == node_decl_item_list) {
+    if (nullptr == node_decl_item_list) {
       return;
     }
     size_t size = node_decl_item_list->size();
     for (size_t nn = 0; nn < size; nn++) {
       Expression* expr = (*node_decl_item_list)[nn]->getExpression();
-      if (NULL != expr) {
+      if (nullptr != expr) {
 	node->setAttributeExpression((*node_decl_item_list)[nn]->getIdentifier(), expr);
       } else {
 	node->setAttributeString((*node_decl_item_list)[nn]->getIdentifier(), (*node_decl_item_list)[nn]->getString());
@@ -129,9 +129,9 @@ public:
   Expression * expr;
   
   DivisionDaughterDecl() {
-    node = NULL;
+    node = nullptr;
     daughter = 0;
-    expr = NULL;
+    expr = nullptr;
   }
   DivisionDaughterDecl(Node* node, int daughter, Expression* expr) : node(node), daughter(daughter), expr(expr) {}
 };
@@ -140,14 +140,14 @@ class DivisionDecl {
   public:
   
   DivisionDecl(std::vector<DivisionDaughterDecl*>* daughters, Expression* rate) {
-    if (get_pop_network() == NULL)    
+    if (get_pop_network() == nullptr)    
       throw BNException("Please use PopMaBoSS to simulate PopMaBoSS models");
 
     DivisionRule * new_rule = new DivisionRule();
     
     new_rule->setRate(rate);
     
-    if (daughters != NULL){
+    if (daughters != nullptr){
       for (auto daughter: *daughters) {
         new_rule->addDaughterNode(daughter->daughter, daughter->node, daughter->expr);
       }

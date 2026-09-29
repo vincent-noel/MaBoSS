@@ -82,7 +82,7 @@ NetworkState StochasticSimulationEngine::run(NetworkState& initial_state, std::o
   network_state = initial_state;
   
   double tm = 0.;
-  if (NULL != output_traj)
+  if (nullptr != output_traj)
   {
     (*output_traj) << " istate\t";
     network_state.displayOneLine(*output_traj, network);
@@ -138,7 +138,7 @@ NetworkState StochasticSimulationEngine::run(NetworkState& initial_state, std::o
       tm += transition_time;
     }
 
-    if (NULL != output_traj)
+    if (nullptr != output_traj)
     {
       (*output_traj) << std::setprecision(10) << tm << '\t';
       network_state.displayOneLine(*output_traj, network);

@@ -223,7 +223,7 @@ static SBMLDocument* getDocument(fs::path path_model, SedListOfChanges* listOfCh
     // document = reader.readSBML(path_model.c_str());
     
     SBasePlugin* qual = document->getPlugin("qual");
-    if (qual == NULL) {
+    if (qual == nullptr) {
         throw BNException("This SBML model is not a qualitative sbml");
     }
     
@@ -289,7 +289,7 @@ class SedEngine
         SBMLParser* parser = new SBMLParser(network, document, false);
         
         parser->build();
-        network->compile(NULL);
+        network->compile(nullptr);
         parser->setIStates();
         IStateGroup::checkAndComplete(network);
 

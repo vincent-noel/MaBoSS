@@ -105,22 +105,22 @@ Expression* Node::rewriteLogicalExpression(Expression* ref_rateUpExpr, Expressio
 
 Expression* Node::generateRawLogicalExpression() const
 {
-  Expression* rewrited_expr = NULL;
-  if (NULL != rateUpExpr && NULL != rateDownExpr) {
+  Expression* rewrited_expr = nullptr;
+  if (nullptr != rateUpExpr && nullptr != rateDownExpr) {
     rewrited_expr = rewriteLogicalExpression(rateUpExpr->clone(), rateDownExpr->clone());
-  } else if (NULL != rateUpExpr) {
-    if (NULL == logicalInputExpr) {
+  } else if (nullptr != rateUpExpr) {
+    if (nullptr == logicalInputExpr) {
       rewrited_expr = rewriteLogicalExpression(rateUpExpr->clone(), new ConstantExpression(0.0));
     } else {
       rewrited_expr = rewriteLogicalExpression(rateUpExpr->clone(), new NotLogicalExpression(const_cast<Expression*>(logicalInputExpr)));
     }
-  } else if (NULL != rateDownExpr) {
-    if (NULL == logicalInputExpr) {
+  } else if (nullptr != rateDownExpr) {
+    if (nullptr == logicalInputExpr) {
       rewrited_expr = rewriteLogicalExpression(new ConstantExpression(1.0), rateDownExpr->clone());
     } else {
       rewrited_expr = rewriteLogicalExpression(logicalInputExpr->clone(), rateDownExpr->clone());
     }
-  } else if (NULL != logicalInputExpr) {
+  } else if (nullptr != logicalInputExpr) {
     rewrited_expr = logicalInputExpr->clone();
   } else {
     rewrited_expr = new ConstantExpression(0.);
@@ -154,7 +154,7 @@ bool Expression::evalIfConstant(double& value) const
 
   if (isConstantExpression()) {
     NetworkState network_state;
-    value = eval(NULL, network_state);
+    value = eval(nullptr, network_state);
     return true;
   }
   return false;
@@ -240,7 +240,7 @@ void NotLogicalExpression::generateLogicalExpression(LogicalExprGenContext& genc
     if (!dont_shrink_logical_expressions) {
       const NotLogicalExpression* not_expr = expr->asNotLogicalExpression();
 
-      if (NULL != not_expr) {
+      if (nullptr != not_expr) {
 	not_expr->expr->generateLogicalExpression(genctx);
 	return;
       }
@@ -432,7 +432,7 @@ void NodeExpression::generateLogicalExpression(LogicalExprGenContext& genctx) co
 void AliasExpression::generateLogicalExpression(LogicalExprGenContext& genctx) const
 {
   const Expression* t_alias_expr = getAliasExpression(genctx.getNode());
-  if (NULL == t_alias_expr) {
+  if (nullptr == t_alias_expr) {
     throw BNException("invalid use of alias attribute @" + identifier + " in node " + genctx.getNode()->getLabel());
   }
 

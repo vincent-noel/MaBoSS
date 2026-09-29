@@ -99,10 +99,10 @@ static int help()
 
 int main(int argc, char* argv[])
 {
-  const char* output = NULL;
+  const char* output = nullptr;
   std::vector<ConfigOpt> runconfig_file_or_expr_v;
   std::string config_vars;
-  const char* ctbndl_file = NULL;
+  const char* ctbndl_file = nullptr;
   std::string port;
   std::string host;
   bool verbose = false;
@@ -176,14 +176,14 @@ int main(int argc, char* argv[])
 	std::cerr << '\n' << prog << ": unknown option " << opt << std::endl;
 	return usage();
       }
-    } else if (ctbndl_file == NULL) {
+    } else if (ctbndl_file == nullptr) {
       ctbndl_file = argv[nn];
     } else {
       std::cerr << '\n' << prog << ": boolean network file is already set to " << ctbndl_file << " [" << opt << "]" << std::endl;
     }
   }
 
-  if (NULL == ctbndl_file) {
+  if (nullptr == ctbndl_file) {
     std::cerr << '\n' << prog << ": boolean network file is missing\n";
     return usage();
   }

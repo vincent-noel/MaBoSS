@@ -79,7 +79,7 @@ void* ProbTrajEngine::threadMergeWrapper(void *arg)
 #ifdef USE_DYNAMIC_BITSET
   MBDynBitset::end_pthread();
 #endif
-  return NULL;
+  return nullptr;
 }
 
 
@@ -111,7 +111,7 @@ void ProbTrajEngine::mergeResults(std::vector<Cumulator<NetworkState>*>& cumulat
 #ifdef STD_THREAD
           tid[nb_threads] = new std::thread(ProbTrajEngine::threadMergeWrapper, warg);
 #else
-          pthread_create(&tid[nb_threads], NULL, ProbTrajEngine::threadMergeWrapper, warg);
+          pthread_create(&tid[nb_threads], nullptr, ProbTrajEngine::threadMergeWrapper, warg);
 #endif
           nb_threads++;
           wargs.push_back(warg);
@@ -122,7 +122,7 @@ void ProbTrajEngine::mergeResults(std::vector<Cumulator<NetworkState>*>& cumulat
 #ifdef STD_THREAD
           tid[i]->join();
 #else
-          pthread_join(tid[i], NULL);
+          pthread_join(tid[i], nullptr);
 #endif     
       }
       
@@ -237,7 +237,7 @@ if (getWorldRank() == 0) {
 
 PyObject* ProbTrajEngine::getNumpyObservedGraph()
 {
-  if (observed_graph != NULL)
+  if (observed_graph != nullptr)
   {
     return observed_graph->getNumpyObservedGraph(network);
   
@@ -247,7 +247,7 @@ PyObject* ProbTrajEngine::getNumpyObservedGraph()
 }
 PyObject* ProbTrajEngine::getNumpyObservedDurations()
 {
-  if (observed_graph != NULL)
+  if (observed_graph != nullptr)
   {
     return observed_graph->getNumpyObservedDurations(network);
   
@@ -270,7 +270,7 @@ void ProbTrajEngine::buildSchedule() {
   // Build new schedule
   for (const auto& node : network->getNodes()) {
     std::map<double, Expression*>* node_schedule = node->getScheduledFlips();
-    if (node_schedule != NULL) {
+    if (node_schedule != nullptr) {
       for (const auto& entry : *node_schedule) {
         double time = entry.first;
         Expression* expr = entry.second;

@@ -76,7 +76,7 @@ void Client::send(const ClientData& client_data, ServerData& server_data)
     rpc_writeStringData(sock_fd, data.c_str(), data.length());
     
     char* response = rpc_readStringData(sock_fd);
-    if (response != NULL) {
+    if (response != nullptr) {
       if (verbose) {
 	std::cout << "client received [" << response << "]\n";
       }

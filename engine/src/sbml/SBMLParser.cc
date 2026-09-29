@@ -73,7 +73,7 @@ SBMLParser::SBMLParser(Network* network, SBMLDocument* document, bool useSBMLNam
 void SBMLParser::parseDocument(SBMLDocument* document)
 {
     SBasePlugin* qual = document->getPlugin("qual");
-    if (qual == NULL) {
+    if (qual == nullptr) {
         throw BNException("This SBML model is not a qualitative sbml");
     }
 
@@ -194,7 +194,7 @@ void SBMLParser::parseTransition(Transition* transition)
     }
 
     std::vector<FunctionTerm*> fun_terms(max_level);
-    DefaultTerm* def_term = NULL;
+    DefaultTerm* def_term = nullptr;
     int i_fun_term = -1;
     int nb_fun_term = 0;
     while(i_fun_term < ((int) transition->getNumFunctionTerms())) {
@@ -209,13 +209,13 @@ void SBMLParser::parseTransition(Transition* transition)
         i_fun_term++;
     }
 
-    if (nb_fun_term == 0 && def_term == NULL) {
+    if (nb_fun_term == 0 && def_term == nullptr) {
         throw BNException("Could not find the activating expression");
     }
 
-    Expression* exp = NULL;
+    Expression* exp = nullptr;
 
-    if (def_term != NULL && nb_fun_term == 0){
+    if (def_term != nullptr && nb_fun_term == 0){
         
         // Here what we miss is where nb_fun_term > 0 and def_term != null
         // In this case, for now, def_term is ignored. Which is ok, since most of the time def_term.resultLevel is 0
@@ -237,7 +237,7 @@ void SBMLParser::parseTransition(Transition* transition)
 
     else {
         for (int j=0; j < max_level; j++) {
-            if (fun_terms[j] != NULL && fun_terms[j]->getMath() != NULL) {
+            if (fun_terms[j] != nullptr && fun_terms[j]->getMath() != nullptr) {
                 exp = parseASTNode(fun_terms[j]->getMath());
                 
                 std::vector<std::string> new_outputs;
@@ -247,7 +247,7 @@ void SBMLParser::parseTransition(Transition* transition)
                 
                 // Here we need to modify lower terms, because exp(level_i) = exp(level_i) | exp(level_i+1) | ... | exp(level_n)
                 for(int k=j+1; k < max_level; k++) {
-                    if (fun_terms[k] != NULL && fun_terms[k]->getMath() != NULL) {
+                    if (fun_terms[k] != nullptr && fun_terms[k]->getMath() != nullptr) {
                         exp = new OrLogicalExpression(
                             exp,
                             parseASTNode(fun_terms[k]->getMath())
@@ -338,7 +338,7 @@ Expression* SBMLParser::parseASTNode(const ASTNode* tree)
 {
     std::string name;
     int value;
-    Expression* ret = NULL;
+    Expression* ret = nullptr;
 
     switch(tree->getType()) {
         case AST_LOGICAL_AND:

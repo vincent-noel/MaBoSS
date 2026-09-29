@@ -113,13 +113,13 @@ void rc_set_file(const char* _file)
 {
   input_lineno = 1;
   rc_file = _file;
-  expr = NULL;
+  expr = nullptr;
 }
 
 void yy_set_expr(const char* _expr)
 {
   input_lineno = 1;
-  rc_file = NULL;
+  rc_file = nullptr;
   expr = _expr;
 }
 

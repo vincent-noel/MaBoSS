@@ -95,7 +95,7 @@ public:
 
   std::vector<Proba> proba_v;
 
-  ProbTrajDisplayer(Network* _network, bool _hexfloat = false) : network(_network), hexfloat(_hexfloat), current_line(0), HD_v(NULL) { }
+  ProbTrajDisplayer(Network* _network, bool _hexfloat = false) : network(_network), hexfloat(_hexfloat), current_line(0), HD_v(nullptr) { }
 
 // public:
   void begin(bool _compute_errors, size_t _maxrows, size_t _maxcols, size_t _max_simplecols, size_t _refnode_count, std::vector<S>& _states, std::vector<NetworkState_Impl>& _simple_states) {
@@ -336,11 +336,11 @@ public:
     
     hsize_t    chunk_size = this->maxrows;
     int        compress  = 1;
-    int        *fill_data = NULL;
+    int        *fill_data = nullptr;
     
     H5TBmake_table( "probas",file ,"probas",this->states.size(),this->maxrows,
                          dst_size,field_names, dst_offset, field_type,
-                         chunk_size, fill_data, compress, NULL  );
+                         chunk_size, fill_data, compress, nullptr  );
                          
     probas = (double*) malloc(sizeof(double) * this->states.size());
     

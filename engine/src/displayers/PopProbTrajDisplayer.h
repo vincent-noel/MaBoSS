@@ -132,7 +132,7 @@ public:
     std::map<unsigned int, double> pop_size_distrib;
     for (const typename ProbTrajDisplayer<PopNetworkState>::Proba &proba : this->proba_v)
     {
-      pop += proba.proba * proba.state.count(NULL);
+      pop += proba.proba * proba.state.count(nullptr);
       for (const auto& network_state : proba.state.getMap())
       {
         if (network_state_probas.find(network_state.first) != network_state_probas.end())
@@ -151,13 +151,13 @@ public:
         }
       }
       
-      if (pop_size_distrib.find(proba.state.count(NULL)) != pop_size_distrib.end()) 
+      if (pop_size_distrib.find(proba.state.count(nullptr)) != pop_size_distrib.end()) 
       { 
-        pop_size_distrib[proba.state.count(NULL)] += proba.proba;
+        pop_size_distrib[proba.state.count(nullptr)] += proba.proba;
       }
       else 
       {
-        pop_size_distrib[proba.state.count(NULL)] = proba.proba;
+        pop_size_distrib[proba.state.count(nullptr)] = proba.proba;
       }
     }
 
@@ -257,7 +257,7 @@ public:
     std::map<unsigned int, double> pop_size_distrib;
     for (const typename ProbTrajDisplayer<PopNetworkState>::Proba &proba : this->proba_v)
     {
-      pop += proba.proba * proba.state.count(NULL);
+      pop += proba.proba * proba.state.count(nullptr);
       for (const auto &network_state : proba.state.getMap())
       {
         if (network_state_probas.find(network_state.first) != network_state_probas.end())
@@ -270,13 +270,13 @@ public:
         }
       }
       
-      if (pop_size_distrib.find(proba.state.count(NULL)) != pop_size_distrib.end()) 
+      if (pop_size_distrib.find(proba.state.count(nullptr)) != pop_size_distrib.end()) 
       { 
-        pop_size_distrib[proba.state.count(NULL)] += proba.proba;
+        pop_size_distrib[proba.state.count(nullptr)] += proba.proba;
       }
       else 
       {
-        pop_size_distrib[proba.state.count(NULL)] = proba.proba;
+        pop_size_distrib[proba.state.count(nullptr)] = proba.proba;
       }
     }
 
@@ -365,11 +365,11 @@ public:
     
     hsize_t    chunk_size = this->maxrows;
     int        compress  = 1;
-    int        *fill_data = NULL;
+    int        *fill_data = nullptr;
  
     H5TBmake_table( "simple_probas",file ,"simple_probas",this->simple_states.size()+1,this->maxrows,
                          dst_simple_size,field_names, dst_simple_offset, field_type,
-                         chunk_size, fill_data, compress, NULL  );
+                         chunk_size, fill_data, compress, nullptr  );
                          
     simple_probas = (double*) malloc(sizeof(double) * this->simple_states.size());
     
@@ -392,7 +392,7 @@ public:
     std::map<unsigned int, double> pop_size_distrib;
     for (const typename ProbTrajDisplayer<PopNetworkState>::Proba &proba : this->proba_v)
     {
-      pop += proba.proba * proba.state.count(NULL);
+      pop += proba.proba * proba.state.count(nullptr);
       for (const auto &network_state : proba.state.getMap())
       {
         if (network_state_probas.find(network_state.first) != network_state_probas.end())
@@ -405,13 +405,13 @@ public:
         }
       }
       
-      if (pop_size_distrib.find(proba.state.count(NULL)) != pop_size_distrib.end()) 
+      if (pop_size_distrib.find(proba.state.count(nullptr)) != pop_size_distrib.end()) 
       { 
-        pop_size_distrib[proba.state.count(NULL)] += proba.proba;
+        pop_size_distrib[proba.state.count(nullptr)] += proba.proba;
       }
       else 
       {
-        pop_size_distrib[proba.state.count(NULL)] = proba.proba;
+        pop_size_distrib[proba.state.count(nullptr)] = proba.proba;
       }
     }
     

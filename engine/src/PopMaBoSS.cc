@@ -147,7 +147,7 @@ static std::string format_extension(OutputFormat format) {
     return ".h5";
 #endif
   default:
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -156,17 +156,17 @@ int main(int argc, char* argv[])
 #ifdef MPI_COMPAT
   int world_size, world_rank;
   
-  MPI_Init(NULL, NULL);
+  MPI_Init(nullptr, nullptr);
   // Get the number of processes
   MPI_Comm_size(MPI_COMM_WORLD, &world_size);
   // Get the rank of the process
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 #endif
   
-  const char* output = NULL;
+  const char* output = nullptr;
   std::vector<ConfigOpt> runconfig_file_or_expr_v;
   std::vector<std::string> runconfig_var_v;
-  const char* ctbndl_file = NULL;
+  const char* ctbndl_file = nullptr;
   bool dump_config = false;
   bool generate_config_template = false;
   bool generate_logical_expressions = false;
@@ -177,7 +177,7 @@ int main(int argc, char* argv[])
   PopMaBEstEngine::init();
 
   // for debug
-  if (getenv("MABOSS_VERBOSE") != NULL) {
+  if (getenv("MABOSS_VERBOSE") != nullptr) {
 #if USE_DYNAMIC_BITSET_STD_ALLOC
     std::cerr << "PopMaBoSS use dynamic_bitset [std allocator]\n";
 #elif defined(USE_DYNAMIC_BITSET)
@@ -281,14 +281,14 @@ int main(int argc, char* argv[])
 	std::cerr << '\n' << prog << ": unknown option " << s << std::endl;
 	return usage();
       }
-    } else if (ctbndl_file == NULL) {
+    } else if (ctbndl_file == nullptr) {
       ctbndl_file = argv[nn];
     } else {
       std::cerr << '\n' << prog << ": boolean network file is already set to " << ctbndl_file << " [" << s << "]" << std::endl;
     }
   }
   
-  if (!dump_config && !generate_config_template && !generate_logical_expressions && !check && output == NULL) {
+  if (!dump_config && !generate_config_template && !generate_logical_expressions && !check && output == nullptr) {
     std::cerr << '\n' << prog << ": --output option is not set\n";
     return usage();
   }
@@ -328,13 +328,13 @@ int main(int argc, char* argv[])
     return usage();
   }
 
-  std::ostream* output_run = NULL;
-  std::ostream* output_traj = NULL;
+  std::ostream* output_run = nullptr;
+  std::ostream* output_traj = nullptr;
   
-  std::ostream* output_fp = NULL;
-  std::ostream* output_pop_probtraj = NULL;
-  std::ostream* output_simple_pop_probtraj = NULL;
-  std::ostream* output_custom_pop_probtraj = NULL;
+  std::ostream* output_fp = nullptr;
+  std::ostream* output_pop_probtraj = nullptr;
+  std::ostream* output_simple_pop_probtraj = nullptr;
+  std::ostream* output_custom_pop_probtraj = nullptr;
   
 #ifdef HDF5_COMPAT
   hid_t hdf5_file;
@@ -436,7 +436,7 @@ int main(int argc, char* argv[])
     
     ProbTrajDisplayer<PopNetworkState>* pop_probtraj_displayer;
     FixedPointDisplayer* fp_displayer;
-    ProbTrajDisplayer<PopSize>* custom_pop_probtraj_displayer = NULL;
+    ProbTrajDisplayer<PopSize>* custom_pop_probtraj_displayer = nullptr;
     
     if (format == CSV_FORMAT) {
       pop_probtraj_displayer = new CSVSimplePopProbTrajDisplayer(pop_network, *output_pop_probtraj, *output_simple_pop_probtraj, hexfloat);
@@ -455,8 +455,8 @@ int main(int argc, char* argv[])
       fp_displayer = new HDF5FixedPointDisplayer(pop_network, hdf5_file);
 #endif
     } else {
-      pop_probtraj_displayer = NULL;
-      fp_displayer = NULL;
+      pop_probtraj_displayer = nullptr;
+      fp_displayer = nullptr;
     }
     
     mabest.display(pop_probtraj_displayer, fp_displayer);
@@ -476,7 +476,7 @@ int main(int argc, char* argv[])
     }
 #endif
     delete output_run;
-    if (NULL != output_traj) {
+    if (nullptr != output_traj) {
 #ifdef MPI_COMPAT
     if (world_rank == 0) {
 #endif

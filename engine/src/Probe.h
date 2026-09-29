@@ -71,12 +71,12 @@ class Probe {
   }
 
   void start() {
-    gettimeofday(&tv0, NULL);
+    gettimeofday(&tv0, nullptr);
     times(&tms0);
   }
 
   void stop() {
-    gettimeofday(&tv1, NULL);
+    gettimeofday(&tv1, nullptr);
     times(&tms1);
   }
 
