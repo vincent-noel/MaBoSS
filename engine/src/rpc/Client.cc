@@ -53,7 +53,7 @@
 #include <sys/un.h>
 #include <sys/select.h>
 #include <sys/stat.h>
-#include <errno.h>
+#include <cerrno>
 #include <iostream>
 #include <fstream>
 #include <sstream>

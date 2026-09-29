@@ -54,9 +54,9 @@
 //#define USE_DUMMY_RANDOM
 
 //#define RANDOM_TRACE
-#include <assert.h>
+#include <cassert>
 #include <fcntl.h>
-#include <stdio.h>
+#include <cstdio>
 
 #ifdef _MSC_VER
 #include <io.h>
@@ -64,8 +64,8 @@
 #include <unistd.h>
 #endif
 
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <string>
 #include <iostream>
 #include <random>

@@ -51,8 +51,7 @@
 #include "../Network.h"
 #include "../ObservedGraph.h"
 #include "../Probe.h"
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <cmath>

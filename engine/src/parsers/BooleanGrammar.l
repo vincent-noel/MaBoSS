@@ -49,7 +49,7 @@
      January-March 2011
 */
 
-#include <math.h>
+#include <cmath>
 #include "../compatibility_header.h"
 
 static char *yytokstr();

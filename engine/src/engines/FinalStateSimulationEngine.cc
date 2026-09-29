@@ -49,8 +49,8 @@
 
 #include "FinalStateSimulationEngine.h"
 #include "../Probe.h"
-#include <stdlib.h>
-#include <math.h>
+#include <cstdlib>
+#include <cmath>
 #include <iomanip>
 #include <iostream>
 

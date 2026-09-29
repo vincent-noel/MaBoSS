@@ -58,11 +58,11 @@
 #include <sys/un.h>
 #include <sys/select.h>
 #include <sys/stat.h>
-#include <errno.h>
+#include <cerrno>
 #include <unistd.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <fcntl.h>
-#include <string.h>
+#include <cstring>
 
 #include <string>
 
