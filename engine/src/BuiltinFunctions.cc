@@ -59,7 +59,7 @@ class LogFunction : public Function {
 public:
   LogFunction() : Function("log", 1, 2) { }
 
-  double eval(const Node* this_node, const NetworkState& network_state, ArgumentList* arg_list) {
+  double eval(const Node* this_node, const NetworkState& network_state, ArgumentList* arg_list) override {
     const std::vector<Expression*>& expr_v = arg_list->getExpressionList();
     std::vector<Expression*>::const_iterator iter = expr_v.begin();
     double val = (*iter)->eval(this_node, network_state);
@@ -72,7 +72,7 @@ public:
     return log(val) / log(base);
   }
   
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop, ArgumentList* arg_list) {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop, ArgumentList* arg_list) override {
     const std::vector<Expression*>& expr_v = arg_list->getExpressionList();
     std::vector<Expression*>::const_iterator iter = expr_v.begin();
     double val = (*iter)->eval(this_node, network_state, pop);
@@ -85,7 +85,7 @@ public:
     return log(val) / log(base);
   }
 
-  std::string getDescription() const {
+  std::string getDescription() const override {
     return "double log(double VALUE[, double BASE=e])\n  computes the value of the natural logarithm of VALUE; uses BASE if set";
   }
 };
@@ -95,7 +95,7 @@ class ExpFunction : public Function {
 public:
   ExpFunction() : Function("exp", 1, 2) { }
 
-  double eval(const Node* this_node, const NetworkState& network_state, ArgumentList* arg_list) {
+  double eval(const Node* this_node, const NetworkState& network_state, ArgumentList* arg_list) override {
     const std::vector<Expression*>& expr_v = arg_list->getExpressionList();
     std::vector<Expression*>::const_iterator iter = expr_v.begin();
     double val = (*iter)->eval(this_node, network_state);
@@ -108,7 +108,7 @@ public:
     return exp(val * log(base));
   }
   
-  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop, ArgumentList* arg_list) {
+  double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop, ArgumentList* arg_list) override {
     const std::vector<Expression*>& expr_v = arg_list->getExpressionList();
     std::vector<Expression*>::const_iterator iter = expr_v.begin();
     double val = (*iter)->eval(this_node, network_state, pop);
@@ -121,7 +121,7 @@ public:
     return exp(val * log(base));
   }
 
-  std::string getDescription() const {
+  std::string getDescription() const override {
     return "double exp(double VALUE[, double BASE=e])\n  computes the base-e exponential of VALUE; uses BASE if set";
   }
 };

@@ -172,7 +172,7 @@ class CSVProbTrajDisplayer : public ProbTrajDisplayer<S> {
 public:
   CSVProbTrajDisplayer(Network* network, std::ostream& os_probtraj, bool hexfloat = false) : ProbTrajDisplayer<S>(network, hexfloat), os_probtraj(os_probtraj) { }
 
-  virtual void beginDisplay() {
+  void beginDisplay() override {
     os_probtraj << "Time\tTH" << (this->compute_errors ? "\tErrorTH" : "") << "\tH";
     for (unsigned int jj = 0; jj <= this->refnode_count; ++jj) {
       os_probtraj << "\tHD=" << jj;
@@ -184,8 +184,8 @@ public:
 
     os_probtraj << '\n';
   }
-  virtual void beginTimeTickDisplay() {}
-  virtual void endTimeTickDisplay() {
+  void beginTimeTickDisplay() override {}
+  void endTimeTickDisplay() override {
     os_probtraj << std::setprecision(4) << std::fixed << this->time_tick;
   #ifdef HAS_STD_HEXFLOAT
     if (this->hexfloat) {
@@ -224,7 +224,7 @@ public:
     }
     os_probtraj << '\n';
   }
-  virtual void endDisplay() {}
+  void endDisplay() override {}
 };
 
 template <typename S>
@@ -235,19 +235,19 @@ class JSONProbTrajDisplayer : public ProbTrajDisplayer<S> {
 public:
   JSONProbTrajDisplayer(Network* _network, std::ostream& _os_probtraj, bool _hexfloat = false) : ProbTrajDisplayer<S>(_network, _hexfloat), os_probtraj(_os_probtraj) { }
 
-  virtual void beginDisplay() {
+  void beginDisplay() override {
     // void JSONProbTrajDisplayer<N, S>::beginDisplay() {
     os_probtraj << '[';
   }
 
-  virtual void beginTimeTickDisplay() {
+  void beginTimeTickDisplay() override {
     if (this->current_line > 0) {
       os_probtraj << ',';
     }
     os_probtraj << '{';
   }
   
-  virtual void endTimeTickDisplay() {
+  void endTimeTickDisplay() override {
     os_probtraj << "\"tick\":" << std::setprecision(4) << std::fixed << this->time_tick << ",";
     if (this->hexfloat) {
       os_probtraj << "\"TH\":" << fmthexdouble(this->TH, true) << ",";
@@ -294,7 +294,7 @@ public:
     os_probtraj << "]";
     os_probtraj << '}';
   }
-  virtual void endDisplay() {
+  void endDisplay() override {
     os_probtraj << ']';
   }
 };
@@ -315,7 +315,7 @@ public:
   HDF5ProbTrajDisplayer(Network* network, hid_t& file) : ProbTrajDisplayer<S>(network, false), file(file) { 
   }
 
-  virtual void beginDisplay(){
+  void beginDisplay() override{
     dst_size =  sizeof( double ) * this->states.size();
     dst_offset = (size_t*) malloc( sizeof( size_t ) * this->states.size() );
     dst_sizes = (size_t*) malloc( sizeof( size_t ) * this->states.size() );
@@ -349,10 +349,10 @@ public:
     free(field_type);
   }
   
-  virtual void beginTimeTickDisplay(){   
+  void beginTimeTickDisplay() override{   
   }
   
-  virtual void endTimeTickDisplay(){
+  void endTimeTickDisplay() override{
 
     for (size_t i = 0; i < this->states.size(); i++) {
       probas[i] = 0.0;
@@ -362,7 +362,7 @@ public:
     }
     H5TBwrite_records(file, "probas", this->current_line, 1, dst_size, dst_offset, dst_sizes, probas);
   }
-  virtual void endDisplay(){
+  void endDisplay() override{
     free(dst_offset);
     free(dst_sizes);
     free(probas);

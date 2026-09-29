@@ -83,7 +83,7 @@ extern const char* fmthexdouble(double d, bool add_quotes = false);
 class NullBuffer : public std::streambuf
 {
 public:
-  int overflow(int c) { return c; }
+  int overflow(int c) override { return c; }
 };
 
 static NullBuffer null_buffer;

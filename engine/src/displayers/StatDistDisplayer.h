@@ -125,26 +125,26 @@ class CSVStatDistDisplayer : public StatDistDisplayer {
 public:
   CSVStatDistDisplayer(Network* network, std::ostream& os_statdist, bool hexfloat = false) : StatDistDisplayer(network), os_statdist(os_statdist), hexfloat(hexfloat) { }
 
-  virtual void beginDisplay();
+  void beginDisplay() override;
 
-  virtual void beginStatDistDisplay();
-  virtual void beginStateProbaDisplay();
-  virtual void addStateProba(const NetworkState_Impl& state, double proba);
-  virtual void endStateProbaDisplay();
-  virtual void endStatDistDisplay();
+  void beginStatDistDisplay() override;
+  void beginStateProbaDisplay() override;
+  void addStateProba(const NetworkState_Impl& state, double proba) override;
+  void endStateProbaDisplay() override;
+  void endStatDistDisplay() override;
 
-  virtual void beginCluster(size_t num, size_t size);
-  virtual void endCluster();
+  void beginCluster(size_t num, size_t size) override;
+  void endCluster() override;
 
-  virtual void beginClusterFactoryStationaryDistribution();
-  virtual void endClusterFactoryStationaryDistribution();
+  void beginClusterFactoryStationaryDistribution() override;
+  void endClusterFactoryStationaryDistribution() override;
 
-  virtual void beginClusterStationaryDistribution(size_t num);
-  virtual void endClusterStationaryDistribution();
+  void beginClusterStationaryDistribution(size_t num) override;
+  void endClusterStationaryDistribution() override;
 
-  virtual void addProbaVariance(const NetworkState_Impl& state, double proba, double variance);
+  void addProbaVariance(const NetworkState_Impl& state, double proba, double variance) override;
 
-  virtual void endDisplay();
+  void endDisplay() override;
 };
 
 class JSONStatDistDisplayer : public StatDistDisplayer {
@@ -159,27 +159,27 @@ class JSONStatDistDisplayer : public StatDistDisplayer {
 public:
   JSONStatDistDisplayer(Network* network, std::ostream& os_statdist, std::ostream& os_statdist_cluster, std::ostream& os_statdist_distrib, bool hexfloat = false) : StatDistDisplayer(network), os_statdist(os_statdist), os_statdist_cluster(os_statdist_cluster), os_statdist_distrib(os_statdist_distrib), hexfloat(hexfloat), current_state_proba(0), cluster_mode(false) { }
 
-  virtual void beginDisplay();
+  void beginDisplay() override;
 
-  virtual void beginStatDistDisplay();
-  virtual void beginStateProbaDisplay();
-  virtual void addStateProba(const NetworkState_Impl& state, double proba);
-  virtual void endStateProbaDisplay();
-  virtual void endStatDistDisplay();
+  void beginStatDistDisplay() override;
+  void beginStateProbaDisplay() override;
+  void addStateProba(const NetworkState_Impl& state, double proba) override;
+  void endStateProbaDisplay() override;
+  void endStatDistDisplay() override;
 
-  virtual void beginFactoryCluster();
-  virtual void endFactoryCluster();
-  virtual void beginCluster(size_t num, size_t size);
-  virtual void endCluster();
+  void beginFactoryCluster() override;
+  void endFactoryCluster() override;
+  void beginCluster(size_t num, size_t size) override;
+  void endCluster() override;
 
-  virtual void beginClusterFactoryStationaryDistribution();
-  virtual void endClusterFactoryStationaryDistribution();
+  void beginClusterFactoryStationaryDistribution() override;
+  void endClusterFactoryStationaryDistribution() override;
 
-  virtual void beginClusterStationaryDistribution(size_t num);
-  virtual void endClusterStationaryDistribution();
+  void beginClusterStationaryDistribution(size_t num) override;
+  void endClusterStationaryDistribution() override;
 
-  virtual void addProbaVariance(const NetworkState_Impl& state, double proba, double variance);
-  virtual void endDisplay();
+  void addProbaVariance(const NetworkState_Impl& state, double proba, double variance) override;
+  void endDisplay() override;
 };
 
 #ifdef HDF5_COMPAT
@@ -192,27 +192,27 @@ class HDF5StatDistDisplayer : public StatDistDisplayer {
 public:
   HDF5StatDistDisplayer(Network* network, hid_t& hdf5_file) : StatDistDisplayer(network), hdf5_file(hdf5_file), current_state_proba(0), cluster_mode(false) { }
 
-  virtual void beginDisplay();
+  void beginDisplay() override;
 
-  virtual void beginStatDistDisplay();
-  virtual void beginStateProbaDisplay();
-  virtual void addStateProba(const NetworkState_Impl& state, double proba);
-  virtual void endStateProbaDisplay();
-  virtual void endStatDistDisplay();
+  void beginStatDistDisplay() override;
+  void beginStateProbaDisplay() override;
+  void addStateProba(const NetworkState_Impl& state, double proba) override;
+  void endStateProbaDisplay() override;
+  void endStatDistDisplay() override;
 
-  virtual void beginFactoryCluster();
-  virtual void endFactoryCluster();
-  virtual void beginCluster(size_t num, size_t size);
-  virtual void endCluster();
+  void beginFactoryCluster() override;
+  void endFactoryCluster() override;
+  void beginCluster(size_t num, size_t size) override;
+  void endCluster() override;
 
-  virtual void beginClusterFactoryStationaryDistribution();
-  virtual void endClusterFactoryStationaryDistribution();
+  void beginClusterFactoryStationaryDistribution() override;
+  void endClusterFactoryStationaryDistribution() override;
 
-  virtual void beginClusterStationaryDistribution(size_t num);
-  virtual void endClusterStationaryDistribution();
+  void beginClusterStationaryDistribution(size_t num) override;
+  void endClusterStationaryDistribution() override;
 
-  virtual void addProbaVariance(const NetworkState_Impl& state, double proba, double variance);
-  virtual void endDisplay();
+  void addProbaVariance(const NetworkState_Impl& state, double proba, double variance) override;
+  void endDisplay() override;
 };
 #endif
 

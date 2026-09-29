@@ -63,10 +63,10 @@ class CSVCustomPopProbTrajDisplayer : public ProbTrajDisplayer<PopSize> {
 public:
   CSVCustomPopProbTrajDisplayer(Network* network, std::ostream& os_probtraj, bool hexfloat = false) : ProbTrajDisplayer<PopSize>(network, hexfloat), os_probtraj(os_probtraj) { }
 
-  void beginDisplay();
-  void beginTimeTickDisplay() {}
-  void endTimeTickDisplay();
-  void endDisplay() { }
+  void beginDisplay() override;
+  void beginTimeTickDisplay() override {}
+  void endTimeTickDisplay() override;
+  void endDisplay() override { }
 };
 
 

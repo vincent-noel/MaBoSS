@@ -21,7 +21,7 @@ class SedASTVariable: public SedASTExpression
     std::string name;
     SedASTVariable(const std::string _task, const std::string _name) : task(_task), name(_name) { }
     
-    std::vector<double> eval(std::map<std::string, std::map<std::string, std::vector<double> > >& results, std::map<std::string, std::map<std::string, std::vector<double> > >& state_results )
+    std::vector<double> eval(std::map<std::string, std::map<std::string, std::vector<double> > >& results, std::map<std::string, std::map<std::string, std::vector<double> > >& state_results ) override
     {
         return results[task][name];
     }
@@ -35,7 +35,7 @@ class SedASTStateVariable: public SedASTExpression
     std::string name;
     SedASTStateVariable(const std::string _task, const std::string _name) : task(_task), name(_name) { }
     
-    std::vector<double> eval(std::map<std::string, std::map<std::string, std::vector<double> > >& results, std::map<std::string, std::map<std::string, std::vector<double> > >& state_results )
+    std::vector<double> eval(std::map<std::string, std::map<std::string, std::vector<double> > >& results, std::map<std::string, std::map<std::string, std::vector<double> > >& state_results ) override
     {
         return state_results[task][name];
     }
