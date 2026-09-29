@@ -91,7 +91,7 @@ EnsembleEngine::EnsembleEngine(std::vector<Network*> networks, RunConfig* runcon
   }
   observed_graph = new ObservedGraph(networks[0]);
   
-  merged_cumulator = NULL;
+  merged_cumulator = nullptr;
   cumulator_v.resize(thread_count);
   observed_graph_v.resize(thread_count);
 
@@ -402,7 +402,7 @@ void* EnsembleEngine::threadWrapper(void *arg)
 #ifdef USE_DYNAMIC_BITSET
   MBDynBitset::end_pthread();
 #endif
-  return NULL;
+  return nullptr;
 }
 
 void EnsembleEngine::runThread(Cumulator<NetworkState>* cumulator, unsigned int start_count_thread, unsigned int sample_count_thread, 
@@ -439,7 +439,7 @@ void EnsembleEngine::runThread(Cumulator<NetworkState>* cumulator, unsigned int 
     
     chosen_network->initStates(network_state, random_generator);
     double tm = 0.;
-    if (NULL != output_traj) {
+    if (nullptr != output_traj) {
       (*output_traj) << "\nTrajectory #" << (nn+1) << '\n';
       (*output_traj) << " istate\t";
       network_state.displayOneLine(*output_traj, chosen_network);
@@ -514,7 +514,7 @@ void EnsembleEngine::runThread(Cumulator<NetworkState>* cumulator, unsigned int 
         TH = computeTH(chosen_network, nodeTransitionRates, total_rate);
       }
 
-      if (NULL != output_traj) {
+      if (nullptr != output_traj) {
 	(*output_traj) << std::setprecision(10) << tm << '\t';
 	network_state.displayOneLine(*output_traj, chosen_network);
 	(*output_traj) << '\t' << TH << '\n';
@@ -561,7 +561,7 @@ void EnsembleEngine::run(std::ostream* output_traj)
 #ifdef STD_THREAD
     tid[nn] = new std::thread(EnsembleEngine::threadWrapper, warg);
 #else
-    pthread_create(&tid[nn], NULL, EnsembleEngine::threadWrapper, warg);
+    pthread_create(&tid[nn], nullptr, EnsembleEngine::threadWrapper, warg);
 #endif
     arg_wrapper_v.push_back(warg);
 
@@ -571,7 +571,7 @@ void EnsembleEngine::run(std::ostream* output_traj)
 #ifdef STD_THREAD
     tid[nn]->join();
 #else
-    pthread_join(tid[nn], NULL);
+    pthread_join(tid[nn], nullptr);
 #endif
   }
   probe.stop();
@@ -599,7 +599,7 @@ void EnsembleEngine::mergeMPIIndividual(bool pack)
 {
   if (world_size > 1) {
     for (unsigned int model=0; model < networks.size(); model++) {
-      if (observed_graph_per_model[model] == NULL)
+      if (observed_graph_per_model[model] == nullptr)
       {
         observed_graph_per_model[model] = new ObservedGraph(networks[model]);
       }
@@ -644,9 +644,9 @@ void EnsembleEngine::epilogue()
 }
 
 void EnsembleEngine::mergeIndividual() {
-  cumulators_per_model.resize(networks.size(), NULL);
-  fixpoints_per_model.resize(networks.size(), NULL);
-  observed_graph_per_model.resize(networks.size(), NULL);
+  cumulators_per_model.resize(networks.size(), nullptr);
+  fixpoints_per_model.resize(networks.size(), nullptr);
+  observed_graph_per_model.resize(networks.size(), nullptr);
 
   for (unsigned int i=0; i < networks.size(); i++) {
     if (cumulators_thread_v[i].size() > 0) {
@@ -671,7 +671,7 @@ void EnsembleEngine::displayIndividualFixpoints(unsigned int model_id, FixedPoin
   if (world_rank == 0) {
 #endif
   
-  if (fixpoints_per_model[model_id] != NULL) {
+  if (fixpoints_per_model[model_id] != nullptr) {
     displayer->begin(fixpoints_per_model[model_id]->size());
 
     size_t nn = 0;
@@ -694,7 +694,7 @@ void EnsembleEngine::displayIndividual(unsigned int model_id, ProbTrajDisplayer<
 if (world_rank == 0){
 #endif
 
-  if (cumulators_per_model[model_id] != NULL) {
+  if (cumulators_per_model[model_id] != nullptr) {
     cumulators_per_model[model_id]->displayProbTraj(refnode_count, probtraj_displayer);
     cumulators_per_model[model_id]->displayStatDist(statdist_displayer);
   }

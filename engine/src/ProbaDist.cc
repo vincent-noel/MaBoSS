@@ -142,7 +142,7 @@ void ProbaDistClusterFactory::cacheSimilarities()
 
   for (unsigned int nn1 = 0; nn1 < statdist_traj_count; ++nn1) {
     for (unsigned int nn2 = nn1; nn2 < statdist_traj_count; ++nn2) {
-      similarity_cache[nn1][nn2] = ProbaDistCluster::similarity(nn1, getProbaDist(nn1), nn2, getProbaDist(nn2), NULL);
+      similarity_cache[nn1][nn2] = ProbaDistCluster::similarity(nn1, getProbaDist(nn1), nn2, getProbaDist(nn2), nullptr);
     }
   }
 }
@@ -177,7 +177,7 @@ void ProbaDistClusterFactory::computeStationaryDistribution()
 
 double ProbaDistCluster::similarity(unsigned int nn1, const ProbaDist<NetworkState>& proba_dist1, unsigned int nn2, const ProbaDist<NetworkState>& proba_dist2, double** similarity_cache)
 {
-  if (NULL != similarity_cache) {
+  if (nullptr != similarity_cache) {
     return nn2 > nn1 ? similarity_cache[nn1][nn2] : similarity_cache[nn2][nn1];
   }
 

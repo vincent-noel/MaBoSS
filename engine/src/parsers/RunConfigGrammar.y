@@ -135,7 +135,7 @@ decl: var_decl
 runconfig_decl: SYMBOL '=' expression ';'
 {
   NetworkState network_state;
-  double value = $3->eval(NULL, network_state);
+  double value = $3->eval(nullptr, network_state);
   config->setParameter($1, value);
   free($1);
   delete $3;
@@ -146,7 +146,7 @@ node_attr_decl: SYMBOL '.' SYMBOL '=' expression ';'
 {
   Node* node = network->getNode($1);
   NetworkState network_state;
-  double value = $5->eval(NULL, network_state);
+  double value = $5->eval(nullptr, network_state);
   if (!strcasecmp($3, "istate")) {
     if (backward_istate) {
       node->setIState((bool)value);
@@ -327,7 +327,7 @@ var_decl: VARIABLE '=' expression ';'
   const Symbol* symbol = network->getSymbolTable()->getOrMakeSymbol($1);
   free($1);
   NetworkState dummy_state;
-  network->getSymbolTable()->setSymbolValue(symbol, $3->eval(NULL, dummy_state));
+  network->getSymbolTable()->setSymbolValue(symbol, $3->eval(nullptr, dummy_state));
   delete $3;
 }
 ;
@@ -406,7 +406,7 @@ postfix_expression: primary_expression
 }
 | SYMBOL '(' ')'
 {
-  $$ = new FuncCallExpression($1, NULL);
+  $$ = new FuncCallExpression($1, nullptr);
   free($1);
 }
 ;

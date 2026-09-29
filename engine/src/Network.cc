@@ -72,8 +72,8 @@ Network::Network() : last_index(0U)
 {
   istate_group_list = new std::vector<IStateGroup*>();
   symbol_table = new SymbolTable();
-  set_current_network(NULL);
-  set_pop_network(NULL);
+  set_current_network(nullptr);
+  set_pop_network(nullptr);
 }
 
 int Network::parseExpression(const char* content, std::map<std::string, NodeIndex>* nodes_indexes){
@@ -84,7 +84,7 @@ int Network::parseExpression(const char* content, std::map<std::string, NodeInde
   try 
   {
     int r = ctbndlparse();
-    set_current_network(NULL);
+    set_current_network(nullptr);
 
     if (r) {
       ctbndllex_destroy();
@@ -96,7 +96,7 @@ int Network::parseExpression(const char* content, std::map<std::string, NodeInde
   }
   catch (const BNException&) 
   {
-    set_current_network(NULL);
+    set_current_network(nullptr);
     ctbndllex_destroy();
 
     throw;
@@ -106,7 +106,7 @@ int Network::parseExpression(const char* content, std::map<std::string, NodeInde
 
 Expression* Network::parseSingleExpression(const char* content, std::map<std::string, NodeIndex>* nodes_indexes)
 {
-  set_expression(NULL);
+  set_expression(nullptr);
   const char * se = "SINGLE_EXPRESSION ";
   const char * ee = ";";
   std::string new_content = se;
@@ -125,9 +125,9 @@ int Network::parse(const char* file, std::map<std::string, NodeIndex>* nodes_ind
   }
 #endif
 
-  if (NULL != file) {
+  if (nullptr != file) {
     ctbndlin = fopen(file, "r");
-    if (ctbndlin == NULL) {
+    if (ctbndlin == nullptr) {
       throw BNException("network parsing: cannot open file:" + std::string(file) + " for reading");
     }
     if (is_temp_file) {
@@ -140,10 +140,10 @@ int Network::parse(const char* file, std::map<std::string, NodeIndex>* nodes_ind
   try{
     int r = ctbndlparse();
 
-    set_current_network(NULL);
+    set_current_network(nullptr);
 
     if (r) {
-      if (NULL != file)
+      if (nullptr != file)
         fclose(ctbndlin);
       ctbndllex_destroy();
 
@@ -151,7 +151,7 @@ int Network::parse(const char* file, std::map<std::string, NodeIndex>* nodes_ind
     }
     compile(nodes_indexes);
 
-    if (NULL != file)
+    if (nullptr != file)
       fclose(ctbndlin);
     
     ctbndllex_destroy();
@@ -160,10 +160,10 @@ int Network::parse(const char* file, std::map<std::string, NodeIndex>* nodes_ind
   }
   catch (const BNException&) 
   {  
-    if (NULL != file)
+    if (nullptr != file)
       fclose(ctbndlin);
     
-    set_current_network(NULL);
+    set_current_network(nullptr);
     ctbndllex_destroy();
 
     throw;
@@ -217,7 +217,7 @@ void Network::compile(std::map<std::string, NodeIndex>* nodes_indexes)
   nodes.resize(node_map.size());
   while (begin != node_map.end()) {
     Node* node = (*begin).second;
-    if (nodes_indexes != NULL) {
+    if (nodes_indexes != nullptr) {
       node->setIndex((*nodes_indexes)[node->getLabel()]);
     }
     

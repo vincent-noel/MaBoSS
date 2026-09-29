@@ -111,7 +111,7 @@ int fileGetContents(const std::string& file, std::string& contents)
 int filePutContents(const std::string& file, const std::string& data)
 {
   FILE* fd = fopen(file.c_str(), "w");
-  if (fd == NULL) {
+  if (fd == nullptr) {
     std::cerr << "cannot open file " + file + " for writing" << std::endl;
     return 1;
   }

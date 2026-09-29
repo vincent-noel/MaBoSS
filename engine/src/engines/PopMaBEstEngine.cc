@@ -104,10 +104,10 @@ PopMaBEstEngine::PopMaBEstEngine(PopNetwork *pop_network, RunConfig *runconfig) 
     }
   }
 
-  merged_cumulator = NULL;
-  custom_pop_cumulator = NULL;
-  custom_pop_cumulator_v.resize(thread_count, NULL);
-  cumulator_v.resize(thread_count, NULL);
+  merged_cumulator = nullptr;
+  custom_pop_cumulator = nullptr;
+  custom_pop_cumulator_v.resize(thread_count, nullptr);
+  cumulator_v.resize(thread_count, nullptr);
   unsigned int count = sample_count / thread_count;
   unsigned int firstcount = count + sample_count - count * thread_count;
   
@@ -225,7 +225,7 @@ void *PopMaBEstEngine::threadWrapper(void *arg)
 #ifdef USE_DYNAMIC_BITSET
   MBDynBitset::end_pthread();
 #endif
-  return NULL;
+  return nullptr;
 }
 
 void PopMaBEstEngine::runThread(Cumulator<PopNetworkState> *cumulator, Cumulator<PopSize>* custom_cumulator, unsigned int start_count_thread, unsigned int sample_count_thread, RandomGeneratorFactory *randgen_factory, int seed, FixedPoints *fixpoint_map, std::ostream *output_traj)
@@ -237,7 +237,7 @@ void PopMaBEstEngine::runThread(Cumulator<PopNetworkState> *cumulator, Cumulator
   {
     custom_pop_output = runconfig->getCustomPopOutputExpression()->clone();
   } else {
-    custom_pop_output = NULL;
+    custom_pop_output = nullptr;
   }
   
   RandomGenerator *random_generator = randgen_factory->generateRandomGenerator(seed);
@@ -259,7 +259,7 @@ void PopMaBEstEngine::runThread(Cumulator<PopNetworkState> *cumulator, Cumulator
     }
       
     double tm = 0.;
-    if (NULL != output_traj) {
+    if (nullptr != output_traj) {
       (*output_traj) << "\nTrajectory #" << (nn+1) << '\n';
       (*output_traj) << " istate\t";
       pop_network_state.displayOneLine(*output_traj, pop_network);
@@ -443,7 +443,7 @@ void PopMaBEstEngine::runThread(Cumulator<PopNetworkState> *cumulator, Cumulator
         // TH = computeTH(nodeTransitionRates, total_rate);
       }
 
-      if (NULL != output_traj) {
+      if (nullptr != output_traj) {
         (*output_traj) << std::setprecision(10) << tm << '\t';
         pop_network_state.displayOneLine(*output_traj, pop_network);
         (*output_traj) << '\t' << TH << '\n';
@@ -457,7 +457,7 @@ void PopMaBEstEngine::runThread(Cumulator<PopNetworkState> *cumulator, Cumulator
 #else
         PopNetworkState t_popstate(pop_network_state & cumulator->getOutputMask().getMap().begin()->first);
 #endif
-        double eval = custom_pop_output->eval(NULL, s, t_popstate);
+        double eval = custom_pop_output->eval(nullptr, s, t_popstate);
         if (eval >= 0){
           PopSize pop_size((unsigned int) eval);
           custom_cumulator->cumul(pop_size, tm, TH); 
@@ -537,7 +537,7 @@ void PopMaBEstEngine::run(std::ostream *output_traj)
 #ifdef STD_THREAD
     tid[nn] = new std::thread(PopMaBEstEngine::threadWrapper, warg);
 #else
-    pthread_create(&tid[nn], NULL, PopMaBEstEngine::threadWrapper, warg);
+    pthread_create(&tid[nn], nullptr, PopMaBEstEngine::threadWrapper, warg);
 #endif
     arg_wrapper_v.push_back(warg);
 
@@ -548,7 +548,7 @@ void PopMaBEstEngine::run(std::ostream *output_traj)
 #ifdef STD_THREAD
     tid[nn]->join();
 #else
-    pthread_join(tid[nn], NULL);
+    pthread_join(tid[nn], nullptr);
 #endif
   }
   probe.stop();
@@ -631,7 +631,7 @@ void* PopMaBEstEngine::threadMergeWrapper(void *arg)
 #ifdef USE_DYNAMIC_BITSET
   MBDynBitset::end_pthread();
 #endif
-  return NULL;
+  return nullptr;
 }
 
 
@@ -663,7 +663,7 @@ void PopMaBEstEngine::mergeResults()
 #ifdef STD_THREAD
           tid[nb_threads] = new std::thread(PopMaBEstEngine::threadMergeWrapper, warg);
 #else
-          pthread_create(&tid[nb_threads], NULL, PopMaBEstEngine::threadMergeWrapper, warg);
+          pthread_create(&tid[nb_threads], nullptr, PopMaBEstEngine::threadMergeWrapper, warg);
 #endif
           nb_threads++;
           wargs.push_back(warg);
@@ -674,7 +674,7 @@ void PopMaBEstEngine::mergeResults()
 #ifdef STD_THREAD
           tid[i]->join();
 #else
-          pthread_join(tid[i], NULL);
+          pthread_join(tid[i], nullptr);
 #endif
       }
       
@@ -731,7 +731,7 @@ void PopMaBEstEngine::MPI_Unpack_Fixpoints(FixedPoints* fp_map, char* buff, unsi
   MPI_Unpack(buff, buff_size, &position, &nb_fixpoints, 1, MPI_UNSIGNED, MPI_COMM_WORLD);
   
   if (nb_fixpoints > 0) {
-    if (fp_map == NULL) {
+    if (fp_map == nullptr) {
       fp_map = new FixedPoints();
     }
     for (unsigned int j=0; j < nb_fixpoints; j++) {
@@ -751,7 +751,7 @@ void PopMaBEstEngine::MPI_Unpack_Fixpoints(FixedPoints* fp_map, char* buff, unsi
 
 char* PopMaBEstEngine::MPI_Pack_Fixpoints(const FixedPoints* fp_map, int dest, unsigned int * buff_size)
 {
-  unsigned int nb_fixpoints = fp_map == NULL ? 0 : fp_map->size();
+  unsigned int nb_fixpoints = fp_map == nullptr ? 0 : fp_map->size();
   *buff_size = sizeof(unsigned int);
   for (auto& fixpoint: *fp_map) {
     NetworkState state(fixpoint.first);

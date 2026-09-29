@@ -85,7 +85,7 @@ exppart		[eE](\-|\+)?[0-9]+
      return NODE;
   }
 
-  if (current_pop_network != NULL)  {
+  if (current_pop_network != nullptr)  {
     if (!strcasecmp(yytext, "DIVISION")) {
       return DIVISION;
     }

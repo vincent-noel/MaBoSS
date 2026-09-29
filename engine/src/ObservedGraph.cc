@@ -137,7 +137,7 @@ void ObservedGraph::mergePairOfObservedGraph(const ObservedGraph* observed_graph
     }
     
     delete observed_graph_2;
-    observed_graph_2 = NULL;
+    observed_graph_2 = nullptr;
 }
 
 void ObservedGraph::epilogue()
@@ -166,7 +166,7 @@ void ObservedGraph::mergePairOfMPIObservedGraph(ObservedGraph* graph, int world_
             if (buff_size > 0) {
                 char* buff = new char[buff_size];
                 MPI_Recv( buff, buff_size, MPI_PACKED, origin, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE); 
-                if (graph == NULL) {
+                if (graph == nullptr) {
                     graph = new ObservedGraph(buff, buff_size);
                 } else {
                     graph->MPI_Unpack_ObservedGraph(buff, buff_size);

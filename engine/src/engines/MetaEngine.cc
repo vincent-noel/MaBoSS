@@ -74,7 +74,7 @@ void MetaEngine::loadUserFuncs(const char* module)
   void* dl = LoadLibrary(module);
 #endif
 
-  if (NULL == dl) {
+  if (nullptr == dl) {
 #if !defined (WINDOWS) && !defined(_MSC_VER)
     std::cerr << dlerror() << std::endl;
 #else
@@ -90,7 +90,7 @@ void MetaEngine::loadUserFuncs(const char* module)
   MYPROC sym = (MYPROC) GetProcAddress((HINSTANCE) dl, MABOSS_USER_FUNC_INIT);
 #endif
 
-  if (sym == NULL) {
+  if (sym == nullptr) {
     std::cerr << "symbol " << MABOSS_USER_FUNC_INIT << "() not found in user func module: " << module << "\n";
     exit(1);
   }

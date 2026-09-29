@@ -98,7 +98,7 @@ ArgumentList::~ArgumentList() {
 
 Function::Function(const std::string& funname, unsigned int min_args, unsigned int max_args) : funname(funname), min_args(min_args), max_args(max_args == ~0U ? min_args : max_args)
 {
-  if (NULL == func_map) {
+  if (nullptr == func_map) {
     func_map = new std::map<std::string, Function*>();
   }
   (*func_map)[funname] = this;
@@ -117,17 +117,17 @@ void Function::check(ArgumentList* arg_list)
 
 Function* Function::getFunction(const std::string& funname)
 {
-  if (func_map == NULL) {return NULL;}
+  if (func_map == nullptr) {return nullptr;}
   std::map<std::string, Function*>::iterator iter = func_map->find(funname);
   if (iter == func_map->end()) {
-    return NULL;
+    return nullptr;
   }
   return iter->second;
 }
 
 void Function::displayFunctionDescriptions(std::ostream& os)
 {
-  if (func_map == NULL) {return;}
+  if (func_map == nullptr) {return;}
   for (const auto & func : *func_map) {
     os << "  " << func.second->getDescription() << "\n\n";
   }

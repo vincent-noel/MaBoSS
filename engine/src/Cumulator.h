@@ -1321,18 +1321,18 @@ PyObject* getNumpySimpleStatesDists(Network* network) const
       const S& state = iter.next2(tick_value);
       double proba = tick_value.tm_slice / ratio;
       
-      pop += proba * state.count(NULL);
+      pop += proba * state.count(nullptr);
       
       if (COMPUTE_ERRORS)
       {
-        std::map<unsigned int, double>::iterator it = pop_size_distrib.find(state.count(NULL));
+        std::map<unsigned int, double>::iterator it = pop_size_distrib.find(state.count(nullptr));
         if (it != pop_size_distrib.end()) 
         { 
           it->second += proba;
         }
         else 
         {
-          pop_size_distrib[state.count(NULL)] = proba;
+          pop_size_distrib[state.count(nullptr)] = proba;
         }
       }
       
@@ -1455,18 +1455,18 @@ PyObject* getNumpySimpleLastStatesDists(Network* network) const
     const S& state = iter.next2(tick_value);
     double proba = tick_value.tm_slice / ratio;
     
-    pop += proba * state.count(NULL);
+    pop += proba * state.count(nullptr);
     
     if (COMPUTE_ERRORS)
     {
-      std::map<unsigned int, double>::iterator it = pop_size_distrib.find(state.count(NULL));
+      std::map<unsigned int, double>::iterator it = pop_size_distrib.find(state.count(nullptr));
       if (it != pop_size_distrib.end()) 
       { 
         it->second += proba;
       }
       else 
       {
-        pop_size_distrib[state.count(NULL)] = proba;
+        pop_size_distrib[state.count(nullptr)] = proba;
       }
     }
     
@@ -1699,14 +1699,14 @@ static void mergePairOfCumulators(Cumulator<S>* cumulator_1, Cumulator<S>* cumul
     cumulator_1->proba_dist_v[rr++] = cumulator_2->proba_dist_v[ii];
   }
   delete cumulator_2;
-  cumulator_2 = NULL;
+  cumulator_2 = nullptr;
 }
 
 #ifdef MPI_COMPAT
 static size_t MPI_Size_Cumulator(Cumulator<S>* ret_cumul)
 {
   size_t total_size = sizeof(size_t);
-  size_t t_cumul_size = ret_cumul != NULL ? ret_cumul->cumul_map_v.size() : 0;
+  size_t t_cumul_size = ret_cumul != nullptr ? ret_cumul->cumul_map_v.size() : 0;
   
   
   for (size_t nn = 0; nn < t_cumul_size; ++nn) {
@@ -1719,7 +1719,7 @@ static size_t MPI_Size_Cumulator(Cumulator<S>* ret_cumul)
   }
   
   total_size += sizeof(size_t);
-  size_t t_proba_dist_size = ret_cumul != NULL ? ret_cumul->proba_dist_v.size() : 0;
+  size_t t_proba_dist_size = ret_cumul != nullptr ? ret_cumul->proba_dist_v.size() : 0;
   
   for (size_t ii = 0; ii < t_proba_dist_size; ii++) {
     total_size += ret_cumul->proba_dist_v[ii].my_MPI_Size();
@@ -1732,7 +1732,7 @@ static char* MPI_Pack_Cumulator(Cumulator<S>* ret_cumul, int dest, unsigned int 
   *buff_size = MPI_Size_Cumulator(ret_cumul);
   char* buff = new char[*buff_size];
   int position = 0;
-  size_t t_cumul_size = ret_cumul != NULL ? ret_cumul->cumul_map_v.size() : 0;
+  size_t t_cumul_size = ret_cumul != nullptr ? ret_cumul->cumul_map_v.size() : 0;
   MPI_Pack(&t_cumul_size, 1, my_MPI_SIZE_T, buff, *buff_size, &position, MPI_COMM_WORLD);
   
   for (size_t nn = 0; nn < t_cumul_size; ++nn) {
@@ -1745,7 +1745,7 @@ static char* MPI_Pack_Cumulator(Cumulator<S>* ret_cumul, int dest, unsigned int 
     MPI_Pack(&t_th_square, 1, MPI_DOUBLE, buff, *buff_size, &position, MPI_COMM_WORLD);
   }
   
-  size_t t_proba_dist_size = ret_cumul != NULL ? ret_cumul->proba_dist_v.size() : 0;
+  size_t t_proba_dist_size = ret_cumul != nullptr ? ret_cumul->proba_dist_v.size() : 0;
   MPI_Pack(&t_proba_dist_size, 1, my_MPI_SIZE_T, buff, *buff_size, &position, MPI_COMM_WORLD);
 
   for (size_t ii = 0; ii < t_proba_dist_size; ii++) {
@@ -1791,7 +1791,7 @@ static void MPI_Unpack_Cumulator(Cumulator<S>* mpi_ret_cumul, char* buff, unsign
 
 static void MPI_Send_Cumulator(Cumulator<S>* ret_cumul, int dest) 
 {
-  size_t t_cumul_size = ret_cumul != NULL ? ret_cumul->cumul_map_v.size() : 0;
+  size_t t_cumul_size = ret_cumul != nullptr ? ret_cumul->cumul_map_v.size() : 0;
   MPI_Send(&t_cumul_size, 1, my_MPI_SIZE_T, dest, 0, MPI_COMM_WORLD);
 
   for (size_t nn = 0; nn < t_cumul_size; ++nn) {
@@ -1803,7 +1803,7 @@ static void MPI_Send_Cumulator(Cumulator<S>* ret_cumul, int dest)
     MPI_Send(&t_th_square, 1, MPI_DOUBLE, dest, 0, MPI_COMM_WORLD);
   }
   
-  size_t t_proba_dist_size = ret_cumul != NULL ? ret_cumul->proba_dist_v.size() : 0;
+  size_t t_proba_dist_size = ret_cumul != nullptr ? ret_cumul->proba_dist_v.size() : 0;
   MPI_Send(&t_proba_dist_size, 1, my_MPI_SIZE_T, dest, 0, MPI_COMM_WORLD);
   
   for (size_t ii = 0; ii < t_proba_dist_size; ii++) {
@@ -1853,7 +1853,7 @@ static void mergePairOfMPICumulators(Cumulator<S>* ret_cumul, int world_rank, in
     unsigned int other_cumulator_statdist;
     MPI_Recv( &other_cumulator_statdist, 1, MPI_UNSIGNED, origin, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 
-    if (ret_cumul != NULL) {
+    if (ret_cumul != nullptr) {
       ret_cumul->sample_count += other_cumulator_size;
       ret_cumul->statdist_trajcount += other_cumulator_statdist;
       ret_cumul->proba_dist_v.resize(ret_cumul->statdist_trajcount);
@@ -1892,16 +1892,16 @@ static void mergePairOfMPICumulators(Cumulator<S>* ret_cumul, int world_rank, in
     
   } else if (world_rank == origin) {
         
-    unsigned int local_cumulator_size = ret_cumul != NULL ? ret_cumul->sample_count : 0;
+    unsigned int local_cumulator_size = ret_cumul != nullptr ? ret_cumul->sample_count : 0;
     MPI_Send(&local_cumulator_size, 1, MPI_UNSIGNED, dest, 0, MPI_COMM_WORLD);
     
-    unsigned int local_statdist_trajcount = ret_cumul != NULL ? ret_cumul->statdist_trajcount : 0;
+    unsigned int local_statdist_trajcount = ret_cumul != nullptr ? ret_cumul->statdist_trajcount : 0;
     MPI_Send(&local_statdist_trajcount, 1, MPI_UNSIGNED, dest, 0, MPI_COMM_WORLD);
     
-    size_t local_cumul_size = ret_cumul != NULL ? ret_cumul->cumul_map_v.size() : 0;
+    size_t local_cumul_size = ret_cumul != nullptr ? ret_cumul->cumul_map_v.size() : 0;
     MPI_Send(&local_cumul_size, 1, my_MPI_SIZE_T, dest, 0, MPI_COMM_WORLD);
 
-    int local_max_tick_index = ret_cumul != NULL ? ret_cumul->max_tick_index : 0;
+    int local_max_tick_index = ret_cumul != nullptr ? ret_cumul->max_tick_index : 0;
     MPI_Send(&local_max_tick_index, 1, MPI_INT, dest, 0, MPI_COMM_WORLD);
 
     if (pack) {

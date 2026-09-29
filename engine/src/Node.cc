@@ -55,7 +55,7 @@
 bool Node::override = false;
 bool Node::augment = false;
 
-Node::Node(const std::string& label, const std::string& description, NodeIndex index) : label(label), description(description), istate_set(false), is_internal(false), is_reference(false), in_graph(false), is_mutable(false), referenceState(false), logicalInputExpr(NULL), rateUpExpr(NULL), rateDownExpr(NULL), index(index), schedule(NULL)
+Node::Node(const std::string& label, const std::string& description, NodeIndex index) : label(label), description(description), istate_set(false), is_internal(false), is_reference(false), in_graph(false), is_mutable(false), referenceState(false), logicalInputExpr(nullptr), rateUpExpr(nullptr), rateDownExpr(nullptr), index(index), schedule(nullptr)
 {
 #if !defined(USE_STATIC_BITSET) && !defined(USE_DYNAMIC_BITSET)
   node_bit = NetworkState::nodeBit(index);
@@ -73,12 +73,12 @@ void Node::reset()
   is_mutable = false;
   referenceState = false;
   delete logicalInputExpr;
-  logicalInputExpr = NULL;
+  logicalInputExpr = nullptr;
   delete rateUpExpr;
-  rateUpExpr = NULL;
+  rateUpExpr = nullptr;
   delete rateDownExpr;
-  rateDownExpr = NULL;
-  schedule = NULL;
+  rateDownExpr = nullptr;
+  schedule = nullptr;
 }
 
 void Node::setLogicalInputExpression(const Expression* _logicalInputExpr) {
@@ -98,13 +98,13 @@ void Node::setRateDownExpression(const Expression* expr) {
 
 bool Node::isInputNode() const
 {
-  return getLogicalInputExpression() == NULL && getRateUpExpression() == NULL && getRateDownExpression() == NULL;
+  return getLogicalInputExpression() == nullptr && getRateUpExpression() == nullptr && getRateDownExpression() == nullptr;
 }
 
 double Node::getRateUp(const NetworkState& network_state) const
 {
-  if (getRateUpExpression() == NULL) {
-    if (NULL != getLogicalInputExpression()) {
+  if (getRateUpExpression() == nullptr) {
+    if (nullptr != getLogicalInputExpression()) {
       double d = getLogicalInputExpression()->eval(this, network_state);
       return (0.0 != d) ? 1.0 : 0.0;
     }
@@ -115,8 +115,8 @@ double Node::getRateUp(const NetworkState& network_state) const
 
 double Node::getRateUp(const NetworkState& network_state, const PopNetworkState& pop) const
 {
-  if (getRateUpExpression() == NULL) {
-    if (NULL != getLogicalInputExpression()) {
+  if (getRateUpExpression() == nullptr) {
+    if (nullptr != getLogicalInputExpression()) {
       double d = getLogicalInputExpression()->eval(this, network_state, pop);
       return (0.0 != d) ? 1.0 : 0.0;
     }
@@ -128,8 +128,8 @@ double Node::getRateUp(const NetworkState& network_state, const PopNetworkState&
 
 double Node::getRateDown(const NetworkState& network_state) const
 {
-  if (getRateDownExpression() == NULL) {
-    if (NULL != getLogicalInputExpression()) {
+  if (getRateDownExpression() == nullptr) {
+    if (nullptr != getLogicalInputExpression()) {
       double d = getLogicalInputExpression()->eval(this, network_state);
       return (0.0 != d) ? 0.0 : 1.0;
     }
@@ -140,8 +140,8 @@ double Node::getRateDown(const NetworkState& network_state) const
 
 double Node::getRateDown(const NetworkState& network_state, const PopNetworkState& pop) const
 {
-  if (getRateDownExpression() == NULL) {
-    if (NULL != getLogicalInputExpression()) {
+  if (getRateDownExpression() == nullptr) {
+    if (nullptr != getLogicalInputExpression()) {
       double d = getLogicalInputExpression()->eval(this, network_state, pop);
       return (0.0 != d) ? 0.0 : 1.0;
     }
@@ -156,9 +156,9 @@ void Node::mutate(double value)
     delete logicalInputExpr;
     logicalInputExpr = new ConstantExpression(value);
     delete rateUpExpr;
-    rateUpExpr = NULL;
+    rateUpExpr = nullptr;
     delete rateDownExpr;
-    rateDownExpr = NULL;
+    rateDownExpr = nullptr;
 }
 
 void Node::makeMutable(Network* network)
@@ -172,10 +172,10 @@ void Node::makeMutable(Network* network)
     const Symbol* nb_mutable = network->getSymbolTable()->getOrMakeSymbol("$nb_mutable");
     network->getSymbolTable()->defineUndefinedSymbol(nb_mutable);    
     
-    Expression* new_rate_up = NULL;
-    Expression* new_rate_down = NULL;
+    Expression* new_rate_up = nullptr;
+    Expression* new_rate_down = nullptr;
     
-    if (rateUpExpr == NULL) {
+    if (rateUpExpr == nullptr) {
       
       new_rate_up = new CondExpression(
         logicalInputExpr->clone(),
@@ -199,7 +199,7 @@ void Node::makeMutable(Network* network)
       new_rate_up
     );
     
-    if (rateDownExpr == NULL) {
+    if (rateDownExpr == nullptr) {
       new_rate_down = new CondExpression(
         logicalInputExpr->clone(),
         new ConstantExpression(0.0),
@@ -259,17 +259,17 @@ void Node::display(std::ostream& os) const
   if (description.length() > 0) {
     os << "  description = \"" << description << "\";\n";
   }
-  if (NULL != logicalInputExpr) {
+  if (nullptr != logicalInputExpr) {
     os << "  logic = ";
     logicalInputExpr->display(os);
     os << ";\n";
   }
-  if (NULL != rateUpExpr) {
+  if (nullptr != rateUpExpr) {
     os << "  rate_up = ";
     rateUpExpr->display(os);
     os << ";\n";
   }
-  if (NULL != rateDownExpr) {
+  if (nullptr != rateDownExpr) {
     os << "  rate_down = ";
     rateDownExpr->display(os);
     os << ";\n";
@@ -300,7 +300,7 @@ Node::~Node()
     delete attr_expr.second;
   }
   
-  if (schedule != NULL) { 
+  if (schedule != nullptr) { 
     for (auto schedule_entry : *schedule) {
       delete schedule_entry.second;
     }

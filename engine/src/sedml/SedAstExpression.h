@@ -68,7 +68,7 @@ static SedASTExpression* parseSedASTExpression(const ASTNode* tree, std::map<std
     //     );
     
     } else {
-        return NULL;
+        return nullptr;
     }
     
 }
