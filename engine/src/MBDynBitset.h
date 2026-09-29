@@ -1,10 +1,10 @@
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <cstring>
 #include <sstream>
 #include <iostream>
 #include <cstdint>
 
-#include <assert.h>
+#include <cassert>
 
 //#define USE_MB_SHIFT
 //#define MB_COUNT

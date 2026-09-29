@@ -51,7 +51,7 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 #ifdef MPI_COMPAT
 #include <mpi.h>

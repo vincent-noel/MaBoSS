@@ -51,7 +51,7 @@
 #define _BOOLEANGRAMMAR_H_
 
 #include <vector>
-#include <string.h>
+#include <cstring>
 #include "../Network.h"
 #include "../Node.h"
 #include "../PopNetwork.h"

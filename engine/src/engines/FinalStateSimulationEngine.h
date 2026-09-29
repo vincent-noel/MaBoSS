@@ -53,7 +53,7 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 #ifdef PYTHON_API
 #define NO_IMPORT_ARRAY

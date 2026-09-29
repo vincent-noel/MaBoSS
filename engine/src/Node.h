@@ -50,7 +50,7 @@
 #ifndef _NODE_H_
 #define _NODE_H_
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <sstream>
 #include <map>

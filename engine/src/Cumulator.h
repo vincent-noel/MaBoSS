@@ -54,7 +54,7 @@
 #include <map>
 #include <set>
 #include <vector>
-#include <assert.h>
+#include <cassert>
 #include <cfloat>
 
 #ifdef PYTHON_API

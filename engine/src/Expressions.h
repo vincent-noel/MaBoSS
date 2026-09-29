@@ -50,7 +50,7 @@
 #ifndef _EXPRESSIONS_H_
 #define _EXPRESSIONS_H_
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <ostream>
 #include <sstream>
 #include <vector>

@@ -51,7 +51,7 @@
 #include <string>
 #include <map>
 #include <vector>
-#include <assert.h>
+#include <cassert>
 
 #include "MetaEngine.h"
 #include "FixedPointEngine.h"

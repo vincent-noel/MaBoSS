@@ -47,7 +47,7 @@
   January-March 2011
 */
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <ctime>
 #include "engines/MaBEstEngine.h"
 #include "engines/EnsembleEngine.h"

@@ -53,8 +53,8 @@
 #ifdef MPI_COMPAT
 #include <mpi.h>
 
-#include <stdint.h>
-#include <limits.h>
+#include <cstdint>
+#include <climits>
 
 #if SIZE_MAX == UCHAR_MAX
    #define my_MPI_SIZE_T MPI_UNSIGNED_CHAR

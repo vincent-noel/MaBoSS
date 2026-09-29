@@ -1,5 +1,5 @@
 #include <sbml/math/ASTNodeType.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <vector>
 #include <map>
 #include <string> 

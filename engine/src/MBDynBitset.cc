@@ -88,7 +88,7 @@ void MBDynBitset::end_pthread()
 
 #else
 #include <sys/types.h>
-#include <assert.h>
+#include <cassert>
 
 class Mutex {
   pthread_mutex_t mutex;

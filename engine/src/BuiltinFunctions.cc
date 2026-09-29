@@ -46,7 +46,7 @@
      July 2018
 */
 
-#include <math.h>
+#include <cmath>
 #include "Function.h"
 #include "Expressions.h"
 

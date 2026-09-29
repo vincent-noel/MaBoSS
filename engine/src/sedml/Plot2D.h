@@ -1,5 +1,5 @@
 #include <sedml/SedListOfStyles.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <vector>
 #include <map>
 

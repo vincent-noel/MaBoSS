@@ -50,7 +50,7 @@
 #ifndef _PROBADIST_H_
 #define _PROBADIST_H_
 
-#include <assert.h>
+#include <cassert>
 #include <string>
 #include <map>
 #include <vector>
