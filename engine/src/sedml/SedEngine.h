@@ -45,6 +45,8 @@
      June 2025
 */
 
+#pragma once
+
 #include <sbml/SBMLDocument.h>
 #include <sbml/SBase.h>
 #include <sbml/math/ASTNode.h>
@@ -61,8 +63,7 @@
 #include <sedml/SedUniformTimeCourse.h>
 #include <string>
 #define SEDML_COMPAT 1
-#if defined SEDML_COMPAT && !defined _SEDML_PARSER_H_
-#define _SEDML_PARSER_H_
+#if defined SEDML_COMPAT
 #include "../Network.h"
 #include "../engines/MaBEstEngine.h"
 #include "../sbml/SBMLParser.h"

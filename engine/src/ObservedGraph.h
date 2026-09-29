@@ -1,5 +1,4 @@
-#ifndef __OBSERVED_GRAPH_H__
-#define __OBSERVED_GRAPH_H__
+#pragma once
 
 #include <ostream>
 #include "Network.h"
@@ -50,5 +49,3 @@ public:
     PyObject* getNumpyObservedDurations(const Network* network) const;
 #endif
 };
-
-#endif

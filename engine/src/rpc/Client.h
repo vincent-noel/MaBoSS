@@ -45,8 +45,7 @@
      May 2018
 */
 
-#ifndef _CLIENT_H_
-#define _CLIENT_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -134,4 +133,3 @@ public:
   void send(const ClientData& client_data, ServerData& server_data);
 };
 
-#endif

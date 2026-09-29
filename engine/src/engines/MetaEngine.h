@@ -45,8 +45,7 @@
      March 2019
 */
 
-#ifndef _METAENGINE_H_
-#define _METAENGINE_H_
+#pragma once
 
 
 #ifdef MPI_COMPAT
@@ -193,4 +192,3 @@ public:
   
 };
 
-#endif

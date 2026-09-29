@@ -2,8 +2,7 @@
   Small helpers shared by the MaBoSS unit tests.
 */
 
-#ifndef MABOSS_TEST_HELPERS_H
-#define MABOSS_TEST_HELPERS_H
+#pragma once
 
 #include <memory>
 #include <string>
@@ -39,4 +38,3 @@ inline std::unique_ptr<Network> parse_abc_network() {
 
 } // namespace maboss_test
 
-#endif

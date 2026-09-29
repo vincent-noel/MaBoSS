@@ -46,8 +46,7 @@
      May 2018
 */
 
-#ifndef _UTILS_H_
-#define _UTILS_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -94,4 +93,3 @@ bool hasEnding (std::string const &fullString, std::string const &ending);
 int setConfigVariables(Network* network, const std::string& prog, std::vector<std::string>& runvar_v);
 int setConfigVariables(Network* network, const std::string& prog, const std::string& runvar);
 
-#endif

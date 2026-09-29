@@ -46,8 +46,7 @@
      May 2018
 */
 
-#ifndef _MaBoSS_RPC_H_
-#define _MaBoSS_RPC_H_
+#pragma once
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -120,4 +119,3 @@ protected:
 extern char* rpc_readStringData(int fd);
 extern ssize_t rpc_writeStringData(int fd, const char* data, size_t len);
 
-#endif

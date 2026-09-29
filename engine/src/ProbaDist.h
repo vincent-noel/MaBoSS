@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _PROBADIST_H_
-#define _PROBADIST_H_
+#pragma once
 
 #include <cassert>
 #include <string>
@@ -341,4 +340,3 @@ class ProbaDistClusterFactory {
   }
 };
 
-#endif

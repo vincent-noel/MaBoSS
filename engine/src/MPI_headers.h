@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _MPI_HEADERS_H_
-#define _MPI_HEADERS_H_
+#pragma once
 
 #ifdef MPI_COMPAT
 #include <mpi.h>
@@ -69,6 +68,4 @@
 #else
    #error "what is happening here?"
 #endif
-#endif
-
 #endif

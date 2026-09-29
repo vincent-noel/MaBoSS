@@ -1,5 +1,4 @@
-#ifndef BN_EXCEPTION_H
-#define BN_EXCEPTION_H
+#pragma once
 
 #include <string>
 #include <iostream>
@@ -15,4 +14,3 @@ class BNException {
 };
 
 std::ostream& operator<<(std::ostream& os, const BNException& e);
-#endif

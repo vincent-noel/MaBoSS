@@ -45,8 +45,7 @@
      March 2019
 */
 
-#ifndef _ENSEMBLEENGINE_H_
-#define _ENSEMBLEENGINE_H_
+#pragma once
 
 #include <string>
 #include <map>
@@ -106,4 +105,3 @@ public:
   ~EnsembleEngine();
 };
 
-#endif

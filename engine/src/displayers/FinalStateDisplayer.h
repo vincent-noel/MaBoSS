@@ -47,8 +47,7 @@
      Decembre 2020
 */
 
-#ifndef _FINALSTATE_DISPLAYER_H_
-#define _FINALSTATE_DISPLAYER_H_
+#pragma once
 
 #include <iostream>
 #include "../NetworkState.h"
@@ -91,5 +90,4 @@ public:
   ~JsonFinalStateDisplayer() override = default;
 };
 
-#endif
 

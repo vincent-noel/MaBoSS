@@ -48,8 +48,7 @@
      Decembre 2020
 */
 
-#ifndef _CUSTOM_POP_PROBTRAJ_DISPLAYER_H_
-#define _CUSTOM_POP_PROBTRAJ_DISPLAYER_H_
+#pragma once
 
 #include <iostream>
 #include "ProbTrajDisplayer.h"
@@ -70,4 +69,3 @@ public:
 };
 
 
-#endif

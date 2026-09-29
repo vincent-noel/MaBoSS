@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _NETWORK_H_
-#define _NETWORK_H_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -217,4 +216,3 @@ public:
   virtual ~Network();
 };
 
-#endif

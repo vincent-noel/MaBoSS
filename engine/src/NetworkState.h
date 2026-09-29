@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _NETWORKSTATE_H_
-#define _NETWORKSTATE_H_
+#pragma once
 
 #include <set>
 
@@ -819,4 +818,3 @@ namespace std {
     }
   };
 }
-#endif

@@ -45,8 +45,7 @@
      May 2018
 */
 
-#ifndef _SERVER_H_
-#define _SERVER_H_
+#pragma once
 
 #include <string>
 #include "MaBoSS-RPC.h"
@@ -166,4 +165,3 @@ public:
   void manageRequest(int fd, const char* request) override;
 };
 
-#endif

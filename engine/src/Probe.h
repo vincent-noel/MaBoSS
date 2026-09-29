@@ -47,8 +47,7 @@
      January-March 2011
 */
 
-#ifndef _PROBE_H_
-#define _PROBE_H_
+#pragma once
 
 #if !defined (_MSC_VER) && !defined (WINDOWS)
 
@@ -248,6 +247,4 @@ class Probe {
   // }
 
 };
-#endif
-
 #endif
