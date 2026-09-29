@@ -35,7 +35,9 @@ PointerAlignment: Left
 SpaceAfterTemplateKeyword: false
 Standard: c++17
 
-# Keep the engine's own headers grouped ahead of system ones, matching the
-# existing "own header, then project headers, then <system>" ordering.
-SortIncludes: CaseSensitive
+# Never reorder includes. Order is load-bearing here: compatibility_header.h
+# #defines strdup/unlink/strcasecmp to their underscore names on MSVC, so moving
+# it ahead of other headers changes what those headers see. This also stops
+# clang-tidy's fix-ups (which honour this file) from re-sorting include blocks.
+SortIncludes: Never
 IncludeBlocks: Preserve
