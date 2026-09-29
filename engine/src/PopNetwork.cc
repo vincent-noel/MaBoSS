@@ -61,7 +61,7 @@ const bool backward_istate = getenv("MABOSS_BACKWARD_ISTATE") != nullptr;
 const int DivisionRule::DAUGHTER_1 = 1;
 const int DivisionRule::DAUGHTER_2 = 2;
 
-PopNetwork::PopNetwork() : Network() 
+PopNetwork::PopNetwork()
 { 
   deathRate = nullptr; 
   divisionRules.clear();

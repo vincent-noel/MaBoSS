@@ -141,7 +141,7 @@ int main(int argc, char* argv[])
 	if (checkArgMissing(prog, opt, nn, argc)) {
 	  return usage();
 	}
-	runconfig_file_or_expr_v.push_back(ConfigOpt(argv[++nn], true));
+	runconfig_file_or_expr_v.emplace_back(argv[++nn], true);
       } else if (!strcmp(opt, "-o") || !strcmp(opt, "--output")) {
 	if (checkArgMissing(prog, opt, nn, argc)) {
 	  return usage();
@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
 	if (checkArgMissing(prog, opt, nn, argc)) {
 	  return usage();
 	}
-	runconfig_file_or_expr_v.push_back(ConfigOpt(argv[++nn], false));
+	runconfig_file_or_expr_v.emplace_back(argv[++nn], false);
       } else if (!strcmp(opt, "--verbose")) {
 	verbose = true;
       } else if (!strcmp(opt, "--override")) {

@@ -60,7 +60,7 @@ public:
   virtual void begin() = 0;
   virtual void displayFinalState(const NetworkState_Impl& state, double value) = 0;
   virtual void end() = 0;
-  virtual ~FinalStateDisplayer(){};
+  virtual ~FinalStateDisplayer() = default;
 };
 
 class CSVFinalStateDisplayer final : public FinalStateDisplayer {
@@ -74,7 +74,7 @@ public:
   void begin() override;
   void displayFinalState(const NetworkState_Impl& state, double value) override;
   void end() override;
-  ~CSVFinalStateDisplayer() override{};
+  ~CSVFinalStateDisplayer() override = default;
 };
 
 class JsonFinalStateDisplayer final : public FinalStateDisplayer {
@@ -88,7 +88,7 @@ public:
   void begin() override;
   void displayFinalState(const NetworkState_Impl& state, double value) override;
   void end() override;
-  ~JsonFinalStateDisplayer() override{};
+  ~JsonFinalStateDisplayer() override = default;
 };
 
 #endif

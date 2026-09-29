@@ -212,7 +212,7 @@ int main(int argc, char* argv[])
 	runconfig_var_v.push_back(argv[++nn]);
       } else if (!strcmp(s, "--config-expr") || !strcmp(s, "-e")) {
 	if (nn == argc-1) {std::cerr << '\n' << prog << ": missing value after option " << s << '\n'; return usage();}
-	runconfig_file_or_expr_v.push_back(ConfigOpt(argv[++nn], true));
+	runconfig_file_or_expr_v.emplace_back(argv[++nn], true);
       } else if (!strcmp(s, "--dump-config") || !strcmp(s, "-d")) {
 	dump_config = true;
       } else if (!strcmp(s, "--generate-config-template") || !strcmp(s, "-t")) {
@@ -258,7 +258,7 @@ int main(int argc, char* argv[])
 	output = argv[++nn];
       } else if (!strcmp(s, "-c") || !strcmp(s, "--config")) {
 	if (nn == argc-1) {std::cerr << '\n' << prog << ": missing value after option " << s << '\n'; return usage();}
-	runconfig_file_or_expr_v.push_back(ConfigOpt(argv[++nn], false));
+	runconfig_file_or_expr_v.emplace_back(argv[++nn], false);
       } else if (!strcmp(s, "--override")) {
 	if (Node::isAugment()) {
 	  std::cerr << '\n' << prog << ": --override and --augment are exclusive options\n"; return usage();

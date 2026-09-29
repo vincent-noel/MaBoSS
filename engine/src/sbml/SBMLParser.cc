@@ -153,8 +153,8 @@ void SBMLParser::build() {
 
                 NodeDecl* truc = new NodeDecl(getName(specie->getId(), j+1), decl_item_v, this->network);
 
-                for (std::vector<NodeDeclItem*>::iterator it = decl_item_v->begin(); it != decl_item_v->end(); ++it) {
-                    delete *it;
+                for (auto & it : *decl_item_v) {
+                    delete it;
                 }
                 
                 delete decl_item_v;
@@ -535,8 +535,8 @@ void SBMLParser::createNodes(std::vector<std::string> names, Expression* exp)
 
         NodeDecl* truc = new NodeDecl(name, decl_item_v, this->network);
 
-        for (std::vector<NodeDeclItem*>::iterator it = decl_item_v->begin(); it != decl_item_v->end(); ++it) {
-            delete *it;
+        for (auto & it : *decl_item_v) {
+            delete it;
         }
         
         delete decl_item_v;

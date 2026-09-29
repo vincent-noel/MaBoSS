@@ -149,15 +149,14 @@ public:
 
   virtual const NotLogicalExpression* asNotLogicalExpression() const {return nullptr;}
 
-  virtual ~Expression() {
-  }
+  virtual ~Expression() = default;
 };
 
 
 class TimeExpression : public Expression {
 
 public:
-  TimeExpression() { }
+  TimeExpression() = default;
 
   Expression* clone() const override {return new TimeExpression();}
 
@@ -197,8 +196,7 @@ public:
 #endif
   void generateLogicalExpression(LogicalExprGenContext&) const override {}
 
-  ~TimeExpression() override {
-  }
+  ~TimeExpression() override = default;
 };
 
 class NodeExpression : public Expression {
@@ -254,7 +252,7 @@ public:
 #endif
   void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 
-  ~NodeExpression() override {}
+  ~NodeExpression() override = default;
 };
 
 
@@ -304,8 +302,7 @@ public:
   
   void generateLogicalExpression(LogicalExprGenContext&) const override {}
 
-  ~StateExpression() override {
-  }
+  ~StateExpression() override = default;
 };
 
 class PopExpression : public Expression {

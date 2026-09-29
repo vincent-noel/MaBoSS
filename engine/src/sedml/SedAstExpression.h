@@ -8,7 +8,7 @@
 class SedASTExpression
 {
   public:
-    SedASTExpression(){}
+    SedASTExpression() = default;
     
     virtual std::vector<double> eval(std::map<std::string, std::map<std::string, std::vector<double> > >& results, std::map<std::string, std::map<std::string, std::vector<double> > >& state_results) =0;
     

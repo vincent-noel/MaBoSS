@@ -26,7 +26,7 @@ size_t MBDynBitset::del_cnt = 0;
 #endif
 
 #ifdef USE_DYNAMIC_BITSET_STD_ALLOC
-typedef uint8_t refcnt_t;
+using refcnt_t = uint8_t;
 const size_t refcnt_size = sizeof(refcnt_t);
 
 uint8_t* MBDynBitset::alloc(size_t num_bytes)
@@ -116,7 +116,7 @@ class MBDynBitsetAllocator {
   // coef_bucket_size = 2;
 
   static const unsigned int BUCKET_SIZE = 1000000;
-  typedef std::bitset<BUCKET_SIZE> bitmap_alloc_t;
+  using bitmap_alloc_t = std::bitset<BUCKET_SIZE>;
 
   struct BucketHeader {
     size_t free_cell_cnt;
@@ -140,7 +140,7 @@ class MBDynBitsetAllocator {
   unsigned int init(size_t num_bytes) {
     if (total_free_cell_cnt == 0) {
       cell_size = num_bytes + sizeof(CellHeader);
-      bitmap_alloc_v.push_back(bitmap_alloc_t());
+      bitmap_alloc_v.emplace_back();
       uint8_t* buffer = new uint8_t[sizeof(BucketHeader) + BUCKET_SIZE * cell_size];
       ((BucketHeader*)buffer)->free_cell_cnt = BUCKET_SIZE;
       buffer_v.push_back(buffer);

@@ -257,7 +257,7 @@ class SedEngine
   
   public:
   
-  SedEngine() {}
+  SedEngine() = default;
   
   
   

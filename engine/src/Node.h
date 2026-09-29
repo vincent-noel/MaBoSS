@@ -66,8 +66,8 @@ LIBSBML_CPP_NAMESPACE_USE
 #include "RandomGenerator.h"
 #include "maps_header.h"
 
-typedef unsigned int NodeIndex;
-typedef bool NodeState; // for now... could be a class
+using NodeIndex = unsigned int;
+using NodeState = bool; // for now... could be a class
 
 
 static const std::string ATTR_RATE_UP = "rate_up";
