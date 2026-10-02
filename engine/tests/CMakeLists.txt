@@ -189,6 +189,9 @@ if(MABOSS_RUNS_SMALL)
                              ENV MABOSS=${MABOSS_BIN})
   maboss_add_regression_test(NAME ensemble  SCRIPT test-ensemble.sh
                              ENV MABOSS=${MABOSS_BIN})
+  maboss_add_regression_test(NAME ensemble_observed_graph SCRIPT test-ensemble-observed-graph.sh
+                             NO_PYTHON
+                             ENV MABOSS=${MABOSS_BIN})
   maboss_add_regression_test(NAME prngs     SCRIPT test-prngs.sh
                              ENV MABOSS=${MABOSS_BIN})
   maboss_add_regression_test(NAME schedule  SCRIPT test-schedule.sh
