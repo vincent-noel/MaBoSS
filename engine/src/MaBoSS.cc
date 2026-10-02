@@ -55,6 +55,7 @@
 #include "engines/FinalStateSimulationEngine.h"
 #include "Function.h"
 #include <fstream>
+#include <memory>
 #include "Utils.h"
 #include "displayers/ProbTrajDisplayer.h"
 #include "displayers/StatDistDisplayer.h"
@@ -419,7 +420,7 @@ int run_ensemble(std::vector<char *> ctbndl_files, std::vector<ConfigOpt> runcon
   IStateGroup::checkAndComplete(networks[0]);
 
   RandomGeneratorFactory* randgen_factory = runconfig->getRandomGeneratorFactory();
-  RandomGenerator* randgen = randgen_factory->generateRandomGenerator(runconfig->getSeedPseudoRandom());
+  std::unique_ptr<RandomGenerator> randgen(randgen_factory->generateRandomGenerator(runconfig->getSeedPseudoRandom()));
 
   std::map<std::string, NodeIndex> nodes_indexes;
   std::vector<Node*> first_network_nodes = first_network->getNodes();
@@ -438,7 +439,7 @@ int run_ensemble(std::vector<char *> ctbndl_files, std::vector<ConfigOpt> runcon
     const std::vector<Node*> nodes = networks[i]->getNodes();
     for (unsigned int j=0; j < nodes.size(); j++) {
 if (!first_network_nodes[j]->istateSetRandomly()) {
-  nodes[j]->setIState(first_network_nodes[j]->getIState(first_network, randgen));
+  nodes[j]->setIState(first_network_nodes[j]->getIState(first_network, randgen.get()));
 }
 
 nodes[j]->isInternal(first_network_nodes[j]->isInternal());
