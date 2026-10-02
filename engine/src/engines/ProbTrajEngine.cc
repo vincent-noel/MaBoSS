@@ -261,9 +261,6 @@ PyObject* ProbTrajEngine::getNumpyObservedDurations()
 void ProbTrajEngine::buildSchedule() {
   // std::cout << "Building schedule..." << std::endl;
   // Clear previous schedule if any
-  for (auto schedule_entry : schedule) {
-    delete schedule_entry.second;
-  }
   schedule.clear();
   schedule_times.clear();
   
@@ -274,10 +271,7 @@ void ProbTrajEngine::buildSchedule() {
       for (const auto& entry : *node_schedule) {
         double time = entry.first;
         Expression* expr = entry.second;
-        if (schedule.find(time) == schedule.end()) {
-          schedule[time] = new std::map<Node*, Expression*>();
-        }
-        (*schedule[time])[node] = expr;
+        schedule[time][node] = expr;
         schedule_times.push_back(time);
         
       }
@@ -296,7 +290,7 @@ void ProbTrajEngine::applySchedule(RandomGenerator* random_generator, NetworkSta
     if (t <= time) {
       auto it = schedule.find(t);
       if (it != schedule.end()) {
-        for (const auto& entry : *(it->second)) {
+        for (const auto& entry : it->second) {
           Node* node = entry.first;
           Expression* expr = entry.second;
           double val = expr->eval(node, network_state);
