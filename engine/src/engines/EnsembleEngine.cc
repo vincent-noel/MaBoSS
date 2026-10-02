@@ -89,7 +89,7 @@ EnsembleEngine::EnsembleEngine(std::vector<Network*> networks, RunConfig* runcon
       refnode_count++;
     }
   }
-  observed_graph = new ObservedGraph(networks[0]);
+  observed_graph = nullptr; // set to the merged per-thread graph in epilogue()
   
   merged_cumulator = nullptr;
   cumulator_v.resize(thread_count);
@@ -557,7 +557,7 @@ void EnsembleEngine::run(std::ostream* output_traj)
   for (unsigned int nn = 0; nn < thread_count; ++nn) {
     FixedPoints* fixpoint_map = new FixedPoints();
     fixpoint_map_v.push_back(fixpoint_map);
-    EnsembleArgWrapper* warg = new EnsembleArgWrapper(this, start_sample_count, cumulator_v[nn]->getSampleCount(), cumulator_v[nn], simulation_indices_v[nn], cumulator_models_v[nn], fixpoints_models_v[nn], observed_graph_models_v[nn], randgen_factory, seed, fixpoint_map, observed_graph, output_traj);
+    EnsembleArgWrapper* warg = new EnsembleArgWrapper(this, start_sample_count, cumulator_v[nn]->getSampleCount(), cumulator_v[nn], simulation_indices_v[nn], cumulator_models_v[nn], fixpoints_models_v[nn], observed_graph_models_v[nn], randgen_factory, seed, fixpoint_map, observed_graph_v[nn], output_traj);
 #ifdef STD_THREAD
     tid[nn] = new std::thread(EnsembleEngine::threadWrapper, warg);
 #else
@@ -627,6 +627,7 @@ void EnsembleEngine::epilogue()
 #endif
 
     merged_cumulator->epilogue(networks[0], reference_state);
+    observed_graph->epilogue();
 
 #ifdef MPI_COMPAT
   }
