@@ -79,7 +79,9 @@ protected:
 
   Cumulator<NetworkState>* merged_cumulator;
   std::vector<Cumulator<NetworkState>*> cumulator_v;
-  std::map<double, std::map<Node*, Expression*>*> schedule;
+  // Scheduled flips, by time. The Expression* values are owned by the Nodes
+  // (Node::getScheduledFlips), not by the engine.
+  std::map<double, std::map<Node*, Expression*>> schedule;
   std::vector<double> schedule_times;
   
   void buildSchedule();
