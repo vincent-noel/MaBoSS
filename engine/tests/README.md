@@ -36,7 +36,7 @@ always the authoritative answer; the rule is:
 
 | build | regression tests registered |
 |---|---|
-| default (`MAXNODES=64`) | cellcycle, bnet, ensemble, prngs, schedule, rngs, popmaboss |
+| default (`MAXNODES=64`) | cellcycle, bnet, ensemble, ensemble_observed_graph, prngs, schedule, rngs, popmaboss |
 | `-DMAXNODES=128` | ewing, observed_graph |
 | `-DDYNBITSET=1` | all of the above (the dynamic-bitset binary handles any node count) |
 | `+ -DSBML=1` | adds sbml |
@@ -77,20 +77,11 @@ ctest --test-dir build-asan --output-on-failure
 `thread`, ...). For a sanitizer build, ctest automatically applies the
 suppression files in [`sanitizers/`](sanitizers/).
 
-Current state:
-
-- **Unit tests are clean** under `address,undefined`, so `ctest -L unit` is what
-  CI gates on. The suppression files cover exactly what that needs: the known
-  flex/bison per-parse leaks, and the signed-overflow the glibc RNG relies on.
-- **Regression tests still report a leak backlog** (a `Network`/`RunConfig` not
-  freed on one exit path in `MaBoSS.cc`, and the per-node schedule expressions
-  in `ProbTrajEngine::buildSchedule`). Both are listed in
-  [`sanitizers/lsan.supp`](sanitizers/lsan.supp) as deliberately *not*
-  suppressed, because any pattern broad enough to catch them would hide real
-  leaks too. CI runs that pass reporting-only until they are fixed.
-
-Entries in the suppression files should be deleted as the underlying issues
-are fixed.
+Unit and regression tests are both clean under `address,undefined`, and CI
+gates on both. The suppression files cover only two known, documented issues:
+the flex/bison per-parse leaks, and the signed overflow the glibc RNG relies
+on. Entries in the suppression files should be deleted as the underlying
+issues are fixed.
 
 ## Adding tests
 
@@ -118,11 +109,6 @@ Unit tests are doctest `TEST_CASE`s inside a `TEST_SUITE`. Add the file to
 [`unit/CMakeLists.txt`](unit/CMakeLists.txt); ctest registers one entry per
 suite.
 
-Two cases are deliberately not green-by-default, each documenting a real bug
-with a comment explaining it:
-
-- `getNodes sees through a negation` is marked `doctest::should_fail()`.
-- `copying a network yields an independent object graph` is marked
-  `doctest::skip()`, because running it segfaults.
-
-Remove the decorator when the corresponding bug is fixed.
+One case is deliberately not green-by-default, documenting a real bug with a
+comment explaining it: `getNodes sees through a negation` is marked
+`doctest::should_fail()`. Remove the decorator when the bug is fixed.
