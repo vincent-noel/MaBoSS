@@ -112,7 +112,7 @@ Expression* Node::generateRawLogicalExpression() const
     if (nullptr == logicalInputExpr) {
       rewrited_expr = rewriteLogicalExpression(rateUpExpr->clone(), new ConstantExpression(0.0));
     } else {
-      rewrited_expr = rewriteLogicalExpression(rateUpExpr->clone(), new NotLogicalExpression(const_cast<Expression*>(logicalInputExpr)));
+      rewrited_expr = rewriteLogicalExpression(rateUpExpr->clone(), new NotLogicalExpression(logicalInputExpr->clone()));
     }
   } else if (nullptr != rateDownExpr) {
     if (nullptr == logicalInputExpr) {

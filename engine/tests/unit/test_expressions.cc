@@ -11,6 +11,7 @@
 #include <doctest/doctest.h>
 
 #include <cmath>
+#include <sstream>
 
 #include "BNException.h"
 #include "Expressions.h"
@@ -262,6 +263,24 @@ TEST_CASE("getNodes sees through a negation" * doctest::should_fail()) {
   REQUIRE(mixed != nullptr);
   CHECK(mixed->getNodes().size() == 2);
   delete mixed;
+}
+
+// A node with logic and rate_up but no rate_down used to hand its own logic
+// expression to a temporary tree, which then freed it: generating the logical
+// expressions read freed memory (caught by the sanitizer build).
+TEST_CASE("generating logical expressions leaves the network intact") {
+  std::unique_ptr<Network> network = parse_network(
+    "node A { logic = B; rate_up = @logic ? 1 : 0; }\n"
+    "node B { logic = !A; rate_up = @logic ? 1 : 0; rate_down = @logic ? 0 : 1; }\n"
+  );
+
+  std::ostringstream first;
+  network->generateLogicalExpressions(first);
+  std::ostringstream second;
+  network->generateLogicalExpressions(second);
+
+  CHECK_FALSE(first.str().empty());
+  CHECK(first.str() == second.str());
 }
 
 TEST_CASE("malformed input is rejected") {
