@@ -109,6 +109,7 @@ Unit tests are doctest `TEST_CASE`s inside a `TEST_SUITE`. Add the file to
 [`unit/CMakeLists.txt`](unit/CMakeLists.txt); ctest registers one entry per
 suite.
 
-One case is deliberately not green-by-default, documenting a real bug with a
-comment explaining it: `getNodes sees through a negation` is marked
-`doctest::should_fail()`. Remove the decorator when the bug is fixed.
+To document a known bug before fixing it, a case can be marked
+`doctest::should_fail()` with a comment explaining the bug; doctest then reports
+it as an unexpected pass once the bug is fixed, which is the cue to remove the
+decorator. No case is marked that way at the moment.

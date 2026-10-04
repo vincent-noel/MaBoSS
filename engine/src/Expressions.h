@@ -134,7 +134,10 @@ public:
   virtual void display(std::ostream& os) const = 0;
   virtual bool isConstantExpression() const {return false;}
   virtual bool isLogicalExpression() const {return false;}
-  virtual std::vector<Node*> getNodes() const{return std::vector<Node*>(); }
+  // The nodes this expression reads, each once. this_node resolves @alias
+  // attributes, which mean something different on every node; pass nullptr
+  // where there is no node context (aliases then contribute nothing).
+  virtual std::vector<Node*> getNodes(const Node*) const {return std::vector<Node*>(); }
 #ifdef SBML_COMPAT
   virtual ASTNode* writeSBML(LogicalExprGenContext&) const { return new ASTNode(AST_CONSTANT_TRUE); }
 #endif
@@ -149,6 +152,16 @@ public:
   virtual const NotLogicalExpression* asNotLogicalExpression() const {return nullptr;}
 
   virtual ~Expression() = default;
+
+protected:
+  // Appends the nodes of `from` that `into` does not already hold.
+  static void mergeNodes(std::vector<Node*>& into, const std::vector<Node*>& from) {
+    for (auto* node : from) {
+      if (std::find(into.begin(), into.end(), node) == into.end()) {
+        into.push_back(node);
+      }
+    }
+  }
 };
 
 
@@ -182,7 +195,7 @@ public:
 
   bool isLogicalExpression() const override {return false;}
   
-  std::vector<Node*> getNodes() const override{
+  std::vector<Node*> getNodes(const Node*) const override{
     std::vector<Node*> vec;
     return vec;
   }
@@ -229,7 +242,7 @@ public:
 
   bool isLogicalExpression() const override {return true;}
   
-  std::vector<Node*> getNodes() const override{
+  std::vector<Node*> getNodes(const Node*) const override{
     std::vector<Node*> vec;
     vec.push_back(node);
     return vec;
@@ -291,7 +304,7 @@ public:
 
   bool isLogicalExpression() const override {return true;}
   
-  std::vector<Node*> getNodes() const override{
+  std::vector<Node*> getNodes(const Node*) const override{
     std::vector<Node*> vec;
     for (auto* node: network->getNodes())
       if (state.getNodeState(node))
@@ -335,8 +348,8 @@ public:
   }
 
   bool isLogicalExpression() const override {return true;}
-  std::vector<Node*> getNodes() const override{
-    return expr->getNodes();
+  std::vector<Node*> getNodes(const Node* this_node) const override{
+    return expr->getNodes(this_node);
   }
   void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 
@@ -363,15 +376,9 @@ public:
     return left->isConstantExpression() && right->isConstantExpression();
   }
  
-  std::vector<Node*> getNodes() const override{
-    std::vector<Node*> vec1 = left->getNodes();
-    std::vector<Node*> vec2 = right->getNodes();
-    std::vector<Node*> vec(vec1.begin(), vec1.end());
-    for (auto* node : vec2) {
-      if (std::find(vec.begin(), vec.end(), node) == vec.end()) {
-        vec.push_back(node);
-      }
-    }
+  std::vector<Node*> getNodes(const Node* this_node) const override{
+    std::vector<Node*> vec = left->getNodes(this_node);
+    mergeNodes(vec, right->getNodes(this_node));
     return vec;
   }
   
@@ -705,21 +712,10 @@ public:
     return true_expr->isLogicalExpression() && false_expr->isLogicalExpression();
   }
 
-  std::vector<Node*> getNodes() const override{
-    std::vector<Node*> vec1 = cond_expr->getNodes();
-    std::vector<Node*> vec2 = true_expr->getNodes();
-    std::vector<Node*> vec3 = false_expr->getNodes();
-    std::vector<Node*> vec(vec1.begin(), vec1.end());
-    for (auto* node : vec2) {
-      if (std::find(vec.begin(), vec.end(), node) == vec.end()) {
-        vec.push_back(node);
-      }
-    }
-    for (auto* node : vec3) {
-      if (std::find(vec.begin(), vec.end(), node) == vec.end()) {
-        vec.push_back(node);
-      }
-    }
+  std::vector<Node*> getNodes(const Node* this_node) const override{
+    std::vector<Node*> vec = cond_expr->getNodes(this_node);
+    mergeNodes(vec, true_expr->getNodes(this_node));
+    mergeNodes(vec, false_expr->getNodes(this_node));
     return vec;
   }
   
@@ -761,10 +757,10 @@ public:
 
   bool isLogicalExpression() const override {return value == 0 || value == 1;}
   
-  std::vector<Node*> getNodes() const override{
+  std::vector<Node*> getNodes(const Node*) const override{
     return std::vector<Node*>();
   }
-  
+
   void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 
 };
@@ -809,10 +805,10 @@ public:
 
   bool isConstantExpression() const override {return true;}
   
-  std::vector<Node*> getNodes() const override{
+  std::vector<Node*> getNodes(const Node*) const override{
     return std::vector<Node*>();
   }
-  
+
   void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
 
   void unset() { value_set = false; }
@@ -864,6 +860,14 @@ public:
 
   bool hasCycle(Node*) const override {
     return false;
+  }
+
+  std::vector<Node*> getNodes(const Node* this_node) const override {
+    const Expression* resolved = getAliasExpression(this_node);
+    if (nullptr != resolved) {
+      return resolved->getNodes(this_node);
+    }
+    return std::vector<Node*>();
   }
 
   void display(std::ostream& os) const override {
@@ -1028,6 +1032,10 @@ public:
     return expr->hasCycle(node);
   }
 
+  std::vector<Node*> getNodes(const Node* this_node) const override {
+    return expr->getNodes(this_node);
+  }
+
   const NotLogicalExpression* asNotLogicalExpression() const override {return this;}
 
   void display(std::ostream& os) const override {
@@ -1085,8 +1093,8 @@ public:
     os <<  ')';
   }
 
-  std::vector<Node*> getNodes() const override{
-    return expr->getNodes();
+  std::vector<Node*> getNodes(const Node* this_node) const override{
+    return expr->getNodes(this_node);
   }
   bool isConstantExpression() const override {return expr->isConstantExpression();}
   bool isLogicalExpression() const override {return expr->isLogicalExpression();}
@@ -1153,6 +1161,14 @@ public:
 
   bool hasCycle(Node* node) const override {
     return arg_list->hasCycle(node);
+  }
+
+  std::vector<Node*> getNodes(const Node* this_node) const override {
+    std::vector<Node*> vec;
+    for (const auto* arg : arg_list->getExpressionList()) {
+      mergeNodes(vec, arg->getNodes(this_node));
+    }
+    return vec;
   }
 
   bool isConstantExpression() const override {return arg_list->isConstantExpression();}

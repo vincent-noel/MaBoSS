@@ -106,7 +106,7 @@ class SBMLExporter
       ASTNode* math = expr->writeSBML(genctx);
       // std::cout << SBML_formulaToL3String(math) << std::endl;
     
-      for (auto* input: expr->getNodes())
+      for (auto* input: expr->getNodes(node))
       {
         Input* i = t->createInput();
         i->setId("tr_" + std::to_string(node->getIndex()) + "_in_" + std::to_string(input->getIndex()));
