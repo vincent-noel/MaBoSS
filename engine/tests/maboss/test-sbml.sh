@@ -37,4 +37,12 @@ if [ $? != 0 ]; then exit 1; fi
 ${PYTHON:-python} compare_probtrajs.py tmp/sbml_cell_fate_probtraj.csv tmp/cell_fate_probtraj.csv --exact
 check_file "projtraj"
 
+# Export the .bnd model and check that each exported transition lists the
+# regulators of the reference SBML. Most of them sit behind "@logic" or "!",
+# which the exporter used to drop.
+$LAUNCHER $MABOSS -c sbml/cell_fate.bnd.cfg -x tmp/cell_fate_export.sbml sbml/cell_fate.bnd
+if [ $? != 0 ]; then exit 1; fi
+${PYTHON:-python} compare_sbml_inputs.py sbml/cell_fate.sbml tmp/cell_fate_export.sbml
+check_file "exported transition inputs"
+
 exit $return_code
