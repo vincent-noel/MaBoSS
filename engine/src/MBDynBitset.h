@@ -270,13 +270,11 @@ public:
     /*if (num_64 == 1) {
       return data[0] - bitset.data[0] < 0;
       } else*/ {
+      // Compare the words themselves: a signed difference of two uint64_t is
+      // wrong once they differ by 2^63 or more, and breaks std::map/std::set.
       for (size_t nn = 0; nn < num_64; nn++) {
-	long long delta = data[nn] - bitset.data[nn];
-	if (delta < 0) {
-	  return true;
-	}
-	if (delta > 0) {
-	  return false;
+	if (data[nn] != bitset.data[nn]) {
+	  return data[nn] < bitset.data[nn];
 	}
       }
     }
@@ -387,7 +385,7 @@ namespace std {
   // Added less operator, necessary for maps, sets. Code from https://stackoverflow.com/a/21245301/11713763
   template <> struct less<MBDynBitset>
   {
-    size_t operator()(const MBDynBitset& val1, const MBDynBitset& val2) const {
+    bool operator()(const MBDynBitset& val1, const MBDynBitset& val2) const {
       return val1 < val2;
     }
   };

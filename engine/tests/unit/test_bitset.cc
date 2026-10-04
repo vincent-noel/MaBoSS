@@ -10,6 +10,8 @@
 
 #include <doctest/doctest.h>
 
+#include <set>
+
 #include "NetworkState.h"
 #include "test_helpers.h"
 
@@ -226,6 +228,55 @@ TEST_CASE("MBDynBitset compares by value") {
 
   b.set(10, true);
   CHECK_FALSE(a == b);
+}
+
+// std::map and std::set need operator< to be a strict weak ordering. It used
+// to compare words through a signed difference, which is wrong as soon as two
+// words differ by 2^63 or more -- i.e. when bit 63 of a word differs.
+TEST_CASE("MBDynBitset operator< is a strict weak ordering across bit 63") {
+  MBDynBitset empty(64);
+  empty.reset();
+
+  MBDynBitset top(64);  // only bit 63: the word is exactly 2^63
+  top.reset();
+  top.set(63, true);
+
+  CHECK(empty < top);
+  CHECK_FALSE(top < empty);  // the old code said true both ways
+
+  MBDynBitset a(64);  // 0
+  a.reset();
+  MBDynBitset b(64);  // 0x6000000000000000
+  b.reset();
+  b.set(61, true);
+  b.set(62, true);
+  MBDynBitset c(64);  // 0xC000000000000000
+  c.reset();
+  c.set(62, true);
+  c.set(63, true);
+
+  CHECK(a < b);
+  CHECK(b < c);
+  CHECK(a < c);              // transitivity; the old code had a < b < c < a
+  CHECK_FALSE(c < a);
+  CHECK_FALSE(std::less<MBDynBitset>()(c, a));
+
+  // The same holds in a word that is not the first one.
+  MBDynBitset low(128);
+  low.reset();
+  low.set(64, true);
+  MBDynBitset high(128);
+  high.reset();
+  high.set(127, true);
+  CHECK(low < high);
+  CHECK_FALSE(high < low);
+
+  // So a std::set keeps them apart and finds each one again.
+  std::set<MBDynBitset> states = {a, b, c};
+  CHECK(states.size() == 3);
+  CHECK(states.count(a) == 1);
+  CHECK(states.count(b) == 1);
+  CHECK(states.count(c) == 1);
 }
 
 #endif // USE_DYNAMIC_BITSET
