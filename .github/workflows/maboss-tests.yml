@@ -98,8 +98,7 @@ jobs:
 
       # Unit and regression tests both gate: they are clean under ASan/UBSan.
       # ctest applies engine/tests/sanitizers/*.supp automatically for a
-      # sanitizer build, which covers the known parser leaks and the glibc RNG
-      # overflow.
+      # sanitizer build, which covers the known parser leaks.
       - name: Unit tests
         run: ctest --test-dir build -L unit --output-on-failure
 

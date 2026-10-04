@@ -78,10 +78,10 @@ ctest --test-dir build-asan --output-on-failure
 suppression files in [`sanitizers/`](sanitizers/).
 
 Unit and regression tests are both clean under `address,undefined`, and CI
-gates on both. The suppression files cover only two known, documented issues:
-the flex/bison per-parse leaks, and the signed overflow the glibc RNG relies
-on. Entries in the suppression files should be deleted as the underlying
-issues are fixed.
+gates on both. The suppression files cover only one known, documented issue:
+the flex/bison per-parse leaks (`lsan.supp`); `ubsan.supp` is currently empty.
+Entries in the suppression files should be deleted as the underlying issues
+are fixed.
 
 ## Adding tests
 
