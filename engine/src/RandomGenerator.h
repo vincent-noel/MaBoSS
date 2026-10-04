@@ -63,6 +63,7 @@
 #include <unistd.h>
 #endif
 
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <string>
@@ -207,23 +208,29 @@ class GLibCRandomGenerator final : public RandomGenerator
   #define GLIBCRAND_MAX 2147483647
   
   int n;
-  int r[SIZE_R];
+  // Unsigned, so that the additive feedback below wraps modulo 2^32 instead
+  // of overflowing a signed int (UB). glibc fixed the same overflow in its own
+  // random_r.c this way (bug 17343, glibc 2.28). The output is unchanged.
+  uint32_t r[SIZE_R];
 
   void glibc_srand(int _seed) {
 
-    /* We must make sure the seed is not 0.  Take arbitrarily 1 in this case.  
+    /* We must make sure the seed is not 0.  Take arbitrarily 1 in this case.
        Source: https://sourceware.org/git/?p=glibc.git;a=blob;f=stdlib/random_r.c;hb=glibc-2.15#l180
     */
     if (_seed == 0)
       _seed = 1;
-    
+
     int i;
-    r[0] = _seed;
+    // The seeding LCG works on signed values: a negative seed must stay negative here.
+    int32_t word = _seed;
+    r[0] = word;
     for (i=1; i<31; i++) {
-        r[i] = (16807LL * r[i-1]) % GLIBCRAND_MAX;
-        if (r[i] < 0) {
-        r[i] += GLIBCRAND_MAX;
+        word = (16807LL * word) % GLIBCRAND_MAX;
+        if (word < 0) {
+        word += GLIBCRAND_MAX;
         }
+        r[i] = word;
     }
     for (i=31; i<34; i++) {
         r[i] = r[i-31];
@@ -235,7 +242,7 @@ class GLibCRandomGenerator final : public RandomGenerator
   }
 
   unsigned int glibc_rand() {
-    unsigned int x = r[n%SIZE_R] = r[(n+313)%SIZE_R] + r[(n+341)%SIZE_R];
+    uint32_t x = r[n%SIZE_R] = r[(n+313)%SIZE_R] + r[(n+341)%SIZE_R];
     n = (n+1)%SIZE_R;
     return x >> 1;
   }
