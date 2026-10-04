@@ -10,6 +10,7 @@
 
 #include <doctest/doctest.h>
 
+#include <algorithm>
 #include <cmath>
 #include <sstream>
 
@@ -230,39 +231,63 @@ TEST_CASE("getNodes reports the nodes an expression depends on") {
 
   Expression* expr = network->parseSingleExpression("A & B");
   REQUIRE(expr != nullptr);
-  CHECK(expr->getNodes().size() == 2);
+  CHECK(expr->getNodes(nullptr).size() == 2);
   delete expr;
 
   Expression* constant = network->parseSingleExpression("1 + 1");
   REQUIRE(constant != nullptr);
-  CHECK(constant->getNodes().empty());
+  CHECK(constant->getNodes(nullptr).empty());
   delete constant;
 }
 
-TEST_CASE("getNodes sees through a negation" * doctest::should_fail()) {
-  // KNOWN BUG. NotLogicalExpression does not override Expression::getNodes(),
-  // so it inherits the base implementation, which returns an empty vector:
-  // any node appearing only under a "!" is invisible to getNodes().
-  // AliasExpression (@logic) and FuncCallExpression have the same gap.
-  //
-  // This is not cosmetic: SBMLExporter builds each qual Transition's
-  // listOfInputs from expr->getNodes() (see sbml/SBMLExporter.h), so exported
-  // SBML omits those regulators while the <math> still references them.
-  //
-  // Marked should_fail so the suite stays green while the bug stands. Once
-  // getNodes() is overridden in those three classes, doctest will report this
-  // as an unexpected pass -- remove the decorator then.
+// getNodes() used to miss everything under "!", "@alias" and function calls.
+// SBMLExporter builds each qual Transition's listOfInputs from it, so exported
+// SBML lost those regulators while the <math> still referenced them.
+TEST_CASE("getNodes sees through negations and function calls") {
   std::unique_ptr<Network> network = parse_abc_network();
 
   Expression* negated = network->parseSingleExpression("!A");
   REQUIRE(negated != nullptr);
-  CHECK(negated->getNodes().size() == 1);
+  CHECK(negated->getNodes(nullptr).size() == 1);
   delete negated;
 
   Expression* mixed = network->parseSingleExpression("A & !B");
   REQUIRE(mixed != nullptr);
-  CHECK(mixed->getNodes().size() == 2);
+  CHECK(mixed->getNodes(nullptr).size() == 2);
   delete mixed;
+
+  // Each node is reported once, however often it appears.
+  Expression* repeated = network->parseSingleExpression("exp(A + B) + log(!A + C)");
+  REQUIRE(repeated != nullptr);
+  CHECK(repeated->getNodes(nullptr).size() == 3);
+  delete repeated;
+}
+
+TEST_CASE("getNodes resolves @alias attributes against the given node") {
+  std::unique_ptr<Network> network = parse_network(
+    "node A { logic = B & !C; rate_up = @logic ? 1 : 0; rate_down = @logic ? 0 : 1; }\n"
+    "node B { rate_up = 0; rate_down = 0; }\n"
+    "node C { rate_up = 0; rate_down = 0; }\n"
+  );
+  const Node* a = network->getNode("A");
+  Node* b = network->getNode("B");
+  Node* c = network->getNode("C");
+
+  const Expression* rate_up = a->getRateUpExpression();
+  REQUIRE(rate_up != nullptr);
+  const std::vector<Node*> nodes = rate_up->getNodes(a);
+  CHECK(nodes.size() == 2);
+  CHECK(std::find(nodes.begin(), nodes.end(), b) != nodes.end());
+  CHECK(std::find(nodes.begin(), nodes.end(), c) != nodes.end());
+
+  // Without a node there is nothing to resolve the alias against.
+  CHECK(rate_up->getNodes(nullptr).empty());
+
+  // What the SBML exporter asks for: A's regulators, plus A itself, which the
+  // rate-to-logic rewrite always introduces.
+  Expression* raw = a->generateRawLogicalExpression();
+  CHECK(raw->getNodes(a).size() == 3);
+  delete raw;
 }
 
 // A node with logic and rate_up but no rate_down used to hand its own logic
