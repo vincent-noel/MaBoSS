@@ -8,7 +8,6 @@
 
 #include "SedException.h"
 
-namespace fs = std::filesystem;
 LIBSEDML_CPP_NAMESPACE_USE
 
 class Report
@@ -75,7 +74,7 @@ PyObject* getReportData() const
 }
 
 #endif
-    void writeReport(fs::path filename)
+    void writeReport(std::filesystem::path filename)
     {
         std::ofstream report_file;
         report_file.open(filename.c_str());

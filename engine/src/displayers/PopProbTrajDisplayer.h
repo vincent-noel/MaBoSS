@@ -53,6 +53,7 @@
 #include <iostream>
 #include <iomanip>
 #include "../Network.h"
+#include "../NetworkState.h"
 #include "../Utils.h"
 #include "ProbTrajDisplayer.h"
 

@@ -69,11 +69,11 @@ using NodeIndex = unsigned int;
 using NodeState = bool; // for now... could be a class
 
 
-static const std::string ATTR_RATE_UP = "rate_up";
-static const std::string ATTR_RATE_DOWN = "rate_down";
-static const std::string ATTR_LOGIC = "logic";
-static const std::string ATTR_DESCRIPTION = "description";
-static const NodeIndex INVALID_NODE_INDEX = (NodeIndex)~0U;
+inline const std::string ATTR_RATE_UP = "rate_up";
+inline const std::string ATTR_RATE_DOWN = "rate_down";
+inline const std::string ATTR_LOGIC = "logic";
+inline const std::string ATTR_DESCRIPTION = "description";
+inline constexpr NodeIndex INVALID_NODE_INDEX = ~NodeIndex{0};
 
 class Expression;
 class Network;

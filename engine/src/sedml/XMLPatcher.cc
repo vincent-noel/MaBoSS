@@ -14,7 +14,7 @@
 
 #include "SedException.h"
 
-XMLPatcher::XMLPatcher(fs::path _xml_file): xml_file(_xml_file)
+XMLPatcher::XMLPatcher(std::filesystem::path _xml_file): xml_file(_xml_file)
 {
     /* Init libxml */     
     xmlInitParser();

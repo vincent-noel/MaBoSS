@@ -20,7 +20,7 @@ struct SedTarget {
     std::string attribute;
 };
 
-static SedTargetNode parseTargetNode(std::string targetNode)
+inline SedTargetNode parseTargetNode(std::string targetNode)
 {
     SedTargetNode ret;
     size_t pos_left_bracket = targetNode.find("[");
@@ -42,7 +42,7 @@ static SedTargetNode parseTargetNode(std::string targetNode)
      
 }
 
-static SedTarget parseTarget(const std::string target)
+inline SedTarget parseTarget(const std::string target)
 {
     SedTarget ret;
     std::string token;
@@ -87,7 +87,7 @@ static SedTarget parseTarget(const std::string target)
     return ret;
 }
 
-static Node* getTargetVariable(const std::string string_target, Network* network)
+inline Node* getTargetVariable(const std::string string_target, Network* network)
 {
     SedTarget target = parseTarget(string_target);
     

@@ -79,14 +79,6 @@ extern std::string stringReplaceAll(const std::string& subject, const std::strin
 extern const std::string NL_PATTERN;
 extern const char* fmthexdouble(double d, bool add_quotes = false);
 
-class NullBuffer : public std::streambuf
-{
-public:
-  int overflow(int c) override { return c; }
-};
-
-static NullBuffer null_buffer;
-
 bool hasEnding (std::string const &fullString, std::string const &ending);
 
 
