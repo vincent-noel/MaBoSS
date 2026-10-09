@@ -279,3 +279,4 @@ endif()
 #   test-container.sh   needs a running MaBoSS server container
 
 add_subdirectory(unit)
+add_subdirectory(headers)
