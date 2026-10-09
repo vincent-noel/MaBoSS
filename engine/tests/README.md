@@ -51,6 +51,11 @@ their own CMake configuration rather than a binary from the current build tree:
   [`scripts/run_userfunc_tests.sh`](../../scripts/run_userfunc_tests.sh).
 - `test-container.sh` needs a running MaBoSS server container.
 
+Building the tests also builds `maboss_header_check` ([`headers/`](headers/)),
+which compiles every engine header on its own with the build's flags. A header
+that relies on what its includers happened to include before it fails the
+build. In a git checkout only tracked headers are checked.
+
 ## Requirements
 
 - **bash**, not just `/bin/sh`: several scripts use `[[ ]]`.
