@@ -5,16 +5,15 @@
 #include <libxml/tree.h>
 #include <libxml/xpath.h>
 
-namespace fs = std::filesystem;
 
 class XMLPatcher
 {
-    fs::path xml_file;
+    std::filesystem::path xml_file;
     xmlDocPtr doc;
     xmlXPathContextPtr xpathCtx;
     
   public: 
-    XMLPatcher(fs::path _xml_file);
+    XMLPatcher(std::filesystem::path _xml_file);
     ~XMLPatcher();
     void changeXML(std::string xpath, std::string new_xml);
     void removeXML(std::string xpath);

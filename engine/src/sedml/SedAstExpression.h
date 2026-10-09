@@ -44,7 +44,7 @@ class SedASTStateVariable: public SedASTExpression
 };
 
 
-static SedASTExpression* parseSedASTExpression(const ASTNode* tree, std::map<std::string, std::string>& variables)
+inline SedASTExpression* parseSedASTExpression(const ASTNode* tree, std::map<std::string, std::string>& variables)
 {
     if (tree->getType() == AST_NAME) {
         

@@ -63,7 +63,7 @@
 #include "MPI_headers.h"
 #endif
 
-static bool COMPUTE_ERRORS = true;
+inline constexpr bool COMPUTE_ERRORS = true;
 
 #include "RunConfig.h"
 #include "ProbaDist.h"

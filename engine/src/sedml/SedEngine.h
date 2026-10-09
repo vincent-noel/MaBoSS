@@ -88,7 +88,6 @@
 
 LIBSEDML_CPP_NAMESPACE_USE
 
-namespace fs = std::filesystem;
 
 
 // template<typename T, template<typename> class C>
@@ -99,7 +98,7 @@ namespace fs = std::filesystem;
 //   return result;
 // }
 
-static ASTNode* find_states(ASTNode* math, SedListOfVariables* variables, std::map<std::string, std::pair<Network*, RunConfig*>> tasks, std::map<std::string, std::pair<Expression*, std::string> >& states_variables)
+inline ASTNode* find_states(ASTNode* math, SedListOfVariables* variables, std::map<std::string, std::pair<Network*, RunConfig*>> tasks, std::map<std::string, std::pair<Expression*, std::string> >& states_variables)
 {
     
     if (math->getType() == AST_LOGICAL_AND) {
@@ -150,7 +149,7 @@ static ASTNode* find_states(ASTNode* math, SedListOfVariables* variables, std::m
 
 
 
-static SBMLDocument* patchXMLModel(const char* path_model, SedListOfChanges* listOfChanges)
+inline SBMLDocument* patchXMLModel(const char* path_model, SedListOfChanges* listOfChanges)
 {
     XMLPatcher patcher(path_model);
 
@@ -177,7 +176,7 @@ static SBMLDocument* patchXMLModel(const char* path_model, SedListOfChanges* lis
     
     return reader.readSBMLFromString(xml);
 }
-static void patchModel(QualModelPlugin* model, SedChange* change)
+inline void patchModel(QualModelPlugin* model, SedChange* change)
 {
     
     SedTarget target = parseTarget(change->getTarget());
@@ -213,7 +212,7 @@ static void patchModel(QualModelPlugin* model, SedChange* change)
     }
 }
 
-static SBMLDocument* getDocument(fs::path path_model, SedListOfChanges* listOfChanges)
+inline SBMLDocument* getDocument(std::filesystem::path path_model, SedListOfChanges* listOfChanges)
 {
     SBMLDocument* document;
     SBMLReader reader;
@@ -245,7 +244,7 @@ static SBMLDocument* getDocument(fs::path path_model, SedListOfChanges* listOfCh
 class SedEngine
 {
   SedDocument* doc;
-  fs::path doc_path;
+  std::filesystem::path doc_path;
   std::map<std::string, std::pair<Network*, RunConfig*> > tasks;
   std::map<std::string, std::pair<Network*, RunConfig*> > repeated_tasks;
   std::map<std::string, SedASTExpression*> data_generators;
@@ -273,7 +272,7 @@ class SedEngine
     
     doc = readSedMLFromFile(sedml_file.c_str());
     
-    doc_path = fs::path(sedml_file);
+    doc_path = std::filesystem::path(sedml_file);
     
     for (unsigned int i=0; i < doc->getListOfModels()->getNumModels(); i++)
     {
@@ -282,8 +281,8 @@ class SedEngine
         
         
         
-        fs::path model_source(model->getSource());
-        fs::path path_model = doc_path.parent_path() / model_source;
+        std::filesystem::path model_source(model->getSource());
+        std::filesystem::path path_model = doc_path.parent_path() / model_source;
         Network* network = new Network();
         SBMLDocument* document = getDocument(path_model, model->getListOfChanges());
         
@@ -654,7 +653,7 @@ class SedEngine
   {
     for (auto& report: reports)
     {
-        report.writeReport(fs::path(report.getName()));
+        report.writeReport(std::filesystem::path(report.getName()));
     }
   }
   
