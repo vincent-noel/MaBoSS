@@ -212,7 +212,8 @@ jobs:
           {python: "3.11", numpy: "2.0"}, 
           {python: "3.12", numpy: "2.0"}, 
           {python: "3.13", numpy: "2.1"},
-          {python: "3.14", numpy: "2.3"}
+          {python: "3.14", numpy: "2.3"},
+          {python: "3.15", numpy: "2.5"}, 
         ]
         # exclude:
         #   - repo: {name: defaults, deployment_target: "10.13", libsbml: libsbml-plus-packages, libsbml_source: colomoto, build_number: 0, folder: "conda/defaults"}
@@ -283,7 +284,8 @@ jobs:
           {python: "3.11", numpy: "2.0"}, 
           {python: "3.12", numpy: "2.0"}, 
           {python: "3.13", numpy: "2.1"},
-          {python: "3.14", numpy: "2.3"}
+          {python: "3.14", numpy: "2.3"},
+          {python: "3.15", numpy: "2.5"}
           ]
         # exclude:
         #   - repo: {name: defaults, deployment_target: "11.1", libsbml: libsbml-plus-packages, libsbml_source: colomoto, build_number: 0, folder: "conda/defaults"}
