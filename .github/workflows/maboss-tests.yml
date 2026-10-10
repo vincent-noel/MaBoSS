@@ -33,10 +33,21 @@ jobs:
           # dynamic-bitset configuration the project currently tests.
           - name: "dynamic bitset, std alloc"
             cmake_args: "-DDYNBITSET=1 -DDYNBITSET_STD_ALLOC=1"
+          # Registers the sbml regression test (test-sbml.sh), which needs a
+          # libSBML built with the qual package.
+          - name: "64 nodes, SBML"
+            cmake_args: "-DSBML=1"
+            sbml: true
     env:
       CC: gcc
       CXX: g++
       CPU_COUNT: 4
+      # Read by scripts/build_libsbml.sh. They match maboss-ubuntu.yml, so
+      # both workflows can share the cached libSBML build below.
+      INSTALL_PATH: /usr/
+      BUILD_PATH: /tmp/
+      LIBXML_LIBDIR: /usr/lib/x86_64-linux-gnu/libxml2.so
+      LIBXML_INCLUDEDIR: /usr/include/libxml2/
     steps:
       - uses: actions/checkout@v4
 
@@ -45,6 +56,24 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y flex bison
           pip install numpy
+
+      - name: Cache compiled libSBML
+        if: matrix.sbml
+        id: cache-libsbml-gcc
+        uses: actions/cache@v4
+        with:
+          path: /tmp/libsbml-5.21.1
+          key: ${{ runner.os }}-libSBML-5.21.1-gcc-namespace
+
+      - name: Compile libSBML
+        if: matrix.sbml && steps.cache-libsbml-gcc.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get install -y libxml2-dev libbz2-dev
+          bash scripts/build_libsbml.sh
+
+      - name: Install libSBML
+        if: matrix.sbml
+        run: sudo bash scripts/install_libsbml.sh
 
       - name: Configure
         run: |
