@@ -83,7 +83,7 @@ class LogicalExprGenContext;
 // extern std::ostream& operator<<(std::ostream& os, const BNException& e);
 
 class Node {
-  static bool override;
+  static bool overrideDefinition;
   static bool augment;
   std::string label;
   std::string description;
@@ -286,11 +286,11 @@ class Node {
   Expression* generateRawLogicalExpression() const;
   void generateLogicalExpression(LogicalExprGenContext& gen) const;
 
-  static void setOverride(bool _override) {
-    Node::override = _override;
+  static void setOverrideDefinition(bool _overrideDefinition) {
+    Node::overrideDefinition = _overrideDefinition;
   }
 
-  static bool isOverride() {return override;}
+  static bool isOverrideDefinition() {return overrideDefinition;}
 
   static void setAugment(bool _augment) {
     Node::augment = _augment;

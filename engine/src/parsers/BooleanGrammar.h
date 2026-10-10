@@ -93,7 +93,7 @@ public:
     
     bool reset = false;
     if (network->isNodeDefined(identifier)) {
-      if (Node::isOverride()) {
+      if (Node::isOverrideDefinition()) {
 	reset = true;
       } else if (!Node::isAugment()) {
 	throw BNException("node " + identifier + " already defined");

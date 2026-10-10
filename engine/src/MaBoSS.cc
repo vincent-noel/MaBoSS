@@ -719,9 +719,9 @@ int main(int argc, char* argv[])
 	if (Node::isAugment()) {
 	  std::cerr << '\n' << prog << ": --override and --augment are exclusive options\n"; return usage();
 	}
-	Node::setOverride(true);
+	Node::setOverrideDefinition(true);
       } else if (!strcmp(s, "--augment")) {
-	if (Node::isOverride()) {
+	if (Node::isOverrideDefinition()) {
 	  std::cerr << '\n' << prog << ": --override and --augment are exclusive options\n"; return usage();
 	}
 	Node::setAugment(true);

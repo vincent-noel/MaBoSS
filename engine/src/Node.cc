@@ -52,7 +52,7 @@
 #include "NetworkState.h"
 #include "Expressions.h"
 
-bool Node::override = false;
+bool Node::overrideDefinition = false;
 bool Node::augment = false;
 
 Node::Node(const std::string& label, const std::string& description, NodeIndex index) : label(label), description(description), istate_set(false), is_internal(false), is_reference(false), in_graph(false), is_mutable(false), referenceState(false), logicalInputExpr(nullptr), rateUpExpr(nullptr), rateDownExpr(nullptr), index(index), schedule(nullptr)
