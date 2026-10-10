@@ -137,9 +137,9 @@ void Server::run(const ClientData& client_data, ServerData& server_data)
       std::cerr << "\n" << hst << " " << prog << " running simulation at " << timebuf << " " << hst << "\n";
     }
 
-    Node::setOverride((client_data.getFlags() & DataStreamer::OVERRIDE_FLAG) != 0);
+    Node::setOverrideDefinition((client_data.getFlags() & DataStreamer::OVERRIDE_FLAG) != 0);
     Node::setAugment((client_data.getFlags() & DataStreamer::AUGMENT_FLAG) != 0);
-    if (Node::isOverride() && Node::isAugment()) {
+    if (Node::isOverrideDefinition() && Node::isAugment()) {
       server_data.setStatus(2);
       server_data.setErrorMessage("override and augment are exclusive flags");
       return;
