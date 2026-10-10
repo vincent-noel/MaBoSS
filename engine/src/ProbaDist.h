@@ -66,12 +66,9 @@
 #include "RunConfig.h"
 #include "displayers/StatDistDisplayer.h"
 
-#define CLUSTER_OPTIM
-
-
 template <typename S>
 class ProbaDist {
-  STATE_MAP<S, double> mp;
+  StateMap<S, double> mp;
 
  public:
   size_t size() const {
@@ -79,7 +76,7 @@ class ProbaDist {
   }
 
   void incr(const S& state, double tm_slice) {
-    typename STATE_MAP<S, double>::iterator proba_iter = mp.find(state);
+    typename StateMap<S, double>::iterator proba_iter = mp.find(state);
     if (proba_iter == mp.end()) {
       mp[state] = tm_slice;
     } else {
@@ -96,7 +93,7 @@ class ProbaDist {
   }
 
   bool hasState(const S& state, double& tm_slice) const {
-    typename STATE_MAP<S, double>::const_iterator iter = mp.find(state);
+    typename StateMap<S, double>::const_iterator iter = mp.find(state);
     if (iter != mp.end()) {
       tm_slice = (*iter).second;
       return true;
@@ -178,7 +175,7 @@ class ProbaDist {
   class Iterator {
     
     const ProbaDist& proba_dist_map;
-    typename STATE_MAP<S, double>::const_iterator iter, end;
+    typename StateMap<S, double>::const_iterator iter, end;
 
   public:
   Iterator(const ProbaDist& proba_dist_map) : proba_dist_map(proba_dist_map) {
@@ -238,7 +235,7 @@ class ProbaDistClusterFactory;
 
 class ProbaDistCluster {
 
-  MAP<unsigned int, ProbaDist<NetworkState> > proba_dist_map;
+  std::map<unsigned int, ProbaDist<NetworkState> > proba_dist_map;
   ProbaDistClusterFactory* factory;
   struct Proba {
     double proba;
@@ -247,7 +244,7 @@ class ProbaDistCluster {
     Proba(double proba, double probaSquare) : proba(proba), probaSquare(probaSquare) { }
   };
   // state -> Proba
-  STATE_MAP<NetworkState, Proba> stat_dist_map;
+  StateMap<NetworkState, Proba> stat_dist_map;
 
  public:
   ProbaDistCluster(ProbaDistClusterFactory* factory) : factory(factory) { }
@@ -257,7 +254,7 @@ class ProbaDistCluster {
 
   size_t size() const {return proba_dist_map.size();}
 
-  void complete(double threshold, unsigned int statdist_traj_count);
+  void complete(double threshold);
   void computeStationaryDistribution();
 
   void display(StatDistDisplayer* displayer) const;
@@ -267,22 +264,18 @@ class ProbaDistCluster {
 class ProbaDistClusterFactory {
 
   std::vector<ProbaDistCluster*> proba_dist_cluster_v;
-  MAP<unsigned int, bool> proba_dist_clusterized;
-#ifdef CLUSTER_OPTIM
-  MAP<unsigned int, bool> proba_dist_not_clusterized;
-#endif
+  std::map<unsigned int, bool> proba_dist_clusterized;
+  std::map<unsigned int, bool> proba_dist_not_clusterized;
   const std::vector<ProbaDist<NetworkState> > proba_dist_v;
   unsigned int statdist_traj_count;
   double** similarity_cache;
 
  public:
   ProbaDistClusterFactory(const std::vector<ProbaDist<NetworkState> >& proba_dist_v, unsigned int statdist_traj_count) : proba_dist_v(proba_dist_v), statdist_traj_count(statdist_traj_count), similarity_cache(nullptr) {
-#ifdef CLUSTER_OPTIM
     for (unsigned int nn = 0; nn < statdist_traj_count; ++nn) {
       proba_dist_not_clusterized[nn] = true;
     }
     //std::cout << "SIZE: " << proba_dist_not_clusterized.size() << '\n';
-#endif
   }
 
   ProbaDistCluster* newCluster() {
@@ -293,23 +286,19 @@ class ProbaDistClusterFactory {
 
   void setClusterized(unsigned int index) {
     proba_dist_clusterized[index] = true;
-#ifdef CLUSTER_OPTIM
-    MAP<unsigned int, bool>::iterator iter = proba_dist_not_clusterized.find(index);
+    std::map<unsigned int, bool>::iterator iter = proba_dist_not_clusterized.find(index);
     if (iter != proba_dist_not_clusterized.end()) {
       proba_dist_not_clusterized.erase(iter);
     }
-#endif
   }
 
   double** getSimilarityCache() {
     return similarity_cache;
   }
 
-#ifdef CLUSTER_OPTIM
-  const MAP<unsigned int, bool>& getNotClusterizedMap() const {
+  const std::map<unsigned int, bool>& getNotClusterizedMap() const {
     return proba_dist_not_clusterized;
   }
-#endif
 
   bool isClusterized(unsigned int index) const {
     return proba_dist_clusterized.find(index) != proba_dist_clusterized.end();

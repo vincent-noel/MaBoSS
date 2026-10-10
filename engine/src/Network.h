@@ -61,13 +61,13 @@ class IStateGroup;
 
 // the boolean network (also used as a Node factory)
 class Network {
-  MAP<std::string, Node*> node_map;
+  std::map<std::string, Node*> node_map;
   NodeIndex last_index;
   std::vector<Node*> input_nodes;
   std::vector<Node*> non_input_nodes;
   std::vector<Node*> nodes;
 
-  MAP<std::string, bool> node_def_map;
+  std::map<std::string, bool> node_def_map;
   std::vector<IStateGroup*>* istate_group_list;
   SymbolTable* symbol_table;
   static size_t MAX_NODE_SIZE;

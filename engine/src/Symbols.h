@@ -56,8 +56,6 @@
 
 #include "BNException.h"
 
-#define MAP std::map 
-
 class SymbolExpression;
 
 using SymbolIndex = unsigned int;
@@ -76,7 +74,7 @@ public:
 //The symbol table
 class SymbolTable {
   SymbolIndex last_symb_idx;
-  MAP<std::string, Symbol*> symb_map;
+  std::map<std::string, Symbol*> symb_map;
   std::vector<double> symb_value;
   std::vector<bool> symb_def;
   std::map<SymbolIndex, bool> symb_dont_set;

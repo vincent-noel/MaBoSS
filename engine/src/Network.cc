@@ -187,7 +187,7 @@ int Network::parseSBML(const char* file, std::map<std::string, NodeIndex>* nodes
 
 void Network::compile(std::map<std::string, NodeIndex>* nodes_indexes)
 {
-  MAP<std::string, Node*>::iterator begin = node_map.begin();
+  std::map<std::string, Node*>::iterator begin = node_map.begin();
 
 #if 0
   // checks for cycles

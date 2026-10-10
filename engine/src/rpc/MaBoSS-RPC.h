@@ -65,10 +65,10 @@
 
 #include <string>
 
-#define rpc_Success 0
-#define rpc_Error 1
+constexpr int rpc_Success = 0;
+constexpr int rpc_Error = 1;
 
-#define rpc_isSocketValid(S) ((S) >= 0)
+inline bool rpc_isSocketValid(int fd) { return fd >= 0; }
 
 struct rpc_PortHandle {
   int domain, type;

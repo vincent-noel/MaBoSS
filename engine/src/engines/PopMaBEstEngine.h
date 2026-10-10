@@ -65,10 +65,10 @@
 struct ArgWrapper;
 
 #ifdef POPNETWORKSTATE_STD_MAP
-// EV 2021-11-12: use std::map instead of STATE_MAP (std::unordered_map) for PopNetworkStateMap
+// EV 2021-11-12: use std::map instead of StateMap (std::unordered_map) for PopNetworkStateMap
 using PopNetworkStateMap = std::map<PopNetworkState, double>;
 #else
-using PopNetworkStateMap = STATE_MAP<PopNetworkState, double>;
+using PopNetworkStateMap = StateMap<PopNetworkState, double>;
 #endif
 
 class PopMaBEstEngine : public MetaEngine {
@@ -113,7 +113,7 @@ public:
   std::vector<ArgWrapper*> arg_wrapper_v;
   PopNetworkState getTargetNode(RandomGenerator* random_generator, const PopNetworkStateMap& popNodeTransitionRates, double total_rate) const;
 
-  double computeTH(const MAP<NodeIndex, double>& nodeTransitionRates, double total_rate) const;
+  double computeTH(const std::map<NodeIndex, double>& nodeTransitionRates, double total_rate) const;
   void epilogue();
   static void* threadWrapper(void *arg);
   void runThread(Cumulator<PopNetworkState>* cumulator, Cumulator<PopSize>* custom_cumulator, unsigned int start_count_thread, unsigned int sample_count_thread, RandomGeneratorFactory* randgen_factory, int seed, FixedPoints* fixpoint_map, std::ostream* output_traj);
