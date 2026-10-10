@@ -104,7 +104,7 @@ public:
   }
 };
 
-#define MAXTHREADS 256
+static constexpr unsigned int MAXTHREADS = 256;
 
 class MBDynBitsetAllocator {
   // try to have a dynamic BUCKET_SIZE, or better:

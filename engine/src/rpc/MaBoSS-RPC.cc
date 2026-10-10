@@ -120,7 +120,7 @@ static int isnumber(const char* portname)
   return 1;
 }
 
-#define BUFFER_SIZE 4196
+static constexpr size_t BUFFER_SIZE = 4196;
 
 char* rpc_readStringData(int fd)
 {

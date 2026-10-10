@@ -93,7 +93,7 @@ class Cumulator {
   };
 
   class CumulMap {
-    STATE_MAP<S, TickValue> mp;
+    StateMap<S, TickValue> mp;
 
   public:
     size_t size() const {
@@ -231,7 +231,7 @@ class Cumulator {
     class Iterator {
     
       const CumulMap& cumul_map;
-      typename STATE_MAP<S, TickValue>::const_iterator iter, end;
+      typename StateMap<S, TickValue>::const_iterator iter, end;
 
     public:
       Iterator(const CumulMap& cumul_map) : cumul_map(cumul_map) {
@@ -268,7 +268,7 @@ class Cumulator {
     Iterator iterator() const {return Iterator(*this);}
   };
   class HDCumulMap {
-    typename STATE_MAP<S, double> mp;
+    StateMap<S, double> mp;
 
   public:
     size_t size() const {
@@ -385,7 +385,7 @@ class Cumulator {
     class Iterator {
     
       const HDCumulMap& hd_cumul_map;
-      typename STATE_MAP<S, double>::const_iterator iter, end;
+      typename StateMap<S, double>::const_iterator iter, end;
 
     public:
       Iterator(const HDCumulMap& hd_cumul_map) : hd_cumul_map(hd_cumul_map) {
@@ -430,7 +430,7 @@ class Cumulator {
   int tick_index;
   std::vector<double> H_v;
   std::vector<double> TH_v;
-  std::vector<MAP<unsigned int, double> > HD_v;
+  std::vector<std::map<unsigned int, double> > HD_v;
   std::vector<double> TH_square_v;
   unsigned int maxcols;
   bool isPopCumulator;
@@ -445,7 +445,7 @@ class Cumulator {
   NetworkState refnode_mask;
   std::vector<ProbaDist<S> > proba_dist_v;
   ProbaDist<S> curtraj_proba_dist;
-  STATE_MAP<S, LastTickValue> last_tick_map;
+  StateMap<S, LastTickValue> last_tick_map;
   std::map<unsigned int, unsigned int> output_scale;
   bool tick_completed;
 
@@ -759,7 +759,7 @@ public:
 
       std::string zero_hexfloat = fmthexdouble(0.0);
       // HD
-      const MAP<unsigned int, double>& hd_m = HD_v[nn];
+      const std::map<unsigned int, double>& hd_m = HD_v[nn];
       for (unsigned int hd = 0; hd <= _refnode_count; ++hd) { 
         auto hd_m_iter = hd_m.find(hd);
         if (hd_m_iter != hd_m.end()) {
@@ -962,7 +962,7 @@ PyObject* getNumpyStatesDists(Network* network) const
   PyArrayObject* errors = (PyArrayObject *) PyArray_ZEROS(2,dims,NPY_DOUBLE, 0); 
 
   std::vector<S> list_states(result_states.begin(), result_states.end());
-  STATE_MAP<S, unsigned int> pos_states;
+  StateMap<S, unsigned int> pos_states;
   for(unsigned int i=0; i < list_states.size(); i++) {
     pos_states[list_states[i]] = i;
   }
@@ -1021,7 +1021,7 @@ PyObject* getNumpyLastStatesDists(Network* network) const
   PyArrayObject* result = (PyArrayObject *) PyArray_ZEROS(2,dims,NPY_DOUBLE, 0); 
   PyArrayObject* errors = (PyArrayObject *) PyArray_ZEROS(2,dims,NPY_DOUBLE, 0); 
 
-  STATE_MAP<S, unsigned int> pos_states;
+  StateMap<S, unsigned int> pos_states;
   for(unsigned int i=0; i < result_last_states.size(); i++) {
     pos_states[result_last_states[i]] = i;
   }
@@ -1096,7 +1096,7 @@ PyObject* getNumpyNodesDists(Network* network, std::vector<Node*> output_nodes) 
   PyArrayObject* result = (PyArrayObject *) PyArray_ZEROS(2,dims,NPY_DOUBLE, 0); 
   PyArrayObject* errors = (PyArrayObject *) PyArray_ZEROS(2,dims,NPY_DOUBLE, 0); 
 
-  STATE_MAP<Node*, unsigned int> pos_nodes;
+  StateMap<Node*, unsigned int> pos_nodes;
   for(unsigned int i=0; i < output_nodes.size(); i++) {
     pos_nodes[output_nodes[i]] = i;
   }
@@ -1184,7 +1184,7 @@ PyObject* getNumpyLastNodesDists(Network* network, std::vector<Node*> output_nod
   PyArrayObject* result = (PyArrayObject *) PyArray_ZEROS(2,dims,NPY_DOUBLE, 0); 
   PyArrayObject* errors = (PyArrayObject *) PyArray_ZEROS(2,dims,NPY_DOUBLE, 0); 
 
-  STATE_MAP<Node*, unsigned int> pos_nodes;
+  StateMap<Node*, unsigned int> pos_nodes;
   for(unsigned int i=0; i < output_nodes.size(); i++) {
     pos_nodes[output_nodes[i]] = i;
   }
@@ -1267,7 +1267,7 @@ PyObject* getNumpySimpleStatesDists(Network* network) const
   PyArrayObject* errors = (PyArrayObject *) PyArray_ZEROS(2,dims,NPY_DOUBLE, 0); 
 
   std::vector<NetworkState_Impl> list_states(result_states.begin(), result_states.end());
-  STATE_MAP<NetworkState_Impl, unsigned int> pos_states;
+  StateMap<NetworkState_Impl, unsigned int> pos_states;
   for(unsigned int i=0; i < list_states.size(); i++) {
     pos_states[list_states[i]] = i+1;
   }
@@ -1402,7 +1402,7 @@ PyObject* getNumpySimpleLastStatesDists(Network* network) const
   PyArrayObject* errors = (PyArrayObject *) PyArray_ZEROS(2,dims,NPY_DOUBLE, 0); 
 
   std::vector<NetworkState_Impl> list_states(result_states.begin(), result_states.end());
-  STATE_MAP<NetworkState_Impl, unsigned int> pos_states;
+  StateMap<NetworkState_Impl, unsigned int> pos_states;
   for(unsigned int i=0; i < list_states.size(); i++) {
     pos_states[list_states[i]] = i+1;
   }
@@ -1578,7 +1578,7 @@ PyObject* getNumpySimpleLastStatesDists(Network* network) const
     for (int nn = 0; nn < max_tick_index; ++nn) { // time tick
       const HDCumulMap& hd_mp = get_hd_map(nn);
       auto iter = hd_mp.iterator();
-      MAP<unsigned int, double>& hd_m = HD_v[nn];
+      std::map<unsigned int, double>& hd_m = HD_v[nn];
       while (iter.hasNext()) {
         double tm_slice;
         const S &state = iter.next2(tm_slice);

@@ -62,7 +62,7 @@
 #include "../maps_header.h"
 
 struct EnsembleArgWrapper;
-using FixedPoints = STATE_MAP<NetworkState_Impl, unsigned int>;
+using FixedPoints = StateMap<NetworkState_Impl, unsigned int>;
 class FixedPointEngine : public MetaEngine {
 
 protected:

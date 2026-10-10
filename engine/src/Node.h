@@ -99,8 +99,8 @@ class Node {
   mutable NodeState istate;
   NodeIndex index;
   
-  MAP<std::string, const Expression*> attr_expr_map;
-  MAP<std::string, std::string> attr_str_map;
+  std::map<std::string, const Expression*> attr_expr_map;
+  std::map<std::string, std::string> attr_str_map;
   Expression* rewriteLogicalExpression(Expression* rateUpExpr, Expression* rateDownExpr) const;
   NetworkState_Impl node_bit;
   std::map<double, Expression*>* schedule;
@@ -214,7 +214,7 @@ class Node {
   }
 
   const Expression* getAttributeExpression(const std::string& attr_name) const {
-    MAP<std::string, const Expression*>::const_iterator iter = attr_expr_map.find(attr_name);
+    std::map<std::string, const Expression*>::const_iterator iter = attr_expr_map.find(attr_name);
     if (iter == attr_expr_map.end()) {
       if (attr_name == ATTR_RATE_UP) {
 	return getRateUpExpression();
@@ -240,7 +240,7 @@ class Node {
   }
 
   std::string getAttributeString(const std::string& attr_name) const {
-    MAP<std::string, std::string>::const_iterator iter = attr_str_map.find(attr_name);
+    std::map<std::string, std::string>::const_iterator iter = attr_str_map.find(attr_name);
     if (iter == attr_str_map.end()) {
       if (attr_name == ATTR_DESCRIPTION) {
 	return getDescription();
@@ -256,11 +256,11 @@ class Node {
   NetworkState_Impl getNodeBit() const {return node_bit;}
 #endif
 
-  const MAP<std::string, const Expression*>& getAttributeExpressionMap() const {
+  const std::map<std::string, const Expression*>& getAttributeExpressionMap() const {
     return attr_expr_map;
   }
 
-  const MAP<std::string, std::string>& getAttributeStringMap() const {
+  const std::map<std::string, std::string>& getAttributeStringMap() const {
     return attr_str_map;
   }
 

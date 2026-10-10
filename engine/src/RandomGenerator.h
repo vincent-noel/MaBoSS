@@ -101,33 +101,30 @@ class RandomGenerator {
 class Rand48RandomGenerator final: public RandomGenerator
 {
 
-#define RAND48_N	16
-#define RAND48_MASK	((unsigned)(1 << (RAND48_N - 1)) + (1 << (RAND48_N - 1)) - 1)
-#define RAND48_LOW(x)	((unsigned)(x) & RAND48_MASK)
-#define RAND48_HIGH(x)	RAND48_LOW((x) >> RAND48_N)
-#define RAND48_MUL(x, y, z)	{ long l = (long)(x) * (long)(y); \
-		(z)[0] = RAND48_LOW(l); (z)[1] = RAND48_HIGH(l); }
-#define RAND48_CARRY(x, y)	((long)(x) + (long)(y) > (long)(RAND48_MASK))
-#define RAND48_ADDEQU(x, y, z)	(z = RAND48_CARRY(x, (y)), x = RAND48_LOW(x + (y)))
-#define RAND48_X0	0x330E
-#define RAND48_X1	0xABCD
-#define RAND48_X2	0x1234
-#define RAND48_A0	0xE66D
-#define RAND48_A1	0xDEEC
-#define RAND48_A2	0x5
-#define RAND48_C	0xB
-#define RAND48_SET3(x, x0, x1, x2)	((x)[0] = (x0), (x)[1] = (x1), (x)[2] = (x2))
-#define RAND48_SETLOW(x, y, n) RAND48_SET3(x, RAND48_LOW((y)[n]), RAND48_LOW((y)[(n)+1]), RAND48_LOW((y)[(n)+2]))
-#define RAND48_SEED(x0, x1, x2) (RAND48_SET3(x, x0, x1, x2), RAND48_SET3(a, RAND48_A0, RAND48_A1, RAND48_A2), c = RAND48_C)
-#define RAND48_REST(v)	for (i = 0; i < 3; i++) { xsubi[i] = x[i]; x[i] = temp[i]; } \
-		return (v);
-#define RAND48_NEST(TYPE, f, F)	TYPE f(xsubi) register unsigned short *xsubi; { \
-	register int i; register TYPE v; unsigned temp[3]; \
-	for (i = 0; i < 3; i++) { temp[i] = x[i]; x[i] = RAND48_LOW(xsubi[i]); }  \
-	v = F(); RAND48_REST(v); }
-#define RAND48_HI_BIT	(1L << (2 * RAND48_N - 1))
+  // The BSD rand48 generator: a 48-bit linear congruential generator whose
+  // state is held in three 16-bit words.
+  static constexpr int N = 16;
+  static constexpr unsigned MASK = (1U << N) - 1;
+  static constexpr unsigned X0 = 0x330E, X1 = 0xABCD, X2 = 0x1234;
+  static constexpr unsigned A0 = 0xE66D, A1 = 0xDEEC, A2 = 0x5;
+  static constexpr unsigned C = 0xB;
 
-  unsigned x[3] = { RAND48_X0, RAND48_X1, RAND48_X2 }, a[3] = { RAND48_A0, RAND48_A1, RAND48_A2 }, c = RAND48_C;
+  // 64-bit intermediates: the 16x16-bit products below do not fit in a
+  // signed 32-bit long, which is what long is on Windows.
+  static constexpr unsigned low(int64_t v) { return static_cast<unsigned>(v) & MASK; }
+  static constexpr unsigned high(int64_t v) { return low(v >> N); }
+  static constexpr bool carry(unsigned x, unsigned y) { return int64_t(x) + int64_t(y) > int64_t(MASK); }
+  static void mul(unsigned x, unsigned y, unsigned z[2]) {
+    int64_t l = int64_t(x) * int64_t(y);
+    z[0] = low(l);
+    z[1] = high(l);
+  }
+  static void addequ(unsigned& x, unsigned y, unsigned& z) {
+    z = carry(x, y);
+    x = low(x + y);
+  }
+
+  unsigned x[3] = { X0, X1, X2 }, a[3] = { A0, A1, A2 }, c = C;
   int seed;
 public:
   Rand48RandomGenerator(int _seed)
@@ -146,16 +143,16 @@ public:
   {
     unsigned p[2], q[2], r[2], carry0, carry1;
 
-    RAND48_MUL(a[0], x[0], p);
-    RAND48_ADDEQU(p[0], c, carry0);
-    RAND48_ADDEQU(p[1], carry0, carry1);
-    RAND48_MUL(a[0], x[1], q);
-    RAND48_ADDEQU(p[1], q[0], carry0);
-    RAND48_MUL(a[1], x[0], r);
-    x[2] = RAND48_LOW(carry0 + carry1 + RAND48_CARRY(p[1], r[0]) + q[1] + r[1] +
+    mul(a[0], x[0], p);
+    addequ(p[0], c, carry0);
+    addequ(p[1], carry0, carry1);
+    mul(a[0], x[1], q);
+    addequ(p[1], q[0], carry0);
+    mul(a[1], x[0], r);
+    x[2] = low(carry0 + carry1 + carry(p[1], r[0]) + q[1] + r[1] +
       a[0] * x[2] + a[1] * x[1] + a[2] * x[0]);
-    x[1] = RAND48_LOW(p[1] + r[0]);
-    x[0] = RAND48_LOW(p[0]);
+    x[1] = low(p[1] + r[0]);
+    x[0] = low(p[0]);
   }
 
   unsigned int generateUInt32() override {
@@ -167,9 +164,9 @@ public:
     next();
 	
 #ifdef RANDOM_TRACE
-    std::cout << ((unsigned int)(((long)x[2] << (RAND48_N - 1)) + (x[1] >> 1))) << '\n';
+    std::cout << ((unsigned int)(((long)x[2] << (N - 1)) + (x[1] >> 1))) << '\n';
 #endif
-    return (((unsigned int)x[2] << (RAND48_N - 1)) + (x[1] >> 1));
+    return (((unsigned int)x[2] << (N - 1)) + (x[1] >> 1));
   }
 
   double generate() override {
@@ -178,7 +175,7 @@ public:
     return 0.5;
 #endif
     
-    double two16m = 1.0 / (1L << RAND48_N);
+    double two16m = 1.0 / (1L << N);
     next();
 
 #ifdef RANDOM_TRACE
@@ -189,7 +186,13 @@ public:
 
   void setSeed(int _seed) override {
     this->seed = _seed;
-	  RAND48_SEED(RAND48_X0, RAND48_LOW(_seed), RAND48_HIGH(_seed));
+    x[0] = X0;
+    x[1] = low(_seed);
+    x[2] = high(_seed);
+    a[0] = A0;
+    a[1] = A1;
+    a[2] = A2;
+    c = C;
   }
 };
 
@@ -204,8 +207,8 @@ class GLibCRandomGenerator final : public RandomGenerator
   
   int seed;
   
-  #define SIZE_R 344
-  #define GLIBCRAND_MAX 2147483647
+  static constexpr int SIZE_R = 344;
+  static constexpr int32_t GLIBCRAND_MAX = 2147483647;
   
   int n;
   // Unsigned, so that the additive feedback below wraps modulo 2^32 instead

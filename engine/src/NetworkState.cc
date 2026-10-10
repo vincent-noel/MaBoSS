@@ -62,24 +62,9 @@ bool NetworkState::computeNodeState(const Node* node, NodeState& node_state)
   return false;
 }
 
-#define HAMMING_METHOD2
-
 unsigned int NetworkState::hamming(Network* network, const NetworkState_Impl& state2) const
 {
   unsigned int hd = 0;
-#ifdef HAMMING_METHOD1
-  // faster way
-  unsigned long s = (state ^ (state2 & state));
-  unsigned int node_count = network->getNodes().size();
-  for (unsigned int nn = 0; nn < node_count; ++nn) {
-    if ((1ULL << nn) & s) {
-      hd++;
-    }
-  }
-  return hd;
-#endif
-
-#ifdef HAMMING_METHOD2
 #ifdef USE_DYNAMIC_BITSET
   NetworkState network_state2(state2, 1);
 #else
@@ -96,7 +81,6 @@ unsigned int NetworkState::hamming(Network* network, const NetworkState_Impl& st
   }
 
   return hd;
-#endif
 }
 
 unsigned int NetworkState::hamming(Network* network, const NetworkState& state2) const

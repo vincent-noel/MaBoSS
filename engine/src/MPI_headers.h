@@ -55,17 +55,18 @@
 #include <cstdint>
 #include <climits>
 
+// The MPI datatype matching size_t.
 #if SIZE_MAX == UCHAR_MAX
-   #define my_MPI_SIZE_T MPI_UNSIGNED_CHAR
+inline const MPI_Datatype my_MPI_SIZE_T = MPI_UNSIGNED_CHAR;
 #elif SIZE_MAX == USHRT_MAX
-   #define my_MPI_SIZE_T MPI_UNSIGNED_SHORT
+inline const MPI_Datatype my_MPI_SIZE_T = MPI_UNSIGNED_SHORT;
 #elif SIZE_MAX == UINT_MAX
-   #define my_MPI_SIZE_T MPI_UNSIGNED
+inline const MPI_Datatype my_MPI_SIZE_T = MPI_UNSIGNED;
 #elif SIZE_MAX == ULONG_MAX
-   #define my_MPI_SIZE_T MPI_UNSIGNED_LONG
+inline const MPI_Datatype my_MPI_SIZE_T = MPI_UNSIGNED_LONG;
 #elif SIZE_MAX == ULLONG_MAX
-   #define my_MPI_SIZE_T MPI_UNSIGNED_LONG_LONG
+inline const MPI_Datatype my_MPI_SIZE_T = MPI_UNSIGNED_LONG_LONG;
 #else
-   #error "what is happening here?"
+#error "what is happening here?"
 #endif
 #endif

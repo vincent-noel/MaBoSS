@@ -70,20 +70,19 @@ void ProbaDistCluster::add(unsigned int index, const ProbaDist<NetworkState>& pr
   factory->setClusterized(index);
 }
 
-void ProbaDistCluster::complete(double threshold, unsigned int statdist_traj_count)
+void ProbaDistCluster::complete(double threshold)
 {
   for (;;) {
     unsigned int added_proba_dist_cnt = 0;
     std::vector<unsigned int> toadd_map;
-    // MAP<unsigned int, ProbaDist<NetworkState> >::iterator begin = proba_dist_map.begin();
-    // MAP<unsigned int, ProbaDist<NetworkState> >::iterator end = proba_dist_map.end();
+    // std::map<unsigned int, ProbaDist<NetworkState> >::iterator begin = proba_dist_map.begin();
+    // std::map<unsigned int, ProbaDist<NetworkState> >::iterator end = proba_dist_map.end();
     // while (begin != end) {
     for (const auto & proba_dist_entry : proba_dist_map) {
       unsigned int nn1 = proba_dist_entry.first;
       const ProbaDist<NetworkState>& proba_dist1 = proba_dist_entry.second;
-#ifdef CLUSTER_OPTIM
-      // MAP<unsigned int, bool>::const_iterator not_clusterized_iter = factory->getNotClusterizedMap().begin();
-      // MAP<unsigned int, bool>::const_iterator not_clusterized_end = factory->getNotClusterizedMap().end();
+      // std::map<unsigned int, bool>::const_iterator not_clusterized_iter = factory->getNotClusterizedMap().begin();
+      // std::map<unsigned int, bool>::const_iterator not_clusterized_end = factory->getNotClusterizedMap().end();
       // while (not_clusterized_iter != not_clusterized_end) {
       for (const auto & not_clusterized : factory->getNotClusterizedMap()) {
         unsigned int nn2 = not_clusterized.first;
@@ -94,25 +93,11 @@ void ProbaDistCluster::complete(double threshold, unsigned int statdist_traj_cou
           added_proba_dist_cnt++;
         }
       }
-#else
-      for (unsigned int nn2 = 0; nn2 < statdist_traj_count; ++nn2) { // optimizatin: should avoid to scan all proba_dist, using a complement map
-	if (!factory->isClusterized(nn2)) {
-	  const ProbaDist& proba_dist2 = factory->getProbaDist(nn2);
-	  double simil = similarity(nn1, proba_dist1, nn2, proba_dist2, factory->getSimilarityCache());
-	  if (simil >= threshold) {
-	    add(nn2, proba_dist2);
-	    added_proba_dist_cnt++;
-	  }
-	}
-      }
-#endif
       // ++begin;
     }
-#ifdef CLUSTER_OPTIM
     for (const unsigned int& nn2 : toadd_map) {
       add(nn2, factory->getProbaDist(nn2));
     }
-#endif
     if (!added_proba_dist_cnt) {
       break;
     }
@@ -128,7 +113,7 @@ void ProbaDistClusterFactory::makeClusters(RunConfig* runconfig)
     if (!isClusterized(nn1)) {
       ProbaDistCluster* cluster = newCluster();
       cluster->add(nn1, getProbaDist(nn1));
-      cluster->complete(runconfig->getStatdistClusterThreshold(), statdist_traj_count);
+      cluster->complete(runconfig->getStatdistClusterThreshold());
     }
   }
 }

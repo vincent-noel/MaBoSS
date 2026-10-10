@@ -338,9 +338,9 @@ void FinalStateSimulationEngine::displayFinal(FinalStateDisplayer* displayer) co
   displayer->end();
 }
 
-const STATE_MAP<Node*, double> FinalStateSimulationEngine::getFinalNodes() const {
+const StateMap<Node*, double> FinalStateSimulationEngine::getFinalNodes() const {
 
-  STATE_MAP<Node *, double> node_dist;
+  StateMap<Node *, double> node_dist;
   for (auto& node: network->getNodes())
   {
     if (!(node->isInternal()))

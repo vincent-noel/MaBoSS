@@ -85,7 +85,7 @@ class FinalStateSimulationEngine : public MetaEngine {
   void runThread(unsigned int start_count_thread, unsigned int sample_count_thread, RandomGeneratorFactory* randgen_factory, int seed, FixedPoints* final_state_map, std::ostream* output_traj);
   
   FixedPoints* mergeFinalStateMaps();
-  STATE_MAP<NetworkState_Impl, double> final_states;
+  StateMap<NetworkState_Impl, double> final_states;
   std::vector<FixedPoints*> final_states_map_v;
 
 public:
@@ -100,7 +100,7 @@ public:
   void run(std::ostream* output_traj);
   ~FinalStateSimulationEngine();
 
-  const STATE_MAP<Node*, double> getFinalNodes() const;
+  const StateMap<Node*, double> getFinalNodes() const;
   double getFinalTime() const { return max_time; }
 
 #ifdef PYTHON_API
