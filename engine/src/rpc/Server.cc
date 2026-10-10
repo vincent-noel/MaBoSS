@@ -111,7 +111,10 @@ int Server::manageRequests()
   return 1;
 }
 
-#define ostringstream2str(OSTR) (((std::ostringstream*)(OSTR))->str())
+static std::string ostringstream2str(const std::ostream* os)
+{
+  return static_cast<const std::ostringstream*>(os)->str();
+}
 
 void Server::run(const ClientData& client_data, ServerData& server_data)
 {

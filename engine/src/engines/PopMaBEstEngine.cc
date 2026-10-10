@@ -150,14 +150,14 @@ PopNetworkState PopMaBEstEngine::getTargetNode(RandomGenerator *random_generator
   return result;
 }
 
-double PopMaBEstEngine::computeTH(const MAP<NodeIndex, double> &nodeTransitionRates, double total_rate) const
+double PopMaBEstEngine::computeTH(const std::map<NodeIndex, double> &nodeTransitionRates, double total_rate) const
 {
   if (nodeTransitionRates.size() == 1)
   {
     return 0.;
   }
 
-  MAP<NodeIndex, double>::const_iterator begin = nodeTransitionRates.begin();
+  std::map<NodeIndex, double>::const_iterator begin = nodeTransitionRates.begin();
 
   double TH = 0.;
   double rate_internal = 0.;
