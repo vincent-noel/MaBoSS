@@ -18,6 +18,7 @@ include(src/CMakeLists.txt)
 set(cmaboss_modules cmaboss;cmaboss_128n;cmaboss_256n;cmaboss_512n;cmaboss_1024n;cmaboss_dn)
 foreach(mod ${cmaboss_modules})
     python_add_library(${mod} MODULE WITH_SOABI ${cmaboss_files} ${src_files})
+    add_dependencies(${mod} maboss_parsers)
     target_include_directories(
         ${mod} PUBLIC
         ${Python_NumPy_INCLUDE_DIRS}

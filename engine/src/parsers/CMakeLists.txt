@@ -50,3 +50,14 @@ list(APPEND src_files
     ${BISON_ctbndl_parser_OUTPUTS} 
     ${BISON_rc_parser_OUTPUTS}
 )
+
+# Several targets compile the generated parsers (the static and shared
+# libraries, the cmaboss modules). With the Makefile generator each of them
+# gets its own copy of the rules above, so in a parallel build two targets can
+# regenerate the same file at once and one compiles it half-written. Every
+# target that lists src_files must depend on this one, so that the parsers
+# are generated once, before any of them.
+add_custom_target(maboss_parsers DEPENDS
+    ${BISON_ctbndl_parser_OUTPUTS}
+    ${BISON_rc_parser_OUTPUTS}
+)
