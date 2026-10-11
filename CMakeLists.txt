@@ -125,6 +125,9 @@ else()
   target_compile_definitions(${MABOSS_LIBNAME} PUBLIC MAXNODES=${MAXNODES} ${DYNBITSET_FLAG})
   set_target_properties(${MABOSS_LIBNAME} PROPERTIES OUTPUT_NAME ${MABOSS_NAME})
 
+  add_dependencies(${MABOSS_LIBNAME}-static maboss_parsers)
+  add_dependencies(${MABOSS_LIBNAME} maboss_parsers)
+
   # MSVC adds no "lib" prefix, so this DLL and the MaBoSS executable share a
   # base name in the same directory, and their two links write the same .pdb
   # and .ilk. When Ninja runs them in parallel one of them fails with
