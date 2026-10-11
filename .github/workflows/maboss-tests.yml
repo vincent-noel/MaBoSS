@@ -57,6 +57,12 @@ jobs:
           sudo apt-get install -y flex bison
           pip install numpy
 
+      # Needed on a cache hit too: install_libsbml.sh runs make install in the
+      # cached build tree, which recompiles part of libSBML.
+      - name: Install libSBML build dependencies
+        if: matrix.sbml
+        run: sudo apt-get install -y libxml2-dev libbz2-dev
+
       - name: Cache compiled libSBML
         if: matrix.sbml
         id: cache-libsbml-gcc
@@ -67,9 +73,7 @@ jobs:
 
       - name: Compile libSBML
         if: matrix.sbml && steps.cache-libsbml-gcc.outputs.cache-hit != 'true'
-        run: |
-          sudo apt-get install -y libxml2-dev libbz2-dev
-          bash scripts/build_libsbml.sh
+        run: bash scripts/build_libsbml.sh
 
       - name: Install libSBML
         if: matrix.sbml
