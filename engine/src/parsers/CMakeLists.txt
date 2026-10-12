@@ -10,6 +10,7 @@ IF(FLEX_FOUND)
     COMMAND ${FLEX_EXECUTABLE}
     ARGS ${WINCOMPAT} --outfile=${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${MABOSS_LIBNAME}.dir/engine/src/parsers/lex.CTBNDL.cc
         ${CMAKE_CURRENT_LIST_DIR}/BooleanGrammar.l
+    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/BooleanGrammar.l
     COMMENT "Generating Boolean Network Lexer"
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${MABOSS_LIBNAME}.dir/engine/src/parsers/lex.CTBNDL.cc
     )
@@ -18,6 +19,7 @@ IF(FLEX_FOUND)
     COMMAND ${FLEX_EXECUTABLE}
     ARGS ${WINCOMPAT} --outfile=${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${MABOSS_LIBNAME}.dir/engine/src/parsers/lex.RC.cc
         ${CMAKE_CURRENT_LIST_DIR}/RunConfigGrammar.l
+    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/RunConfigGrammar.l
     COMMENT "Generating Config Lexer"
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${MABOSS_LIBNAME}.dir/engine/src/parsers/lex.RC.cc
     )
@@ -31,7 +33,8 @@ if(BISON_FOUND)
     COMMAND ${BISON_EXECUTABLE}
     ARGS -v ${CMAKE_CURRENT_LIST_DIR}/BooleanGrammar.y
         --output=${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${MABOSS_LIBNAME}.dir/engine/src/parsers/BooleanGrammar.cc
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${MABOSS_LIBNAME}.dir/engine/src/parsers/lex.CTBNDL.cc
+    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/BooleanGrammar.y
+        ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${MABOSS_LIBNAME}.dir/engine/src/parsers/lex.CTBNDL.cc
     COMMENT "Generating BooleanGrammar parser.cpp"
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${MABOSS_LIBNAME}.dir/engine/src/parsers/BooleanGrammar.cc
     )
@@ -40,7 +43,8 @@ if(BISON_FOUND)
     COMMAND ${BISON_EXECUTABLE}
     ARGS -v ${CMAKE_CURRENT_LIST_DIR}/RunConfigGrammar.y
         --output=${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${MABOSS_LIBNAME}.dir/engine/src/parsers/RunConfigGrammar.cc
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${MABOSS_LIBNAME}.dir/engine/src/parsers/lex.RC.cc
+    DEPENDS ${CMAKE_CURRENT_LIST_DIR}/RunConfigGrammar.y
+        ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${MABOSS_LIBNAME}.dir/engine/src/parsers/lex.RC.cc
     COMMENT "Generating Runconfig parser.cpp"
     OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/${MABOSS_LIBNAME}.dir/engine/src/parsers/RunConfigGrammar.cc
     )
