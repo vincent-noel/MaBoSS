@@ -1,6 +1,11 @@
 %option prefix="ctbndl"
 %option reentrant noyywrap nounput
-%option extra-type="BNDParseContext*"
+%top{
+// The scanner's extra data is the parse context. Set here rather than with
+// %option extra-type, which the development version of flex (git master, used
+// by the manylinux wheel builds) does not apply: yyextra stays a void*.
+#define YY_EXTRA_TYPE BNDParseContext*
+}
 %{
 /*
 #############################################################################
@@ -68,10 +73,10 @@ exppart		[eE](\-|\+)?[0-9]+
 %%
 
 [\t\f\v\r ]+ { }
-"\n" { yyextra->lineno++; }
+"\n" { ctbndlget_extra(yyscanner)->lineno++; }
 "/*" { skip_comment(yyscanner); }
 "//".* { }
-^"#".*"\n" { yyextra->lineno++; }
+^"#".*"\n" { ctbndlget_extra(yyscanner)->lineno++; }
 
 [a-zA-Z_][a-zA-Z_0-9]* {
   if (!strcasecmp(yytext, "NOT")) {
@@ -90,7 +95,7 @@ exppart		[eE](\-|\+)?[0-9]+
      return ctbndl::parser::make_NODE();
   }
 
-  if (yyextra->pop_network != nullptr)  {
+  if (ctbndlget_extra(yyscanner)->pop_network != nullptr)  {
     if (!strcasecmp(yytext, "DIVISION")) {
       return ctbndl::parser::make_DIVISION();
     }
@@ -169,13 +174,12 @@ static std::string yypurgestring(const std::string& s)
 // Read the rest of a string literal, after its opening quote.
 static std::string yytokstr(yyscan_t yyscanner)
 {
-  struct yyguts_t* yyg = (struct yyguts_t*)yyscanner;
   std::string s;
   unsigned char c;
   int backslash = 0;
   while ((c = (unsigned char) yyinput(yyscanner)) != 0 && c != 255) {
     if (c == '\n') {
-      yyextra->lineno++;
+      ctbndlget_extra(yyscanner)->lineno++;
     }
     else if (c == '\\') {
       backslash = !backslash;
@@ -193,7 +197,6 @@ static std::string yytokstr(yyscan_t yyscanner)
 
 static void skip_comment(yyscan_t yyscanner)
 {
-  struct yyguts_t* yyg = (struct yyguts_t*)yyscanner;
   int c1, c2;
 
   c1 = yyinput(yyscanner);
@@ -201,7 +204,7 @@ static void skip_comment(yyscan_t yyscanner)
 
   while (c2 != EOF && !(c1 == '*' && c2 == '/')) {
     if (c1 == '\n') {
-      ++yyextra->lineno;
+      ++ctbndlget_extra(yyscanner)->lineno;
     }
     c1 = c2;
     c2 = yyinput(yyscanner);
