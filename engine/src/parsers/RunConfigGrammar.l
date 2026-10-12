@@ -1,6 +1,11 @@
 %option prefix="rc"
 %option reentrant noyywrap nounput
-%option extra-type="RCParseContext*"
+%top{
+// The scanner's extra data is the parse context. Set here rather than with
+// %option extra-type, which the development version of flex (git master, used
+// by the manylinux wheel builds) does not apply: yyextra stays a void*.
+#define YY_EXTRA_TYPE RCParseContext*
+}
 %{
 /*
 #############################################################################
@@ -66,7 +71,7 @@ exppart		[eE](\-|\+)?[0-9]+
 %%
 
 [\t\f\v\r ]+ { }
-"\n" { yyextra->lineno++; }
+"\n" { rcget_extra(yyscanner)->lineno++; }
 "/*" { skip_comment(yyscanner); }
 "//".* { }
 [Tt][Rr][Uu][Ee]        { return rc::parser::make_INTEGER(1); }
@@ -90,7 +95,6 @@ exppart		[eE](\-|\+)?[0-9]+
 
 static void skip_comment(yyscan_t yyscanner)
 {
-  struct yyguts_t* yyg = (struct yyguts_t*)yyscanner;
   int c1, c2;
 
   c1 = yyinput(yyscanner);
@@ -98,7 +102,7 @@ static void skip_comment(yyscan_t yyscanner)
 
   while (c2 != EOF && !(c1 == '*' && c2 == '/')) {
     if (c1 == '\n') {
-      ++yyextra->lineno;
+      ++rcget_extra(yyscanner)->lineno;
     }
     c1 = c2;
     c2 = yyinput(yyscanner);
