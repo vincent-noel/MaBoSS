@@ -120,13 +120,3 @@ class RunConfig {
   static void setVerbose(unsigned int level) {verbose = level;}
   static unsigned int getVerbose() { return verbose; }
 };
-
-extern FILE* rcin;
-extern int rcparse();
-extern void rc_scan_expression(const char *);
-
-extern void runconfig_setNetwork(Network* network);
-extern void runconfig_setConfig(RunConfig* config);
-extern void rc_set_file(const char* file);
-extern void rc_set_expr(const char* expr);
-

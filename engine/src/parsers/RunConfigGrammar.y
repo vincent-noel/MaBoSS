@@ -1,6 +1,13 @@
-%define api.prefix {rc}
+%require "3.2"
+%language "c++"
+%define api.namespace {rc}
+%define api.value.type variant
+%define api.token.constructor
+%define api.token.prefix {TOK_}
+%param {yyscan_t scanner}
+%parse-param {RCParseContext& ctx}
 
-%{
+%code requires {
 /*
 #############################################################################
 #                                                                           #
@@ -55,63 +62,49 @@
 #include "../Expressions.h"
 #include "../RunConfig.h"
 #include "../compatibility_header.h"
+#include "RunConfigGrammar.h"
 
-extern int yylex();
-
-static void yyerror(const char *s);
-static Network* network;
-static RunConfig* config;
-
-extern std::string yy_error_head();
-%}
-
-%union {
-  Expression* expr;
-  char* str;
-  double d;
-  long long l;
-  std::vector<const Node*>* node_list;
-  const Node* node;
-  std::vector<Expression*>* expr_list;
-  IStateGroup::ProbaIState* istate_expr;
-  PopIStateGroup::PopProbaIState* pop_istate_expr;
-  std::vector<IStateGroup::ProbaIState*>* istate_expr_list;
-  std::vector<PopIStateGroup::PopProbaIState*>* pop_istate_expr_list;
-  std::vector<PopIStateGroup::PopProbaIState::PopIStateGroupIndividual*>* pop_istate_pop_list;
-  PopIStateGroup::PopProbaIState::PopIStateGroupIndividual* pop_istate_ind;
-  ArgumentList* arg_list;
-  std::map<double, Expression*>* schedule;
+#ifndef YY_TYPEDEF_YY_SCANNER_T
+#define YY_TYPEDEF_YY_SCANNER_T
+typedef void* yyscan_t;
+#endif
 }
 
-%type<expr> primary_expression 
-%type<expr> postfix_expression 
-%type<expr> unary_expression 
-%type<expr> multiplicative_expression 
-%type<expr> additive_expression 
-%type<expr> relational_expression 
-%type<expr> equality_expression
-%type<expr> logical_and_expression
-%type<expr> logical_or_expression
-%type<expr> logical_xor_expression
-%type<expr> conditional_expression
-%type<expr> expression
-%type<node_list> symbol_list
-%type<node_list> symbol_istate_list
-%type<node_list> state
-%type<expr_list> expression_list
-%type<istate_expr> istate_expression
-%type<istate_expr_list> istate_expression_list
-%type<pop_istate_expr> pop_istate_expression
-%type<pop_istate_expr_list> pop_istate_expression_list
-%type<pop_istate_pop_list> pop_istate_population_list
-%type<pop_istate_ind> pop_istate_individual
-%type<arg_list> argument_expression_list
-%type<schedule> schedule_list
+%code {
+// The scanner, from lex.RC.cc which is included at the end of this file.
+#define yylex rclex
+static rc::parser::symbol_type yylex(yyscan_t yyscanner);
+}
 
-%token<str> VARIABLE
-%token<str> SYMBOL
-%token<d> DOUBLE
-%token<l> INTEGER
+%type<Expression*> primary_expression 
+%type<Expression*> postfix_expression 
+%type<Expression*> unary_expression 
+%type<Expression*> multiplicative_expression 
+%type<Expression*> additive_expression 
+%type<Expression*> relational_expression 
+%type<Expression*> equality_expression
+%type<Expression*> logical_and_expression
+%type<Expression*> logical_or_expression
+%type<Expression*> logical_xor_expression
+%type<Expression*> conditional_expression
+%type<Expression*> expression
+%type<std::vector<const Node*>*> symbol_list
+%type<std::vector<const Node*>*> symbol_istate_list
+%type<std::vector<const Node*>*> state
+%type<std::vector<Expression*>*> expression_list
+%type<IStateGroup::ProbaIState*> istate_expression
+%type<std::vector<IStateGroup::ProbaIState*>*> istate_expression_list
+%type<PopIStateGroup::PopProbaIState*> pop_istate_expression
+%type<std::vector<PopIStateGroup::PopProbaIState*>*> pop_istate_expression_list
+%type<std::vector<PopIStateGroup::PopProbaIState::PopIStateGroupIndividual*>*> pop_istate_population_list
+%type<PopIStateGroup::PopProbaIState::PopIStateGroupIndividual*> pop_istate_individual
+%type<ArgumentList*> argument_expression_list
+%type<std::map<double, Expression*>*> schedule_list
+
+%token<std::string> VARIABLE
+%token<std::string> SYMBOL
+%token<double> DOUBLE
+%token<long long> INTEGER
 
 %token LOGAND LOGOR LOGXOR LOGNOT EQUAL NOT_EQUAL GTEQ LTEQ CUSTOM_POP_OUTPUT NUMBER_CELL NODE_SEP
 
@@ -136,70 +129,65 @@ runconfig_decl: SYMBOL '=' expression ';'
 {
   NetworkState network_state;
   double value = $3->eval(nullptr, network_state);
-  config->setParameter($1, value);
-  free($1);
+  ctx.config->setParameter($1, value);
   delete $3;
 }
 ;
 
 node_attr_decl: SYMBOL '.' SYMBOL '=' expression ';'
 {
-  Node* node = network->getNode($1);
+  Node* node = ctx.network->getNode($1);
   NetworkState network_state;
   double value = $5->eval(nullptr, network_state);
-  if (!strcasecmp($3, "istate")) {
+  if (!strcasecmp($3.c_str(), "istate")) {
     if (backward_istate) {
       node->setIState((bool)value);
     } else {
       if (value < 0) {
-	new IStateGroup(network, node);
+	new IStateGroup(ctx.network, node);
       } else {
-	new IStateGroup(network, node, $5);
+	new IStateGroup(ctx.network, node, $5);
       }
     }
-  } else if (!strcasecmp($3, "is_internal")) {
+  } else if (!strcasecmp($3.c_str(), "is_internal")) {
     node->isInternal((bool)value);
-  } else if (!strcasecmp($3, "refstate")) {
+  } else if (!strcasecmp($3.c_str(), "refstate")) {
     if (value < 0) {
       node->setReference(false);
     } else {
       node->setReferenceState((NodeState)value);
     }
-  } else if (!strcasecmp($3, "in_graph")) {
+  } else if (!strcasecmp($3.c_str(), "in_graph")) {
     node->inGraph((bool) value);
   } else {
-    throw BNException(std::string(yy_error_head() + "invalid node attribute: ") + $3 + ", valid attributes are: istate or is_internal");
+    throw BNException(std::string(ctx.errorHead() + "invalid node attribute: ") + $3 + ", valid attributes are: istate or is_internal");
   }
 
-  free($1);
-  free($3);
   delete $5;
 }
 | SYMBOL '.' SYMBOL '=' schedule_list ';'
 {
-  Node* node = network->getNode($1);
+  Node* node = ctx.network->getNode($1);
 
-  if (!strcasecmp($3, "schedule"))
+  if (!strcasecmp($3.c_str(), "schedule"))
   {
     node->setScheduledFlips($5);
   } 
 }
 | symbol_istate_list '.' SYMBOL '=' istate_expression_list ';'
 {
-  if (strcasecmp($3, "istate")) {
-    throw BNException(std::string(yy_error_head() + "invalid node group attribute: ") + $3 + ", valid attribute is istate");
+  if (strcasecmp($3.c_str(), "istate")) {
+    throw BNException(std::string(ctx.errorHead() + "invalid node group attribute: ") + $3 + ", valid attribute is istate");
   }
-  new IStateGroup(network, $1, $5);  
-  free($3);
+  new IStateGroup(ctx.network, $1, $5);  
 }
 | symbol_istate_list '.' SYMBOL '=' pop_istate_expression_list ';'
 {
-  if (strcasecmp($3, "pop_istate")) {
-    throw BNException(std::string(yy_error_head() + "invalid node group attribute: ") + $3 + ", valid attribute is pop_istate");
+  if (strcasecmp($3.c_str(), "pop_istate")) {
+    throw BNException(std::string(ctx.errorHead() + "invalid node group attribute: ") + $3 + ", valid attribute is pop_istate");
   }
-  PopNetwork* pop_network = static_cast<PopNetwork*>(network);
+  PopNetwork* pop_network = static_cast<PopNetwork*>(ctx.network);
   new PopIStateGroup(pop_network, $1, $5);
-  free($3);
 }
 ;
 
@@ -212,14 +200,12 @@ symbol_istate_list: '[' symbol_list ']'
 symbol_list: SYMBOL
 {
   $$ = new std::vector<const Node*>();
-  $$->push_back(network->getNode($1));
-  free($1);
+  $$->push_back(ctx.network->getNode($1));
 }
 | symbol_list ',' SYMBOL
 {
   $$ = $1;
-  $$->push_back(network->getNode($3));
-  free($3);
+  $$->push_back(ctx.network->getNode($3));
 }
 ;
 
@@ -324,17 +310,16 @@ expression_list: primary_expression
 
 var_decl: VARIABLE '=' expression ';'
 {
-  const Symbol* symbol = network->getSymbolTable()->getOrMakeSymbol($1);
-  free($1);
+  const Symbol* symbol = ctx.network->getSymbolTable()->getOrMakeSymbol($1);
   NetworkState dummy_state;
-  network->getSymbolTable()->setSymbolValue(symbol, $3->eval(nullptr, dummy_state));
+  ctx.network->getSymbolTable()->setSymbolValue(symbol, $3->eval(nullptr, dummy_state));
   delete $3;
 }
 ;
 
 custom_pop_output_decl: CUSTOM_POP_OUTPUT '=' expression ';'
 {
-  config->setCustomPopOutputExpression($3);
+  ctx.config->setCustomPopOutputExpression($3);
 }
 ;
 
@@ -348,8 +333,7 @@ primary_expression: INTEGER
 }
 | VARIABLE
 {
-  $$ = new SymbolExpression(network->getSymbolTable(), network->getSymbolTable()->getOrMakeSymbol($1));
-  free($1);
+  $$ = new SymbolExpression(ctx.network->getSymbolTable(), ctx.network->getSymbolTable()->getOrMakeSymbol($1));
 }
 | '(' expression ')'
 {
@@ -361,7 +345,7 @@ primary_expression: INTEGER
   for (auto* node : *$3) {
     network_state.setNodeState(node, 1);
   }
-  StateExpression* state_expr = new StateExpression(network_state, network);
+  StateExpression* state_expr = new StateExpression(network_state, ctx.network);
   
   $$ = new PopExpression(state_expr);
   delete $3;
@@ -371,14 +355,12 @@ primary_expression: INTEGER
 state: SYMBOL
 {
   $$ = new std::vector<const Node*>();
-  $$->push_back(network->getNode($1));
-  free($1);
+  $$->push_back(ctx.network->getNode($1));
 }
 | state NODE_SEP SYMBOL
 {
   $$ = $1;
-  $$->push_back(network->getNode($3));
-  free($3);
+  $$->push_back(ctx.network->getNode($3));
 }
 ;
  
@@ -402,12 +384,10 @@ postfix_expression: primary_expression
 | SYMBOL '(' argument_expression_list ')'
 {
   $$ = new FuncCallExpression($1, $3);
-  free($1);
 }
 | SYMBOL '(' ')'
 {
   $$ = new FuncCallExpression($1, nullptr);
-  free($1);
 }
 ;
 
@@ -550,23 +530,48 @@ expression: conditional_expression
 
 %%
 
-void runconfig_setNetwork(Network* _network)
+void rc::parser::error(const std::string&)
 {
-  network = _network;
-}
-
-void runconfig_setConfig(RunConfig* _config)
-{
-  config = _config;
+  if (ctx.file) {
+    throw BNException("configuration syntax error at line #" + std::to_string(ctx.lineno) + " in file \"" + ctx.file + "\"");
+  } else if (ctx.expr) {
+    throw BNException("configuration syntax error in expression '" + std::string(ctx.expr) + "'");
+  } else {
+    throw BNException("configuration syntax error at line #" + std::to_string(ctx.lineno));
+  }
 }
 
 #include "lex.RC.cc"
 
-void rc_scan_expression(const char* str)
+namespace {
+// Owns a scanner for the duration of one parse.
+class Scanner {
+  yyscan_t scanner = nullptr;
+public:
+  explicit Scanner(RCParseContext& ctx) {
+    if (rclex_init_extra(&ctx, &scanner) != 0) {
+      throw BNException("configuration parsing: cannot create the scanner");
+    }
+  }
+  ~Scanner() { rclex_destroy(scanner); }
+  Scanner(const Scanner&) = delete;
+  Scanner& operator=(const Scanner&) = delete;
+  yyscan_t get() const { return scanner; }
+};
+}
+
+int rc_parse_file(FILE* in, RCParseContext& ctx)
 {
-    // Let yyerror() quote the expression. Without this, `expr` stays NULL and a
-    // syntax error builds std::string(NULL): libstdc++ throws std::logic_error
-    // (which RunConfig::parseExpression does not catch), libc++ crashes.
-    yy_set_expr(str);
-    yy_switch_to_buffer(yy_scan_string(str));
+  Scanner scanner(ctx);
+  rcset_in(in, scanner.get());
+  rc::parser parser(scanner.get(), ctx);
+  return parser.parse();
+}
+
+int rc_parse_string(const char* str, RCParseContext& ctx)
+{
+  Scanner scanner(ctx);
+  rc_scan_string(str, scanner.get());
+  rc::parser parser(scanner.get(), ctx);
+  return parser.parse();
 }

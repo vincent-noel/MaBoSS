@@ -7,18 +7,18 @@
 # Applied automatically by ctest for a -DMABOSS_SANITIZE=... build, or by hand:
 #     LSAN_OPTIONS=suppressions=engine/tests/sanitizers/lsan.supp
 #
+
 # ---------------------------------------------------------------------------
-# Parser leaks (~190 bytes per parse, in ~12 allocations)
+# Parser leaks on error
 #
-# The flex/bison actions allocate with new/strdup and do not free on every
-# path: BooleanGrammar.y:290 and :295, BooleanGrammar.l:112 and :120,
-# RunConfigGrammar.y:343, RunConfigGrammar.l:80.
+# The grammar actions build the expression trees with raw pointers. When a
+# parse is aborted -- a syntax error, or an action that throws, such as an
+# unknown node or attribute -- the expressions already on the parser stack are
+# not freed. Only the unit tests, which check that bad input is rejected, hit
+# this; successful parses do not leak.
 #
-# Harmless for the command line tools, which parse one model and exit. It does
-# accumulate for long-lived processes that parse repeatedly -- the cmaboss
-# Python module and ensemble runs -- which is why it is worth fixing rather
-# than suppressing forever.
-leak:ctbndlparse
-leak:ctbndllex
-leak:rcparse
-leak:rclex
+# Freeing them needs owning values (std::unique_ptr in the bison variants):
+# a bison %destructor on the raw pointers would double free the values that a
+# throwing action has already handed to another object.
+leak:ctbndl::parser::parse
+leak:rc::parser::parse

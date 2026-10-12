@@ -58,6 +58,7 @@
 
 extern bool MaBoSS_quiet;
 class IStateGroup;
+class PopNetwork;
 
 // the boolean network (also used as a Node factory)
 class Network {
@@ -84,6 +85,13 @@ class Network {
       MAX_NODE_SIZE = size+1;
     }
   }
+
+protected:
+  // What parse(), parseExpression() and parseSingleExpression() do. A
+  // PopNetwork passes itself as pop_network, which enables its syntax
+  // (division and death rules).
+  int parseFile(const char* file, std::map<std::string, NodeIndex>* nodes_indexes, bool is_temp_file, bool useSBMLNames, PopNetwork* pop_network);
+  int parseString(const char* content, std::map<std::string, NodeIndex>* nodes_indexes, PopNetwork* pop_network, Expression** single_expression = nullptr);
 
 public:
 

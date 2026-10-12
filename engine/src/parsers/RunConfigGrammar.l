@@ -1,4 +1,6 @@
 %option prefix="rc"
+%option reentrant noyywrap nounput
+%option extra-type="RCParseContext*"
 %{
 /*
 #############################################################################
@@ -51,11 +53,11 @@
 
 #include <cmath>
 
-//static char *yytokstr();
-static unsigned int input_lineno = 1;
-static const char* rc_file;
-static const char* expr;
-static void skip_comment(void);
+// This file is included into RunConfigGrammar.cc, after the parser.
+#define YY_DECL static rc::parser::symbol_type rclex(yyscan_t yyscanner)
+#define yyterminate() return rc::parser::make_YYEOF()
+
+static void skip_comment(yyscan_t yyscanner);
 %}
 
 fracconst	([0-9]+\.[0-9]+)|([0-9]+\.)|(\.[0-9]+)
@@ -64,85 +66,41 @@ exppart		[eE](\-|\+)?[0-9]+
 %%
 
 [\t\f\v\r ]+ { }
-"\n" { input_lineno++; }
-"/*" { skip_comment(); }
+"\n" { yyextra->lineno++; }
+"/*" { skip_comment(yyscanner); }
 "//".* { }
-[Tt][Rr][Uu][Ee]        { yylval.l = 1; return INTEGER; }
-[Ff][Aa][Ll][Ss][Ee]    { yylval.l = 0; return INTEGER; }
-"#cell" { return NUMBER_CELL; }
-"custom_pop_output" { return CUSTOM_POP_OUTPUT; }
-" -- " { return NODE_SEP; }
+[Tt][Rr][Uu][Ee]        { return rc::parser::make_INTEGER(1); }
+[Ff][Aa][Ll][Ss][Ee]    { return rc::parser::make_INTEGER(0); }
+"#cell" { return rc::parser::make_NUMBER_CELL(); }
+"custom_pop_output" { return rc::parser::make_CUSTOM_POP_OUTPUT(); }
+" -- " { return rc::parser::make_NODE_SEP(); }
 "$"[a-zA-Z_][a-zA-Z_0-9]* {
-  yylval.str = strdup(yytext);
-  return VARIABLE;
+  return rc::parser::make_VARIABLE(yytext);
 }
 [a-zA-Z_][a-zA-Z_0-9]* {
-  yylval.str = strdup(yytext);
-  return SYMBOL;
+  return rc::parser::make_SYMBOL(yytext);
 }
-[0-9]+			{ sscanf(yytext, "%lld", &yylval.l); return INTEGER; }
-{fracconst}{exppart}?	{ yylval.d = atof(yytext); return DOUBLE; }
-[0-9]+{exppart}		{ yylval.d = atof(yytext); return DOUBLE; }
-0x([0-9a-fA-F]*\.[0-9a-fA-F]+|[0-9a-fA-F]+\.?)p[-+]?[0-9]+ { yylval.d = atof(yytext); return DOUBLE; }
-.			{ return yytext[0]; }
+[0-9]+			{ long long l; sscanf(yytext, "%lld", &l); return rc::parser::make_INTEGER(l); }
+{fracconst}{exppart}?	{ return rc::parser::make_DOUBLE(atof(yytext)); }
+[0-9]+{exppart}		{ return rc::parser::make_DOUBLE(atof(yytext)); }
+0x([0-9a-fA-F]*\.[0-9a-fA-F]+|[0-9a-fA-F]+\.?)p[-+]?[0-9]+ { return rc::parser::make_DOUBLE(atof(yytext)); }
+.			{ return rc::parser::symbol_type(yytext[0]); }
 
 %%
 
-static void skip_comment(void)
+static void skip_comment(yyscan_t yyscanner)
 {
+  struct yyguts_t* yyg = (struct yyguts_t*)yyscanner;
   int c1, c2;
 
-  c1 = yyinput();
-  c2 = yyinput();
+  c1 = yyinput(yyscanner);
+  c2 = yyinput(yyscanner);
 
   while (c2 != EOF && !(c1 == '*' && c2 == '/')) {
     if (c1 == '\n') {
-      ++input_lineno;
+      ++yyextra->lineno;
     }
     c1 = c2;
-    c2 = yyinput();
+    c2 = yyinput(yyscanner);
   }
-}
-
-int yywrap(void)
-{
-  return 1;
-}
-
-void rc_set_file(const char* _file)
-{
-  input_lineno = 1;
-  rc_file = _file;
-  expr = nullptr;
-}
-
-void yy_set_expr(const char* _expr)
-{
-  input_lineno = 1;
-  rc_file = nullptr;
-  expr = _expr;
-}
-
-static void yyerror(const char *)
-{
-  char tok[32];
-  snprintf(tok, 32, "%u", input_lineno);
-  if (rc_file) {
-    throw BNException("configuration syntax error at line #" + std::string(tok) + " in file \"" + rc_file + "\"");
-  } else {
-    throw BNException("configuration syntax error in expression '" + std::string(expr) + "'");
-  }
-}
-
-std::string yy_error_head()
- {
-   std::ostringstream ostr;
-   ostr << "configuration parsing at line #" << input_lineno << ": ";
-   return ostr.str();
- }
-
-// to avoid compiler warning when using -Wall option
-void runconfig_to_make_compiler_happy()
-{
-  unput('x');
 }

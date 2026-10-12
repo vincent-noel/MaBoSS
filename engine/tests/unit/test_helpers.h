@@ -14,10 +14,6 @@ namespace maboss_test {
 
 // Parses a .bnd body given inline. Network::parseExpression drives the same
 // bison parser as Network::parse does, without needing a temporary file.
-//
-// Note the parser keeps its current network in a file-scope global, so these
-// must not be called concurrently -- which is itself one of the things the
-// modernization plan proposes to fix.
 inline std::unique_ptr<Network> parse_network(const std::string& bnd) {
   std::unique_ptr<Network> network(new Network());
   if (network->parseExpression(bnd.c_str()) != 0) {
