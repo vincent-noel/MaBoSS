@@ -52,10 +52,6 @@
 #include "IStates.h"
 #include "parsers/BooleanGrammar.h"
 
-extern FILE* ctbndlin;
-extern void ctbndl_scan_expression(const char *);
-extern int ctbndlparse();
-extern int ctbndllex_destroy();
 const bool backward_istate = getenv("MABOSS_BACKWARD_ISTATE") != nullptr;
 
 const int DivisionRule::DAUGHTER_1 = 1;
@@ -70,36 +66,22 @@ PopNetwork::PopNetwork()
 
 int PopNetwork::parse(const char* file, std::map<std::string, NodeIndex>* nodes_indexes, bool is_temp_file)
 {
-  set_pop_network(this);
-  int res = Network::parse(file, nodes_indexes, is_temp_file);
-  
-  set_pop_network(nullptr);
-  return res;
+  return parseFile(file, nodes_indexes, is_temp_file, false, this);
 }
 
-
-int PopNetwork::parseExpression(const char* content, std::map<std::string, NodeIndex>* nodes_indexes){
-  
-  set_pop_network(this);
-  int res = Network::parseExpression(content, nodes_indexes);
-  
-  set_pop_network(nullptr);
-  return res;
+int PopNetwork::parseExpression(const char* content, std::map<std::string, NodeIndex>* nodes_indexes)
+{
+  return parseString(content, nodes_indexes, this);
 }
 
 Expression* PopNetwork::parseSingleExpression(const char* content, std::map<std::string, NodeIndex>* nodes_indexes)
 {
-  set_pop_network(this);
-  set_expression(nullptr);
-  const char * se = "SINGLE_EXPRESSION ";
-  const char * ee = ";";
-  std::string new_content = se;
+  std::string new_content = "SINGLE_EXPRESSION ";
   new_content += content;
-  new_content += ee;
-  Network::parseExpression(new_content.c_str(), nodes_indexes);
-  
-  set_pop_network(nullptr);
-  return get_expression();
+  new_content += ";";
+  Expression* expression = nullptr;
+  parseString(new_content.c_str(), nodes_indexes, this, &expression);
+  return expression;
 }
 
 

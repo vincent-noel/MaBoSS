@@ -3,8 +3,8 @@
 
   RunConfig is the other half of a MaBoSS model: it carries the simulation
   parameters, the symbol values a .bnd file refers to, and the per-node
-  attributes (istate, is_internal). It is parsed by a second bison grammar
-  sharing the same global-state style as the network one.
+  attributes (istate, is_internal). It is parsed by a second bison grammar,
+  built the same way as the network one.
 */
 
 #include <doctest/doctest.h>

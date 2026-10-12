@@ -49,6 +49,7 @@
 
 #pragma once
 
+#include <cstdio>
 #include <vector>
 #include <cstring>
 #include "../Network.h"
@@ -58,12 +59,25 @@
 
 class Expression;
 
-extern void set_current_network(Network* network);
-extern Network* get_current_network();
-extern void set_pop_network(PopNetwork* pop_network);
-extern PopNetwork* get_pop_network();
-extern void set_expression(Expression* expr);
-extern Expression* get_expression();
+// Everything a parse of the boolean network (.bnd) grammar reads or builds.
+// Each parse gets its own context and its own scanner, so separate threads
+// can parse separate networks at the same time.
+struct BNDParseContext {
+  Network* network;
+  // Set when parsing a PopMaBoSS network: enables the division/death syntax.
+  PopNetwork* pop_network;
+  // Result of a SINGLE_EXPRESSION parse.
+  Expression* expression = nullptr;
+  unsigned int lineno = 1;
+
+  BNDParseContext(Network* network, PopNetwork* pop_network) : network(network), pop_network(pop_network) { }
+};
+
+// Parse a whole .bnd input, from a file or from a string. Return the bison
+// parser's result (0 on success); syntax errors throw BNException.
+extern int ctbndl_parse_file(FILE* in, BNDParseContext& ctx);
+extern int ctbndl_parse_string(const char* str, BNDParseContext& ctx);
+
 class NodeDeclItem {
 
   std::string identifier;
@@ -82,15 +96,7 @@ public:
 class NodeDecl {
 
 public:
-  NodeDecl(const std::string& identifier, std::vector<NodeDeclItem*>* node_decl_item_list, Network* _network = nullptr) {
-    
-    Network* network;
-    if (_network == nullptr) {
-      network = get_current_network();
-    } else {
-      network = _network;
-    }
-    
+  NodeDecl(const std::string& identifier, std::vector<NodeDeclItem*>* node_decl_item_list, Network* network) {
     bool reset = false;
     if (network->isNodeDefined(identifier)) {
       if (Node::isOverrideDefinition()) {
@@ -138,8 +144,8 @@ public:
 class DivisionDecl {
   public:
   
-  DivisionDecl(std::vector<DivisionDaughterDecl*>* daughters, Expression* rate) {
-    if (get_pop_network() == nullptr)    
+  DivisionDecl(PopNetwork* pop_network, std::vector<DivisionDaughterDecl*>* daughters, Expression* rate) {
+    if (pop_network == nullptr)    
       throw BNException("Please use PopMaBoSS to simulate PopMaBoSS models");
 
     DivisionRule * new_rule = new DivisionRule();
@@ -152,6 +158,6 @@ class DivisionDecl {
       }
     }
     
-    get_pop_network()->addDivisionRule(new_rule);
+    pop_network->addDivisionRule(new_rule);
   }
 };

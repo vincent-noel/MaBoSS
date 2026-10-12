@@ -1,5 +1,13 @@
-%define api.prefix {ctbndl}
-%{
+%require "3.2"
+%language "c++"
+%define api.namespace {ctbndl}
+%define api.value.type variant
+%define api.token.constructor
+%define api.token.prefix {TOK_}
+%param {yyscan_t scanner}
+%parse-param {BNDParseContext& ctx}
+
+%code requires {
 /*
 #############################################################################
 #                                                                           #
@@ -50,55 +58,45 @@
 
 #include "BooleanGrammar.h"
 
-extern int yylex();
-static void yyerror(const char *s);
-static Network* current_network;
-static PopNetwork* current_pop_network;
-static Expression* current_expression;
-%}
-
-%union {
-  std::vector<NodeDecl*>* node_decl_list;
-  NodeDecl* node_decl;
-  std::vector<NodeDeclItem*>* node_decl_item_list;
-  NodeDeclItem* node_decl_item;
-  DivisionDecl* division_decl;
-  std::vector<DivisionDaughterDecl*>* division_list_daughter;
-  DivisionDaughterDecl* division_decl_daughter;
-  Expression* expr;
-  ArgumentList* arg_list;
-  char* str;
-  double d;
-  long long l;
+#ifndef YY_TYPEDEF_YY_SCANNER_T
+#define YY_TYPEDEF_YY_SCANNER_T
+typedef void* yyscan_t;
+#endif
 }
 
-%type<node_decl> node_decl
-%type<node_decl_item_list> node_decl_item_list
-%type<node_decl_item> node_decl_item
-%type<division_decl> division_decl
-%type<expr> division_decl_rate
-%type<division_list_daughter> division_list_daughter
-%type<division_decl_daughter> division_decl_daughter
-%type<expr> death_decl
-%type<expr> death_decl_rate
-%type<expr> cell_number
-%type<expr> primary_expression 
-%type<expr> postfix_expression 
-%type<expr> unary_expression 
-%type<expr> multiplicative_expression 
-%type<expr> additive_expression 
-%type<expr> relational_expression 
-%type<expr> equality_expression
-%type<expr> logical_and_expression
-%type<expr> logical_or_expression
-%type<expr> logical_xor_expression
-%type<expr> conditional_expression
-%type<expr> expression
-%type<arg_list> argument_expression_list
+%code {
+// The scanner, from lex.CTBNDL.cc which is included at the end of this file.
+#define yylex ctbndllex
+static ctbndl::parser::symbol_type yylex(yyscan_t yyscanner);
+}
 
-%token<str> IDENTIFIER VARIABLE STRING
-%token<d> DOUBLE
-%token<l> INTEGER
+%type<NodeDecl*> node_decl
+%type<std::vector<NodeDeclItem*>*> node_decl_item_list
+%type<NodeDeclItem*> node_decl_item
+%type<DivisionDecl*> division_decl
+%type<Expression*> division_decl_rate
+%type<std::vector<DivisionDaughterDecl*>*> division_list_daughter
+%type<DivisionDaughterDecl*> division_decl_daughter
+%type<Expression*> death_decl
+%type<Expression*> death_decl_rate
+%type<Expression*> cell_number
+%type<Expression*> primary_expression 
+%type<Expression*> postfix_expression 
+%type<Expression*> unary_expression 
+%type<Expression*> multiplicative_expression 
+%type<Expression*> additive_expression 
+%type<Expression*> relational_expression 
+%type<Expression*> equality_expression
+%type<Expression*> logical_and_expression
+%type<Expression*> logical_or_expression
+%type<Expression*> logical_xor_expression
+%type<Expression*> conditional_expression
+%type<Expression*> expression
+%type<ArgumentList*> argument_expression_list
+
+%token<std::string> IDENTIFIER VARIABLE STRING
+%token<double> DOUBLE
+%token<long long> INTEGER
 
 %token LOGAND LOGOR LOGXOR LOGNOT EQUAL NOT_EQUAL NODE GTEQ LTEQ DIVISION DEATH RATE DAUGHTER1 DAUGHTER2 CELL_NUMBER SINGLE_EXPRESSION
 
@@ -123,14 +121,13 @@ decl: node_decl
 }
 | SINGLE_EXPRESSION expression ';'
 {
-  current_expression = $2;
+  ctx.expression = $2;
 }
 ;
 
 node_decl: NODE IDENTIFIER '{' node_decl_item_list '}'
 {
-  NodeDecl* node_decl = new NodeDecl($2, $4);
-  free($2);
+  NodeDecl* node_decl = new NodeDecl($2, $4, ctx.network);
   for (auto * node_decl_item : *($4)) {
     delete node_decl_item;
   }
@@ -139,8 +136,7 @@ node_decl: NODE IDENTIFIER '{' node_decl_item_list '}'
 }
 | NODE IDENTIFIER '{' '}'
 {
-  NodeDecl* node_decl = new NodeDecl($2, nullptr);
-  free($2);
+  NodeDecl* node_decl = new NodeDecl($2, nullptr, ctx.network);
   delete node_decl;
 }
 | IDENTIFIER ':' expression term_opt
@@ -149,8 +145,7 @@ node_decl: NODE IDENTIFIER '{' node_decl_item_list '}'
   std::vector<NodeDeclItem*>* decl_item_v = new std::vector<NodeDeclItem*>();
   decl_item_v->push_back(decl_item);
 
-  NodeDecl* node_decl = new NodeDecl($1, decl_item_v);
-  free($1);
+  NodeDecl* node_decl = new NodeDecl($1, decl_item_v, ctx.network);
   for (auto * d_decl_item : *decl_item_v) {
     delete d_decl_item;
   }
@@ -159,17 +154,15 @@ node_decl: NODE IDENTIFIER '{' node_decl_item_list '}'
 }
 | IDENTIFIER ',' expression term_opt
 {
-  if (strcmp($1, "targets") == 0 && strcmp($3->toString().c_str(), "factors") == 0) {
-    current_network->removeLastNode($3->toString());
+  if ($1 == "targets" && $3->toString() == "factors") {
+    ctx.network->removeLastNode($3->toString());
     delete $3;
-    free($1);
   } else {
     NodeDeclItem* decl_item = new NodeDeclItem("logic", $3);
     std::vector<NodeDeclItem*>* decl_item_v = new std::vector<NodeDeclItem*>();
     decl_item_v->push_back(decl_item);
 
-    NodeDecl* node_decl = new NodeDecl($1, decl_item_v);
-    free($1);
+    NodeDecl* node_decl = new NodeDecl($1, decl_item_v, ctx.network);
     for (auto * node_decl_item : *decl_item_v) {
       delete node_decl_item;
     }
@@ -194,18 +187,16 @@ node_decl_item_list: node_decl_item
 node_decl_item: IDENTIFIER '=' expression ';'
 {
   $$ = new NodeDeclItem($1, $3);
-  free($1);
 }
 | IDENTIFIER '=' STRING ';'
 {
   $$ = new NodeDeclItem($1, $3);
-  free($1);
 }
 ;
 
 division_decl: DIVISION '{' division_decl_rate division_list_daughter '}'
 {
-  DivisionDecl* div_decl = new DivisionDecl($4, $3);
+  DivisionDecl* div_decl = new DivisionDecl(ctx.pop_network, $4, $3);
   for (auto * div_daughter_decl : *($4)) {
     delete div_daughter_decl;
   }
@@ -215,13 +206,13 @@ division_decl: DIVISION '{' division_decl_rate division_list_daughter '}'
 | DIVISION '{' division_decl_rate '}'
 {
   std::vector<DivisionDaughterDecl*>* empty_daughters = nullptr;
-  DivisionDecl* div_decl = new DivisionDecl(empty_daughters, $3);
+  DivisionDecl* div_decl = new DivisionDecl(ctx.pop_network, empty_daughters, $3);
   delete div_decl;
 }
 | DIVISION '{' division_list_daughter '}'
 {
   Expression* empty_rate = nullptr;
-  DivisionDecl* div_decl = new DivisionDecl($3, empty_rate);
+  DivisionDecl* div_decl = new DivisionDecl(ctx.pop_network, $3, empty_rate);
   for (auto * div_daughter_decl : *($3)) {
     delete div_daughter_decl;
   }
@@ -250,13 +241,11 @@ division_list_daughter: division_decl_daughter
 
 division_decl_daughter: IDENTIFIER '.' DAUGHTER1 '=' expression ';'
 {  
-  $$ = new DivisionDaughterDecl(current_network->getOrMakeNode($1), DivisionRule::DAUGHTER_1, $5);
-  free($1);
+  $$ = new DivisionDaughterDecl(ctx.network->getOrMakeNode($1), DivisionRule::DAUGHTER_1, $5);
 }
 | IDENTIFIER '.' DAUGHTER2 '=' expression ';'
 {
-  $$ = new DivisionDaughterDecl(current_network->getOrMakeNode($1), DivisionRule::DAUGHTER_2, $5);  
-  free($1);
+  $$ = new DivisionDaughterDecl(ctx.network->getOrMakeNode($1), DivisionRule::DAUGHTER_2, $5);  
 }
 ;
 
@@ -267,28 +256,25 @@ death_decl: DEATH '{' death_decl_rate '}'
 
 death_decl_rate: RATE '=' expression ';'
 {
-  if (current_pop_network == nullptr) 
+  if (ctx.pop_network == nullptr) 
       throw BNException("Please use PopMaBoSS to simulate PopMaBoSS models");
 
-  current_pop_network->setDeathRate($3);
+  ctx.pop_network->setDeathRate($3);
 }
 ;
 
 primary_expression: IDENTIFIER
 {
-  Node* node = current_network->getOrMakeNode($1);
+  Node* node = ctx.network->getOrMakeNode($1);
   $$ = new NodeExpression(node);
-  free($1);
 }
 | '@' IDENTIFIER
 {
   $$ = new AliasExpression($2);
-  free($2);
 }
 | VARIABLE
 {
-  $$ = new SymbolExpression(current_network->getSymbolTable(), current_network->getSymbolTable()->getOrMakeSymbol($1));
-  free($1);
+  $$ = new SymbolExpression(ctx.network->getSymbolTable(), ctx.network->getSymbolTable()->getOrMakeSymbol($1));
 }
 | INTEGER
 {
@@ -325,12 +311,10 @@ postfix_expression: primary_expression
 | IDENTIFIER '(' argument_expression_list ')'
 {
   $$ = new FuncCallExpression($1, $3);
-  free($1);
 }
 | IDENTIFIER '(' ')'
 {
   $$ = new FuncCallExpression($1, nullptr);
-  free($1);
 }
 ;
 
@@ -488,34 +472,42 @@ term_opt :
 
 %%
 
+void ctbndl::parser::error(const std::string&)
+{
+  throw BNException("BND syntax error at line #" + std::to_string(ctx.lineno));
+}
+
 #include "lex.CTBNDL.cc"
 
-void set_current_network(Network* network)
-{
-  current_network = network;
+namespace {
+// Owns a scanner for the duration of one parse.
+class Scanner {
+  yyscan_t scanner = nullptr;
+public:
+  explicit Scanner(BNDParseContext& ctx) {
+    if (ctbndllex_init_extra(&ctx, &scanner) != 0) {
+      throw BNException("network parsing: cannot create the scanner");
+    }
+  }
+  ~Scanner() { ctbndllex_destroy(scanner); }
+  Scanner(const Scanner&) = delete;
+  Scanner& operator=(const Scanner&) = delete;
+  yyscan_t get() const { return scanner; }
+};
 }
 
-Network* get_current_network()
+int ctbndl_parse_file(FILE* in, BNDParseContext& ctx)
 {
-  return current_network;
+  Scanner scanner(ctx);
+  ctbndlset_in(in, scanner.get());
+  ctbndl::parser parser(scanner.get(), ctx);
+  return parser.parse();
 }
 
-void set_pop_network(PopNetwork* pop_network)
+int ctbndl_parse_string(const char* str, BNDParseContext& ctx)
 {
-  current_pop_network = pop_network;
-}
-
-PopNetwork* get_pop_network()
-{
-  return current_pop_network;
-}
-
-void set_expression(Expression* expression)
-{
-  current_expression = expression;
-}
-
-Expression* get_expression()
-{
-  return current_expression;
+  Scanner scanner(ctx);
+  ctbndl_scan_string(str, scanner.get());
+  ctbndl::parser parser(scanner.get(), ctx);
+  return parser.parse();
 }

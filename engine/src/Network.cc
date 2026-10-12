@@ -59,11 +59,6 @@
 #endif
 
 
-extern FILE* ctbndlin;
-extern void ctbndl_scan_expression(const char *);
-extern int ctbndlparse();
-extern int ctbndllex_destroy();
-
 bool MaBoSS_quiet = false;
 
 size_t Network::MAX_NODE_SIZE = 0;
@@ -72,62 +67,57 @@ Network::Network() : last_index(0U)
 {
   istate_group_list = new std::vector<IStateGroup*>();
   symbol_table = new SymbolTable();
-  set_current_network(nullptr);
-  set_pop_network(nullptr);
 }
 
-int Network::parseExpression(const char* content, std::map<std::string, NodeIndex>* nodes_indexes){
-  
-  set_current_network(this);
-  ctbndl_scan_expression(content);
-
-  try 
-  {
-    int r = ctbndlparse();
-    set_current_network(nullptr);
-
-    if (r) {
-      ctbndllex_destroy();
-      return 1;
-    }
-    compile(nodes_indexes);
-    ctbndllex_destroy();
-    return 0;
-  }
-  catch (const BNException&) 
-  {
-    set_current_network(nullptr);
-    ctbndllex_destroy();
-
-    throw;
-  }
+int Network::parseExpression(const char* content, std::map<std::string, NodeIndex>* nodes_indexes)
+{
+  return parseString(content, nodes_indexes, nullptr);
 }
-
 
 Expression* Network::parseSingleExpression(const char* content, std::map<std::string, NodeIndex>* nodes_indexes)
 {
-  set_expression(nullptr);
-  const char * se = "SINGLE_EXPRESSION ";
-  const char * ee = ";";
-  std::string new_content = se;
+  std::string new_content = "SINGLE_EXPRESSION ";
   new_content += content;
-  new_content += ee;
-  Network::parseExpression(new_content.c_str(), nodes_indexes);
-  
-  return get_expression();
+  new_content += ";";
+  Expression* expression = nullptr;
+  parseString(new_content.c_str(), nodes_indexes, nullptr, &expression);
+  return expression;
 }
 
 int Network::parse(const char* file, std::map<std::string, NodeIndex>* nodes_indexes, bool is_temp_file, bool useSBMLNames)
 {
+  return parseFile(file, nodes_indexes, is_temp_file, useSBMLNames, nullptr);
+}
+
+int Network::parseString(const char* content, std::map<std::string, NodeIndex>* nodes_indexes, PopNetwork* pop_network, Expression** single_expression)
+{
+  BNDParseContext ctx(this, pop_network);
+  int r = ctbndl_parse_string(content, ctx);
+  if (nullptr != single_expression) {
+    *single_expression = ctx.expression;
+  }
+  if (r) {
+    return 1;
+  }
+  compile(nodes_indexes);
+  return 0;
+}
+
+// file == nullptr reads the network from the standard input.
+int Network::parseFile(const char* file, std::map<std::string, NodeIndex>* nodes_indexes, bool is_temp_file, bool useSBMLNames, PopNetwork* pop_network)
+{
 #ifdef SBML_COMPAT
-  if (hasEnding(std::string(file), ".xml") || hasEnding(std::string(file), ".sbml")) {
+  if (nullptr != file && (hasEnding(std::string(file), ".xml") || hasEnding(std::string(file), ".sbml"))) {
     return this->parseSBML(file, nodes_indexes, useSBMLNames);
   }
+#else
+  (void)useSBMLNames;
 #endif
 
+  FILE* in = stdin;
   if (nullptr != file) {
-    ctbndlin = fopen(file, "r");
-    if (ctbndlin == nullptr) {
+    in = fopen(file, "r");
+    if (in == nullptr) {
       throw BNException("network parsing: cannot open file:" + std::string(file) + " for reading");
     }
     if (is_temp_file) {
@@ -135,41 +125,28 @@ int Network::parse(const char* file, std::map<std::string, NodeIndex>* nodes_ind
     }
   }
 
-  set_current_network(this);
-
-  try{
-    int r = ctbndlparse();
-
-    set_current_network(nullptr);
-
-    if (r) {
-      if (nullptr != file)
-        fclose(ctbndlin);
-      ctbndllex_destroy();
-
-      return 1;
-    }
-    compile(nodes_indexes);
-
-    if (nullptr != file)
-      fclose(ctbndlin);
-    
-    ctbndllex_destroy();
-
-    return 0;
+  BNDParseContext ctx(this, pop_network);
+  int r;
+  try {
+    r = ctbndl_parse_file(in, ctx);
   }
-  catch (const BNException&) 
-  {  
-    if (nullptr != file)
-      fclose(ctbndlin);
-    
-    set_current_network(nullptr);
-    ctbndllex_destroy();
-
+  catch (...) {
+    if (in != stdin) {
+      fclose(in);
+    }
     throw;
   }
+  if (in != stdin) {
+    fclose(in);
+  }
 
+  if (r) {
+    return 1;
+  }
+  compile(nodes_indexes);
+  return 0;
 }
+
 #ifdef SBML_COMPAT
 
 int Network::parseSBML(const char* file, std::map<std::string, NodeIndex>* nodes_indexes, bool useSBMLNames) 

@@ -1,4 +1,6 @@
 %option prefix="ctbndl"
+%option reentrant noyywrap nounput
+%option extra-type="BNDParseContext*"
 %{
 /*
 #############################################################################
@@ -52,9 +54,12 @@
 #include <cmath>
 #include "../compatibility_header.h"
 
-static char *yytokstr();
-static unsigned int input_lineno = 1;
-static void skip_comment(void);
+// This file is included into BooleanGrammar.cc, after the parser.
+#define YY_DECL static ctbndl::parser::symbol_type ctbndllex(yyscan_t yyscanner)
+#define yyterminate() return ctbndl::parser::make_YYEOF()
+
+static std::string yytokstr(yyscan_t yyscanner);
+static void skip_comment(yyscan_t yyscanner);
 %}
 
 fracconst	([0-9]+\.[0-9]+)|([0-9]+\.)|(\.[0-9]+)
@@ -63,186 +68,142 @@ exppart		[eE](\-|\+)?[0-9]+
 %%
 
 [\t\f\v\r ]+ { }
-"\n" { input_lineno++; }
-"/*" { skip_comment(); }
+"\n" { yyextra->lineno++; }
+"/*" { skip_comment(yyscanner); }
 "//".* { }
-^"#".*"\n" { input_lineno++; }
+^"#".*"\n" { yyextra->lineno++; }
 
 [a-zA-Z_][a-zA-Z_0-9]* {
   if (!strcasecmp(yytext, "NOT")) {
-     return LOGNOT;
+     return ctbndl::parser::make_LOGNOT();
   }
   if (!strcasecmp(yytext, "AND")) {
-     return LOGAND;
+     return ctbndl::parser::make_LOGAND();
   }
   if (!strcasecmp(yytext, "OR")) {
-     return LOGOR;
+     return ctbndl::parser::make_LOGOR();
   }
   if (!strcasecmp(yytext, "XOR")) {
-     return LOGXOR;
+     return ctbndl::parser::make_LOGXOR();
   }
   if (!strcasecmp(yytext, "NODE")) {
-     return NODE;
+     return ctbndl::parser::make_NODE();
   }
 
-  if (current_pop_network != nullptr)  {
+  if (yyextra->pop_network != nullptr)  {
     if (!strcasecmp(yytext, "DIVISION")) {
-      return DIVISION;
+      return ctbndl::parser::make_DIVISION();
     }
     if (!strcasecmp(yytext, "DEATH")) {
-       return DEATH;
+       return ctbndl::parser::make_DEATH();
     }
     if (!strcasecmp(yytext, "RATE")) {
-       return RATE;
+       return ctbndl::parser::make_RATE();
     }
     if (!strcasecmp(yytext, "DAUGHTER1")) {
-       return DAUGHTER1;
+       return ctbndl::parser::make_DAUGHTER1();
     }
     if (!strcasecmp(yytext, "DAUGHTER2")) {
-       return DAUGHTER2;
+       return ctbndl::parser::make_DAUGHTER2();
     }
     if (!strcasecmp(yytext, "CELL")) {
-       return CELL_NUMBER;
+       return ctbndl::parser::make_CELL_NUMBER();
     }
   }
   if (!strcasecmp(yytext, "SINGLE_EXPRESSION")) {
-    return SINGLE_EXPRESSION;
+    return ctbndl::parser::make_SINGLE_EXPRESSION();
   }
   
-  yylval.str = strdup(yytext);
-  return IDENTIFIER;
+  return ctbndl::parser::make_IDENTIFIER(yytext);
 }
 "$"[a-zA-Z_][a-zA-Z_0-9]* {
-  yylval.str = strdup(yytext);
-  return VARIABLE;
+  return ctbndl::parser::make_VARIABLE(yytext);
 }
 \" {
-  yylval.str = yytokstr();
-  return STRING;
+  return ctbndl::parser::make_STRING(yytokstr(yyscanner));
 }
-"=="			{ return EQUAL; }
-"!="			{ return NOT_EQUAL; }
-"<="			{ return LTEQ; }
-">="			{ return GTEQ; }
-"&&"|"&"		{ return LOGAND; }
-"||"|"|"		{ return LOGOR; }
-"!"			{ return LOGNOT; }
-[0-9]+			{ sscanf(yytext, "%lld", &yylval.l); return INTEGER; }
-{fracconst}{exppart}?	{ yylval.d = atof(yytext); return DOUBLE; }
-[0-9]+{exppart}		{ yylval.d = atof(yytext); return DOUBLE; }
-.			{ return yytext[0]; }
+"=="			{ return ctbndl::parser::make_EQUAL(); }
+"!="			{ return ctbndl::parser::make_NOT_EQUAL(); }
+"<="			{ return ctbndl::parser::make_LTEQ(); }
+">="			{ return ctbndl::parser::make_GTEQ(); }
+"&&"|"&"		{ return ctbndl::parser::make_LOGAND(); }
+"||"|"|"		{ return ctbndl::parser::make_LOGOR(); }
+"!"			{ return ctbndl::parser::make_LOGNOT(); }
+[0-9]+			{ long long l; sscanf(yytext, "%lld", &l); return ctbndl::parser::make_INTEGER(l); }
+{fracconst}{exppart}?	{ return ctbndl::parser::make_DOUBLE(atof(yytext)); }
+[0-9]+{exppart}		{ return ctbndl::parser::make_DOUBLE(atof(yytext)); }
+.			{ return ctbndl::parser::symbol_type(yytext[0]); }
 
 %%
 
-#define _ESC_(X, Y) case X: *p++ = Y; break
-
-static void yypurgestring(unsigned char *s)
+// Drop the backslash of the escape sequences in s.
+static std::string yypurgestring(const std::string& s)
 {
-  unsigned char c;
-  unsigned char *p = s;
-  while ((c = *s) != 0) {
-    if (c == '\\') {
-       c = *++s;
-       switch(c) {
-         _ESC_('a', '\a');
-	 _ESC_('b', '\b');
-	 _ESC_('f', '\f');
-	 _ESC_('n', '\n');
-	 _ESC_('r', '\r');
-	 _ESC_('t', '\t');
-	 _ESC_('v', '\v');
-	 _ESC_('\'', '\'');
-	 _ESC_('\"', '"');
-	 _ESC_('\\', '\\');
-
-	 default:
-	   *p++ = '\\';
-	   *p++ = c;
-        }
-       s++;
-      }
-      else
-        *p++ = *s++;
+  std::string r;
+  for (size_t i = 0; i < s.size(); ++i) {
+    char c = s[i];
+    if (c != '\\' || i + 1 == s.size()) {
+      r += c;
+      continue;
     }
-
-  *p = 0;
+    c = s[++i];
+    switch (c) {
+    case 'a': r += '\a'; break;
+    case 'b': r += '\b'; break;
+    case 'f': r += '\f'; break;
+    case 'n': r += '\n'; break;
+    case 'r': r += '\r'; break;
+    case 't': r += '\t'; break;
+    case 'v': r += '\v'; break;
+    case '\'': r += '\''; break;
+    case '"': r += '"'; break;
+    case '\\': r += '\\'; break;
+    default:
+      r += '\\';
+      r += c;
+    }
+  }
+  return r;
 }
 
-static char *yytokstr()
+// Read the rest of a string literal, after its opening quote.
+static std::string yytokstr(yyscan_t yyscanner)
 {
-   int s_size;
-   unsigned char *s, c;
-   s_size = 32;
-   s = (unsigned char *)malloc(s_size);
-
-   int n, backslash;
-   for (n = 0, backslash = 0; (c = (unsigned char) yyinput()) != 0 && c != 255; n++) {
-       if (c == '\n') {
-         input_lineno++;
-       }
-       else if (c == '\\') {
-         backslash = !backslash;
-       }
-       else if (c == '"' && !backslash) {
-	 break;
-       }
-       else {
-         backslash = 0;
-       }
-
-       if (n >= s_size) {
-           s_size *= 2;
-           s = (unsigned char *)realloc(s, s_size);
-       }
-
-       s[n] = c;
-     }
-
-   if (n >= s_size) {
-       s_size += 4;
-       s = (unsigned char *)realloc(s, s_size);
-   }
-   
-   s[n] = 0;
-   yypurgestring(s);
-   return (char *)s;
+  struct yyguts_t* yyg = (struct yyguts_t*)yyscanner;
+  std::string s;
+  unsigned char c;
+  int backslash = 0;
+  while ((c = (unsigned char) yyinput(yyscanner)) != 0 && c != 255) {
+    if (c == '\n') {
+      yyextra->lineno++;
+    }
+    else if (c == '\\') {
+      backslash = !backslash;
+    }
+    else if (c == '"' && !backslash) {
+      break;
+    }
+    else {
+      backslash = 0;
+    }
+    s += (char) c;
+  }
+  return yypurgestring(s);
 }
 
-static void skip_comment(void)
+static void skip_comment(yyscan_t yyscanner)
 {
+  struct yyguts_t* yyg = (struct yyguts_t*)yyscanner;
   int c1, c2;
 
-  c1 = yyinput();
-  c2 = yyinput();
+  c1 = yyinput(yyscanner);
+  c2 = yyinput(yyscanner);
 
   while (c2 != EOF && !(c1 == '*' && c2 == '/')) {
     if (c1 == '\n') {
-      ++input_lineno;
+      ++yyextra->lineno;
     }
     c1 = c2;
-    c2 = yyinput();
+    c2 = yyinput(yyscanner);
   }
-}
-
-int yywrap(void)
-{
-  return 1;
-}
-
-static void yyerror(const char *)
-{
-  char tok[32];
-  snprintf(tok, 32, "%u", input_lineno);
-  throw BNException("BND syntax error at line #" + std::string(tok));
-}
-
-void ctbndl_scan_expression(const char* str)
-{
-    yy_switch_to_buffer(yy_scan_string(str));
-}
-
-// to avoid compiler warning when using -Wall option
-void boolean_grammar_to_make_compiler_happy()
-{
-  unput('x');
 }

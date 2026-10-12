@@ -52,8 +52,8 @@
 
 #include "RunConfig.h"
 #include "compatibility_header.h"
+#include "parsers/RunConfigGrammar.h"
 
-extern int rclex_destroy();
 unsigned int RunConfig::verbose = 0;
 
 RunConfig::RunConfig()
@@ -221,67 +221,38 @@ void RunConfig::display(Network* network, time_t start_time, time_t end_time, st
   os << bufstr << '\n';
 }
 
+// file == nullptr reads the configuration from the standard input.
 int RunConfig::parse(Network* network, const char* file)
 {
-  runconfig_setNetwork(network);
-  runconfig_setConfig(this);
+  FILE* in = stdin;
   if (nullptr != file) {
-    rcin = fopen(file, "r");
-    if (rcin == nullptr) {
+    in = fopen(file, "r");
+    if (in == nullptr) {
       throw BNException("variable parsing: cannot open file:" + std::string(file) + " for reading");
     }
   }
-  rc_set_file(file);
 
-  try
-  {
-    int res = rcparse();
-    runconfig_setNetwork(nullptr);
-    runconfig_setConfig(nullptr);
-
-    if (nullptr != file)
-      fclose(rcin);
-    rclex_destroy();
-
-    return res;
+  RCParseContext ctx(network, this, file, nullptr);
+  int res;
+  try {
+    res = rc_parse_file(in, ctx);
   }
-  catch(const BNException&)
-  {
-    runconfig_setNetwork(nullptr);
-    runconfig_setConfig(nullptr);
-
-    if (nullptr != file)
-      fclose(rcin);
-    rclex_destroy();
-    
+  catch (...) {
+    if (in != stdin) {
+      fclose(in);
+    }
     throw;
-  } 
+  }
+  if (in != stdin) {
+    fclose(in);
+  }
+  return res;
 }
 
 int RunConfig::parseExpression(Network* network, const char* expr)
 {
-  runconfig_setNetwork(network);
-  runconfig_setConfig(this);
-  rc_scan_expression(expr);
-
-  try
-  {
-    int res = rcparse();
-    runconfig_setNetwork(nullptr);
-    runconfig_setConfig(nullptr);
-    
-    rclex_destroy();
-    
-    return res;
-  }
-  catch(const BNException&)
-  {
-    runconfig_setNetwork(nullptr);
-    runconfig_setConfig(nullptr);
-    rclex_destroy();
-    
-    throw;
-  }
+  RCParseContext ctx(network, this, nullptr, expr);
+  return rc_parse_string(expr, ctx);
 }
 
 void RunConfig::generateTemplate(Network* network, std::ostream& os, std::string version) const

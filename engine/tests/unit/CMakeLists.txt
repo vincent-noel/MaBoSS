@@ -20,6 +20,7 @@ set(MABOSS_UNIT_SOURCES
   test_network.cc
   test_runconfig.cc
   test_random.cc
+  test_parser_threads.cc
 )
 
 find_package(doctest QUIET)
@@ -58,6 +59,10 @@ add_executable(maboss_unit_tests ${MABOSS_UNIT_SOURCES})
 # configuration as the engine binaries.
 target_link_libraries(maboss_unit_tests PRIVATE ${MABOSS_LIBNAME}-static doctest::doctest)
 
+# test_parser_threads.cc starts its own threads.
+find_package(Threads REQUIRED)
+target_link_libraries(maboss_unit_tests PRIVATE Threads::Threads)
+
 if(MSVC)
   target_compile_options(maboss_unit_tests PRIVATE /bigobj)
 endif()
@@ -84,6 +89,7 @@ set(MABOSS_UNIT_SUITES
   network
   runconfig
   random
+  parser
 )
 
 foreach(suite ${MABOSS_UNIT_SUITES})
