@@ -57,6 +57,8 @@
 #include "../Utils.h"
 #include "ProbTrajDisplayer.h"
 
+namespace MaBoSS {
+
 class CSVSimplePopProbTrajDisplayer final : public CSVProbTrajDisplayer<PopNetworkState>
 {
 
@@ -431,3 +433,4 @@ public:
 };
 #endif
 
+} // namespace MaBoSS

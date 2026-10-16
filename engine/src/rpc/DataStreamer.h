@@ -52,6 +52,8 @@
 #include "Client.h"
 #include "Server.h"
 
+namespace MaBoSS {
+
 class DataStreamer {
 public:
   static const std::string MABOSS_MAGIC;
@@ -106,3 +108,4 @@ public:
   static int parseStreamData(ServerData& server_data, const std::string& data);
 };
 
+} // namespace MaBoSS

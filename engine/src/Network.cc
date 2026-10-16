@@ -59,6 +59,8 @@
 #endif
 
 
+namespace MaBoSS {
+
 bool MaBoSS_quiet = false;
 
 size_t Network::MAX_NODE_SIZE = 0;
@@ -282,3 +284,5 @@ void Network::cloneIStateGroup(std::vector<IStateGroup*>* _istate_group_list)
     new IStateGroup(istate_group, this);
   }
 }
+
+} // namespace MaBoSS

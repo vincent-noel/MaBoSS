@@ -49,6 +49,8 @@
 
 #include "MaBoSS-RPC.h"
 
+namespace MaBoSS {
+
 static int rpc_hostNameToAddr(const char *name, struct in_addr *address)
 {
   struct hostent *hp;
@@ -404,3 +406,5 @@ int rpc_Client::close()
 {
   return ::close(sock_fd);
 }
+
+} // namespace MaBoSS

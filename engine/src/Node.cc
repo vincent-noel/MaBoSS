@@ -52,6 +52,8 @@
 #include "NetworkState.h"
 #include "Expressions.h"
 
+namespace MaBoSS {
+
 bool Node::overrideDefinition = false;
 bool Node::augment = false;
 
@@ -308,3 +310,5 @@ Node::~Node()
   delete schedule;
   
 }
+
+} // namespace MaBoSS

@@ -61,6 +61,8 @@
 #include "../displayers/FixedPointDisplayer.h"
 #include "../maps_header.h"
 
+namespace MaBoSS {
+
 struct EnsembleArgWrapper;
 using FixedPoints = StateMap<NetworkState_Impl, unsigned int>;
 class FixedPointEngine : public MetaEngine {
@@ -97,3 +99,4 @@ public:
 
 };
 
+} // namespace MaBoSS

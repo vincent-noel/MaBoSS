@@ -14,6 +14,8 @@
 #include "RunConfig.h"
 #include "test_helpers.h"
 
+using namespace MaBoSS;
+
 using maboss_test::parse_abc_network;
 
 TEST_SUITE("runconfig") {

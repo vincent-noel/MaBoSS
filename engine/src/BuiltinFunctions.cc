@@ -54,6 +54,8 @@
 // User function definition
 //
 
+namespace MaBoSS {
+
 class LogFunction : public Function {
 
 public:
@@ -136,3 +138,4 @@ void builtin_functions_init()
   }
 }
 
+} // namespace MaBoSS

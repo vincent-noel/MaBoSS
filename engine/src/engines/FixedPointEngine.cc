@@ -49,6 +49,8 @@
 
 #include "FixedPointEngine.h"
 
+namespace MaBoSS {
+
 void FixedPointEngine::mergePairOfFixpoints(FixedPoints* fixpoints_1, FixedPoints* fixpoints_2)
 {
   for (auto& fixpoint: *fixpoints_2) {
@@ -235,3 +237,5 @@ if (getWorldRank() == 0) {
 #endif
 
 }
+
+} // namespace MaBoSS

@@ -52,6 +52,8 @@
 #include "../Utils.h"
 #include "DataStreamer.h"
 
+using namespace MaBoSS;
+
 const char* prog = "MaBoSS-client";
 
 static int usage(std::ostream& os = std::cerr)

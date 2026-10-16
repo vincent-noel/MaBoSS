@@ -1,6 +1,6 @@
 %require "3.2"
 %language "c++"
-%define api.namespace {ctbndl}
+%define api.namespace {MaBoSS::ctbndl}
 %define api.value.type variant
 %define api.token.constructor
 %define api.token.prefix {TOK_}
@@ -67,6 +67,7 @@ typedef void* yyscan_t;
 %code {
 // The scanner, from lex.CTBNDL.cc which is included at the end of this file.
 #define yylex ctbndllex
+namespace ctbndl = MaBoSS::ctbndl;
 static ctbndl::parser::symbol_type yylex(yyscan_t yyscanner);
 }
 
@@ -479,6 +480,8 @@ void ctbndl::parser::error(const std::string&)
 
 #include "lex.CTBNDL.cc"
 
+namespace MaBoSS {
+
 namespace {
 // Owns a scanner for the duration of one parse.
 class Scanner {
@@ -511,3 +514,5 @@ int ctbndl_parse_string(const char* str, BNDParseContext& ctx)
   ctbndl::parser parser(scanner.get(), ctx);
   return parser.parse();
 }
+
+} // namespace MaBoSS

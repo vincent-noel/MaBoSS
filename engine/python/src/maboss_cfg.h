@@ -54,7 +54,7 @@
 
 typedef struct {
   PyObject_HEAD
-  RunConfig* config;
+  MaBoSS::RunConfig* config;
 } cMaBoSSConfigObject;
 
 void cMaBoSSConfig_dealloc(cMaBoSSConfigObject *self);

@@ -55,6 +55,8 @@ LIBSBML_CPP_NAMESPACE_USE
 #include <locale>
 #endif
 
+namespace MaBoSS {
+
 SBMLParser::SBMLParser(Network* network, const char* file, bool useSBMLNames) : network(network), useSBMLNames(useSBMLNames) 
 {
 
@@ -543,3 +545,5 @@ void SBMLParser::createNodes(std::vector<std::string> names, Expression* exp)
         delete truc;
     }
 }
+
+} // namespace MaBoSS

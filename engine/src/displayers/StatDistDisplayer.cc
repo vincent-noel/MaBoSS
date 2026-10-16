@@ -51,6 +51,8 @@
 #include "../Utils.h"
 #include <iomanip>
 
+namespace MaBoSS {
+
 void JSONStatDistDisplayer::beginDisplay() {
   //os_statdist << "{";
 }
@@ -305,3 +307,5 @@ void HDF5StatDistDisplayer::addProbaVariance(const NetworkState_Impl& state, dou
 
 
 #endif
+
+} // namespace MaBoSS

@@ -13,6 +13,8 @@
 #include "Expressions.h"
 #include "NetworkState.h"
 
+using namespace MaBoSS;
+
 class TestFunction : public Function {
 
 public:

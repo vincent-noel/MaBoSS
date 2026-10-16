@@ -51,6 +51,8 @@
 #include "popmaboss_net.h"
 // #include "PopNetwork.h"
 
+using namespace MaBoSS;
+
 PyMethodDef cMaBoSSNode_methods[] = {
     {"getLabel", (PyCFunction) cMaBoSSNode_getLabel, METH_NOARGS, "returns the node object"},
     {"set_logic", (PyCFunction) cMaBoSSNode_setLogic, METH_VARARGS, "sets the logic of the node"},

@@ -55,6 +55,8 @@
 #include "NetworkState.h"
 #include "Expressions.h"
 
+namespace MaBoSS {
+
 class PopNetwork;
 
 class PopIStateGroup {
@@ -377,3 +379,4 @@ private:
 
 extern const bool backward_istate;
 
+} // namespace MaBoSS

@@ -6,6 +6,8 @@
 #include <libxml/xpath.h>
 
 
+namespace MaBoSS {
+
 class XMLPatcher
 {
     std::filesystem::path xml_file;
@@ -20,3 +22,5 @@ class XMLPatcher
     void addXML(std::string xpath, std::string new_xml);
     std::string getXML();
 };
+
+} // namespace MaBoSS

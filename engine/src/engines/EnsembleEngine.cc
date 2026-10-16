@@ -55,6 +55,8 @@
 #include <iostream>
 
 
+namespace MaBoSS {
+
 const std::string EnsembleEngine::VERSION = "1.2.0";
 
 #ifdef MPI_COMPAT
@@ -727,3 +729,5 @@ EnsembleEngine::~EnsembleEngine()
   for (auto * t_observed_graph: observed_graph_per_model)
     delete t_observed_graph;
 }
+
+} // namespace MaBoSS

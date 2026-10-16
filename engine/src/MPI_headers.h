@@ -55,6 +55,8 @@
 #include <cstdint>
 #include <climits>
 
+namespace MaBoSS {
+
 // The MPI datatype matching size_t.
 #if SIZE_MAX == UCHAR_MAX
 inline const MPI_Datatype my_MPI_SIZE_T = MPI_UNSIGNED_CHAR;
@@ -69,4 +71,6 @@ inline const MPI_Datatype my_MPI_SIZE_T = MPI_UNSIGNED_LONG_LONG;
 #else
 #error "what is happening here?"
 #endif
+
+} // namespace MaBoSS
 #endif

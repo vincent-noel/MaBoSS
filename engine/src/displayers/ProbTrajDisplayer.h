@@ -61,6 +61,8 @@
 #include <hdf5/serial/hdf5_hl.h>
 #endif
 
+namespace MaBoSS {
+
 template <typename S>
 class ProbTrajDisplayer {
 
@@ -370,3 +372,4 @@ public:
 };
 #endif
 
+} // namespace MaBoSS

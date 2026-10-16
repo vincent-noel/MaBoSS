@@ -52,6 +52,8 @@
 #include "RunConfig.h"
 #include <iostream>
 
+namespace MaBoSS {
+
 static const std::string LOGICAL_EXPR_MSG = "MaBoSS: logical expression generation: ";
 
 const std::string LOGICAL_AND_SYMBOL = " & ";
@@ -513,3 +515,5 @@ void FuncCallExpression::generateLogicalExpression(LogicalExprGenContext& genctx
 {
   throw BNException(LOGICAL_EXPR_MSG + "FuncCallExpression is not yet implemented");
 }
+
+} // namespace MaBoSS

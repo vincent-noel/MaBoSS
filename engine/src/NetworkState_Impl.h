@@ -65,6 +65,8 @@
 #include <cstddef>
 #include <functional>
 
+namespace MaBoSS {
+
 // The network state for 65..MAXNODES nodes.
 //
 // Ordered containers keyed by the state (std::map<NetworkState_Impl, ...>,
@@ -103,9 +105,11 @@ using NetworkState_Impl = MaBoSSBitset<MAXNODES>;
 static_assert(NetworkState_Impl().size() == MAXNODES,
               "NetworkState_Impl must hold exactly MAXNODES bits");
 
+} // namespace MaBoSS
+
 namespace std {
-  template <std::size_t N> struct hash<MaBoSSBitset<N> > {
-    size_t operator()(const MaBoSSBitset<N>& val) const {
+  template <std::size_t N> struct hash<MaBoSS::MaBoSSBitset<N> > {
+    size_t operator()(const MaBoSS::MaBoSSBitset<N>& val) const {
       return std::hash<std::bitset<N> >{}(val);
     }
   };
@@ -113,9 +117,14 @@ namespace std {
 
 #elif defined(USE_DYNAMIC_BITSET)
 #include "MBDynBitset.h"
+
+namespace MaBoSS {
 using NetworkState_Impl = MBDynBitset;
+} // namespace MaBoSS
 
 #else
+namespace MaBoSS {
 using NetworkState_Impl = unsigned long long;
+} // namespace MaBoSS
 #endif
 

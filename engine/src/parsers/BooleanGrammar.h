@@ -57,6 +57,8 @@
 #include "../PopNetwork.h"
 #include "../BNException.h"
 
+namespace MaBoSS {
+
 class Expression;
 
 // Everything a parse of the boolean network (.bnd) grammar reads or builds.
@@ -161,3 +163,5 @@ class DivisionDecl {
     pop_network->addDivisionRule(new_rule);
   }
 };
+
+} // namespace MaBoSS

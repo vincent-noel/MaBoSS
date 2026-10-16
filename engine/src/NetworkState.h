@@ -59,6 +59,8 @@
 #include "MPI_headers.h"
 #endif
 
+namespace MaBoSS {
+
 // global state of the boolean network
 class NetworkState {
   NetworkState_Impl state;
@@ -344,39 +346,43 @@ public:
 #endif
 
 };
+} // namespace MaBoSS
+
 namespace std {
-  template <> struct hash<NetworkState>
+  template <> struct hash<MaBoSS::NetworkState>
   {
-    size_t operator()(const NetworkState& val) const {
+    size_t operator()(const MaBoSS::NetworkState& val) const {
 #ifdef USE_DYNAMIC_BITSET
-      return std::hash<NetworkState_Impl>{}(val.getState(1));
+      return std::hash<MaBoSS::NetworkState_Impl>{}(val.getState(1));
 #else
-      return std::hash<NetworkState_Impl>{}(val.getState());
+      return std::hash<MaBoSS::NetworkState_Impl>{}(val.getState());
 #endif
     }
   };
   
-  template <> struct equal_to<NetworkState>
+  template <> struct equal_to<MaBoSS::NetworkState>
   {
-    size_t operator()(const NetworkState& val1, const NetworkState& val2) const {
+    size_t operator()(const MaBoSS::NetworkState& val1, const MaBoSS::NetworkState& val2) const {
 #ifdef USE_DYNAMIC_BITSET
-      NetworkState_Impl state_1(val1.getState(1));
-      NetworkState_Impl state_2(val2.getState(1));
-      return std::equal_to<NetworkState_Impl>{}(state_1, state_2);
+      MaBoSS::NetworkState_Impl state_1(val1.getState(1));
+      MaBoSS::NetworkState_Impl state_2(val2.getState(1));
+      return std::equal_to<MaBoSS::NetworkState_Impl>{}(state_1, state_2);
 #else
-      return std::equal_to<NetworkState_Impl>{}(val1.getState(), val2.getState());
+      return std::equal_to<MaBoSS::NetworkState_Impl>{}(val1.getState(), val2.getState());
 #endif
     }
   };
 
   // Added less operator, necessary for maps, sets. Code from https://stackoverflow.com/a/21245301/11713763
-  template <> struct less<NetworkState>
+  template <> struct less<MaBoSS::NetworkState>
   {
-    size_t operator()(const NetworkState& val1, const NetworkState& val2) const {
+    size_t operator()(const MaBoSS::NetworkState& val1, const MaBoSS::NetworkState& val2) const {
       return val1 < val2;
     }
   };
 }
+
+namespace MaBoSS {
 
 // global state of the population boolean network
 class PopNetworkState {
@@ -725,37 +731,41 @@ NetworkState_Impl masked_network_state(network_state_pop.first & mask.getState()
 #endif  
 };
 
+} // namespace MaBoSS
+
 namespace std {
-  template <> struct hash<PopNetworkState>
+  template <> struct hash<MaBoSS::PopNetworkState>
   {
-    size_t operator()(const PopNetworkState & x) const
+    size_t operator()(const MaBoSS::PopNetworkState & x) const
     {
       return x.getHash();
     }
   };
   
-  template <> struct equal_to<PopNetworkState >
+  template <> struct equal_to<MaBoSS::PopNetworkState >
   {
-    size_t operator()(const PopNetworkState& val1, const PopNetworkState& val2) const {
+    size_t operator()(const MaBoSS::PopNetworkState& val1, const MaBoSS::PopNetworkState& val2) const {
       return val1 == val2;
     }
   };
 
-  template <> struct not_equal_to<PopNetworkState >
+  template <> struct not_equal_to<MaBoSS::PopNetworkState >
   {
-    size_t operator()(const PopNetworkState& val1, const PopNetworkState& val2) const {
+    size_t operator()(const MaBoSS::PopNetworkState& val1, const MaBoSS::PopNetworkState& val2) const {
       return !(val1 == val2);
     }
   };
   
   // Added less operator, necessary for maps, sets. Code from https://stackoverflow.com/a/21245301/11713763
-  template <> struct less<PopNetworkState>
+  template <> struct less<MaBoSS::PopNetworkState>
   {
-    size_t operator()(const PopNetworkState& val1, const PopNetworkState& val2) const {
+    size_t operator()(const MaBoSS::PopNetworkState& val1, const MaBoSS::PopNetworkState& val2) const {
       return val1 < val2;
     }
   };
 }
+
+namespace MaBoSS {
 
 class PopSize {
   unsigned int size;
@@ -809,12 +819,15 @@ public:
   
 };
 
+} // namespace MaBoSS
+
 namespace std {
-  template <> struct hash<PopSize>
+  template <> struct hash<MaBoSS::PopSize>
   {
-    size_t operator()(const PopSize & x) const
+    size_t operator()(const MaBoSS::PopSize & x) const
     {
       return x.getSize();
     }
   };
 }
+

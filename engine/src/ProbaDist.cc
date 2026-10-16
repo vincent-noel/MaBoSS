@@ -47,8 +47,6 @@
      January-March 2011
 */
 
-class Network;
-
 #include "ProbaDist.h"
 #include "RunConfig.h"
 #include "Utils.h"
@@ -63,6 +61,8 @@ static double abs(double d)
   return d > 0. ? d : -d;
 }
 */
+
+namespace MaBoSS {
 
 void ProbaDistCluster::add(unsigned int index, const ProbaDist<NetworkState>& proba_dist)
 {
@@ -239,3 +239,5 @@ void ProbaDistClusterFactory::displayStationaryDistribution(StatDistDisplayer* d
   }
   displayer->endClusterFactoryStationaryDistribution();
 }
+
+} // namespace MaBoSS

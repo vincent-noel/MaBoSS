@@ -57,6 +57,8 @@
 #include <malloc.h>
 #endif
 
+using namespace MaBoSS;
+
 // network/runconfig/engine are C++ pointers, not PyObject*, so they must never
 // be exposed through T_OBJECT_EX: Python would incref a C++ object header
 PyMemberDef cMaBoSSResult_members[] = {

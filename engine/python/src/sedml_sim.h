@@ -53,7 +53,7 @@
 
 typedef struct {
   PyObject_HEAD
-  SedEngine* engine;
+  MaBoSS::SedEngine* engine;
 } sedmlSimObject;
 
 void sedmlSim_dealloc(sedmlSimObject *self);

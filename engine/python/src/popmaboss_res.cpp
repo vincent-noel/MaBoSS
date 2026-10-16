@@ -55,6 +55,8 @@
 #include <malloc.h>
 #endif
 
+using namespace MaBoSS;
+
 PyMethodDef cPopMaBoSSResult_methods[] = {
     {"get_fp_table", (PyCFunction) cPopMaBoSSResult_get_fp_table, METH_NOARGS, "gets the fixpoints table"},
     {"get_probtraj", (PyCFunction) cPopMaBoSSResult_get_probtraj, METH_NOARGS, "gets the raw states probability trajectories of the simulation"},

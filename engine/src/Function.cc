@@ -51,6 +51,8 @@
 #include "BNException.h"
 #include "Expressions.h"
 
+namespace MaBoSS {
+
 std::map<std::string, Function*>* Function::func_map;
 
 ArgumentList* ArgumentList::clone() const {
@@ -132,3 +134,5 @@ void Function::displayFunctionDescriptions(std::ostream& os)
     os << "  " << func.second->getDescription() << "\n\n";
   }
 }
+
+} // namespace MaBoSS

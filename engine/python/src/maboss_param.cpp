@@ -50,6 +50,8 @@
 #include "popmaboss_net.h"
 #include "maboss_cfg.h"
 
+using namespace MaBoSS;
+
 PyMethodDef cMaBoSSParam_methods[] = {
   {"keys", (PyCFunction) cMaBoSSParam_getKeys, METH_NOARGS, "returns the keys"},
   {"values", (PyCFunction) cMaBoSSParam_getValues, METH_NOARGS, "returns the values"},

@@ -54,6 +54,8 @@
 #include "compatibility_header.h"
 #include "parsers/RunConfigGrammar.h"
 
+namespace MaBoSS {
+
 unsigned int RunConfig::verbose = 0;
 
 RunConfig::RunConfig()
@@ -371,3 +373,5 @@ void RunConfig::dump_perform(Network* network, std::ostream& os, bool is_templat
   }
   
 }
+
+} // namespace MaBoSS

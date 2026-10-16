@@ -51,6 +51,8 @@
 #include "../Probe.h"
 #include "../Utils.h"
 
+namespace MaBoSS {
+
 struct MergeWrapper {
   Cumulator<NetworkState>* cumulator_1;
   Cumulator<NetworkState>* cumulator_2;
@@ -304,3 +306,5 @@ void ProbTrajEngine::applySchedule(RandomGenerator* random_generator, NetworkSta
     else { break; } // No need to check further if time is already past the schedule time
   }
 }
+
+} // namespace MaBoSS

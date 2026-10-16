@@ -53,6 +53,8 @@
 #include "../NetworkState.h"
 #include "../Network.h"
 
+namespace MaBoSS {
+
 class FinalStateDisplayer {
 
 public:
@@ -90,4 +92,4 @@ public:
   ~JsonFinalStateDisplayer() override = default;
 };
 
-
+} // namespace MaBoSS

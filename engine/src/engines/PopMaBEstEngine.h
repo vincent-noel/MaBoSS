@@ -62,6 +62,8 @@
 #include "../displayers/ProbTrajDisplayer.h"
 #include "../displayers/CustomPopProbTrajDisplayer.h"
 
+namespace MaBoSS {
+
 struct ArgWrapper;
 
 #ifdef POPNETWORKSTATE_STD_MAP
@@ -136,3 +138,4 @@ public:
 
 };
 
+} // namespace MaBoSS

@@ -58,6 +58,8 @@
 #include "../RandomGenerator.h"
 #include "../RunConfig.h"
 
+namespace MaBoSS {
+
 struct ArgWrapper;
 
 class MaBEstEngine : public ProbTrajEngine {
@@ -83,3 +85,4 @@ public:
   ~MaBEstEngine();
 };
 
+} // namespace MaBoSS

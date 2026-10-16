@@ -62,9 +62,9 @@ typedef struct {
   // cached raw pointers borrowed from them and are never freed here
   PyObject* py_network;
   PyObject* py_config;
-  PopNetwork* network;
-  RunConfig* config;
-  PopMaBEstEngine* engine;
+  MaBoSS::PopNetwork* network;
+  MaBoSS::RunConfig* config;
+  MaBoSS::PopMaBEstEngine* engine;
   time_t start_time;
   time_t end_time;
 } cPopMaBoSSResultObject;

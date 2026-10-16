@@ -53,7 +53,7 @@
 #include "Network.h"
 typedef struct {
   PyObject_HEAD
-  Network* network;
+  MaBoSS::Network* network;
   PyObject* nodes;
 } cMaBoSSNetworkObject;
 

@@ -13,6 +13,8 @@
 #include "Symbols.h"
 #include "BNException.h"
 
+using namespace MaBoSS;
+
 TEST_SUITE("symbols") {
 
 TEST_CASE("symbols are interned by name") {

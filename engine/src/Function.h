@@ -54,6 +54,8 @@
 #include <vector>
 #include <ostream>
 
+namespace MaBoSS {
+
 class Expression;
 class Node;
 class NetworkState;
@@ -121,3 +123,9 @@ public:
     virtual ~Function() = default;
 };
 
+// Entry point of a user function module, loaded by MetaEngine::loadUserFuncs()
+// (see user_func.cc). The module defines it at global scope; declaring it here
+// makes the compiler check the module's definition against this signature.
+extern "C" void maboss_user_func_init(std::map<std::string, Function*>* func_map);
+
+} // namespace MaBoSS

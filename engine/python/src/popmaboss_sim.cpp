@@ -53,6 +53,8 @@
 #include <malloc.h>
 #endif
 
+using namespace MaBoSS;
+
 PyMethodDef cPopMaBoSSSim_methods[] = {
 
     {"get_nodes", (PyCFunction) cPopMaBoSSSim_get_nodes, METH_NOARGS, "gets the list of nodes"},

@@ -65,6 +65,9 @@
 #else
 #include <pthread.h>
 #endif
+
+namespace MaBoSS {
+
 struct EnsembleArgWrapper;
 
 class MetaEngine {
@@ -192,3 +195,4 @@ public:
   
 };
 
+} // namespace MaBoSS

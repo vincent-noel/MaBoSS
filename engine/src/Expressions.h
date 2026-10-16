@@ -68,6 +68,8 @@ LIBSBML_CPP_NAMESPACE_USE
 #include "Network.h"
 #include "NetworkState.h"
 
+namespace MaBoSS {
+
 class NotLogicalExpression;
 
 class LogicalExprGenContext {
@@ -1176,3 +1178,4 @@ public:
 
 extern bool dont_shrink_logical_expressions;
 
+} // namespace MaBoSS

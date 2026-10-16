@@ -58,6 +58,8 @@
 #include "../RunConfig.h"
 
 
+namespace MaBoSS {
+
 class StochasticSimulationEngine {
 
   Network* network;
@@ -95,3 +97,4 @@ public:
   NetworkState run(NetworkState& initial_state, std::ostream* output_traj = nullptr);
 };
 
+} // namespace MaBoSS

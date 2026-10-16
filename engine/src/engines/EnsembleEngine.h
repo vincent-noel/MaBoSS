@@ -59,6 +59,8 @@
 #include "../RunConfig.h"
 #include "../ObservedGraph.h"
 
+namespace MaBoSS {
+
 struct EnsembleArgWrapper;
 
 class EnsembleEngine : public ProbTrajEngine {
@@ -105,3 +107,4 @@ public:
   ~EnsembleEngine();
 };
 
+} // namespace MaBoSS

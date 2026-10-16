@@ -65,6 +65,8 @@
 #include "../displayers/FixedPointDisplayer.h"
 #include "../displayers/FinalStateDisplayer.h"
 
+namespace MaBoSS {
+
 Server* Server::server;
 static const char* RPC_portname;
 
@@ -294,3 +296,5 @@ void Server::manageRequest(int fd, const char* request)
   }
   rpc_writeStringData(fd, data.c_str(), data.length());
 }
+
+} // namespace MaBoSS

@@ -51,6 +51,8 @@
 #include "Server.h"
 #include "../Utils.h"
 
+using namespace MaBoSS;
+
 const char* prog = "MaBoSS-server";
 
 static int usage(std::ostream& os = std::cerr)

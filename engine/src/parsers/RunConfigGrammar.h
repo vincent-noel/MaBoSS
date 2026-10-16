@@ -52,6 +52,8 @@
 #include <cstdio>
 #include <string>
 
+namespace MaBoSS {
+
 class Network;
 class RunConfig;
 
@@ -78,3 +80,5 @@ struct RCParseContext {
 // parser's result (0 on success); syntax errors throw BNException.
 extern int rc_parse_file(FILE* in, RCParseContext& ctx);
 extern int rc_parse_string(const char* str, RCParseContext& ctx);
+
+} // namespace MaBoSS

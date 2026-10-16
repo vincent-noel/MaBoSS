@@ -56,6 +56,8 @@
 // #include "IStates.h"
 #include "Symbols.h"
 
+namespace MaBoSS {
+
 extern bool MaBoSS_quiet;
 class IStateGroup;
 class PopNetwork;
@@ -224,3 +226,4 @@ public:
   virtual ~Network();
 };
 
+} // namespace MaBoSS

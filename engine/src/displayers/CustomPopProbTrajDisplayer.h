@@ -55,6 +55,8 @@
 #include "../Network.h"
 #include "../NetworkState.h"
 
+namespace MaBoSS {
+
 class CSVCustomPopProbTrajDisplayer : public ProbTrajDisplayer<PopSize> {
 
   std::ostream& os_probtraj;
@@ -68,4 +70,4 @@ public:
   void endDisplay() override { }
 };
 
-
+} // namespace MaBoSS

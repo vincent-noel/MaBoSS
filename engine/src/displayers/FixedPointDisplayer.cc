@@ -51,6 +51,8 @@
 #include "../NetworkState.h"
 #include "../Utils.h"
 
+namespace MaBoSS {
+
 void CSVFixedPointDisplayer::begin(size_t size) {
   os << "Fixed Points (" << size << ")\n";
   if (size > 0) {
@@ -107,3 +109,5 @@ void HDF5FixedPointDisplayer::displayFixedPoint(size_t num, const NetworkState& 
 void HDF5FixedPointDisplayer::end() {
 }
 #endif
+
+} // namespace MaBoSS

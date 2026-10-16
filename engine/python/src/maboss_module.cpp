@@ -60,6 +60,8 @@
 #include "sedml_sim.h"
 #endif
 
+using namespace MaBoSS;
+
 #if !defined (MAXNODES) || MAXNODES == 0xFFFFFFF 
     const char module_name[] = "cmaboss_dn";
 #elif MAXNODES <= 64 

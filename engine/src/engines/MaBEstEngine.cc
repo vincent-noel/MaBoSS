@@ -56,6 +56,8 @@
 #include <iostream>
 #include <cmath>
 
+namespace MaBoSS {
+
 const std::string MaBEstEngine::VERSION = "2.6.7";
 
 #ifdef MPI_COMPAT
@@ -417,3 +419,4 @@ MaBEstEngine::~MaBEstEngine()
   delete observed_graph;
 }
 
+} // namespace MaBoSS

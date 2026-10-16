@@ -54,8 +54,8 @@
 
 typedef struct {
   PyObject_HEAD
-  Node* node;        // owned by network, never freed here
-  Network* network;  // cached from py_network, never freed here
+  MaBoSS::Node* node;        // owned by network, never freed here
+  MaBoSS::Network* network;  // cached from py_network, never freed here
   PyObject* py_network;
 } cMaBoSSNodeObject;
 

@@ -69,6 +69,8 @@
 #include "../RunConfig.h"
 #include "../displayers/FinalStateDisplayer.h"
 
+namespace MaBoSS {
+
 struct FinalStateArgWrapper;
 
 class FinalStateSimulationEngine : public MetaEngine {
@@ -115,3 +117,4 @@ public:
 
 };
 
+} // namespace MaBoSS
