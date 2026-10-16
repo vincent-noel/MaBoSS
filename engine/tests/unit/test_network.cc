@@ -14,6 +14,7 @@
 
 #include "BNException.h"
 #include "Network.h"
+#include "NetworkState.h"
 #include "test_helpers.h"
 
 using namespace MaBoSS;
@@ -158,6 +159,27 @@ TEST_CASE("referring to an undeclared node is an error") {
     parse_network("node A { logic = Undeclared; rate_up = @logic ? 1 : 0; rate_down = 1; }\n"),
     BNException
   );
+}
+
+TEST_CASE("a node with neither logic nor rates can be made mutable") {
+  // makeMutable() used to clone the logic expression unconditionally, so a
+  // node without one (B here) crashed cMaBoSS's mutate(..., simple=False).
+  std::unique_ptr<Network> network = parse_network(
+    "node A { logic = B; rate_up = @logic ? 1 : 0; rate_down = @logic ? 0 : 1; }\n"
+    "node B { }\n"
+  );
+  Node* b = network->getNode("B");
+  REQUIRE(b->getLogicalInputExpression() == nullptr);
+
+  REQUIRE_NOTHROW(b->makeMutable(network.get()));
+
+  // Not forced either way, it keeps the rates it had: 0 in both directions.
+  SymbolTable* symbols = network->getSymbolTable();
+  symbols->setSymbolValue(symbols->getSymbol("$Low_B"), 0.0);
+  symbols->setSymbolValue(symbols->getSymbol("$High_B"), 0.0);
+  NetworkState state;
+  CHECK(b->getRateUp(state) == 0.0);
+  CHECK(b->getRateDown(state) == 0.0);
 }
 
 TEST_CASE("a network cannot be copied") {

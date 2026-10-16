@@ -178,13 +178,16 @@ void Node::makeMutable(Network* network)
     Expression* new_rate_down = nullptr;
     
     if (rateUpExpr == nullptr) {
-      
-      new_rate_up = new CondExpression(
-        logicalInputExpr->clone(),
-        new ConstantExpression(1.0),
-        new ConstantExpression(0.0)
-      );
-       
+      // Without logic either, the node never switches on (see getRateUp()).
+      if (logicalInputExpr == nullptr) {
+        new_rate_up = new ConstantExpression(0.0);
+      } else {
+        new_rate_up = new CondExpression(
+          logicalInputExpr->clone(),
+          new ConstantExpression(1.0),
+          new ConstantExpression(0.0)
+        );
+      }
     } else {
       new_rate_up = rateUpExpr->clone();  
       delete rateUpExpr;
@@ -202,11 +205,16 @@ void Node::makeMutable(Network* network)
     );
     
     if (rateDownExpr == nullptr) {
-      new_rate_down = new CondExpression(
-        logicalInputExpr->clone(),
-        new ConstantExpression(0.0),
-        new ConstantExpression(1.0)
-      );
+      // Without logic either, the node never switches off (see getRateDown()).
+      if (logicalInputExpr == nullptr) {
+        new_rate_down = new ConstantExpression(0.0);
+      } else {
+        new_rate_down = new CondExpression(
+          logicalInputExpr->clone(),
+          new ConstantExpression(0.0),
+          new ConstantExpression(1.0)
+        );
+      }
     } else {
       new_rate_down = rateDownExpr->clone();
       delete rateDownExpr;
