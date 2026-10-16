@@ -347,7 +347,15 @@ PyObject* cMaBoSSSim_check(cMaBoSSSimObject* self, PyObject *args, PyObject* kwa
 PyObject* cMaBoSSSim_get_logical_rules(cMaBoSSSimObject* self, PyObject *args, PyObject* kwargs) {
   
   std::ostringstream ss;
-  self->network->network->generateLogicalExpressions(ss);
+  try {
+    self->network->network->generateLogicalExpressions(ss);
+  } catch (BNException& e) {
+    PyErr_SetString(PyBNException, e.getMessage().c_str());
+    return NULL;
+  } catch (std::exception& e) {
+    PyErr_SetString(PyExc_RuntimeError, e.what());
+    return NULL;
+  }
   return PyUnicode_FromString(ss.str().c_str());
 }
 
