@@ -51,6 +51,8 @@
 #include "Symbols.h"
 #include "Expressions.h"
 
+namespace MaBoSS {
+
 void SymbolTable::display(std::ostream& os, bool check) const
 {
   for (const auto & symb_entry : symb_map) {
@@ -84,3 +86,4 @@ void SymbolTable::reset()
   last_symb_idx = 0;
 }
 
+} // namespace MaBoSS

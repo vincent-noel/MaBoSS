@@ -73,6 +73,8 @@
 
 #include "BNException.h"
 
+namespace MaBoSS {
+
 class RandomGenerator {
 
   static size_t generated_number_count;
@@ -503,3 +505,4 @@ public:
   }
 };
 
+} // namespace MaBoSS

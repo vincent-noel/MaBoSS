@@ -65,6 +65,8 @@
 
 #include <string>
 
+namespace MaBoSS {
+
 constexpr int rpc_Success = 0;
 constexpr int rpc_Error = 1;
 
@@ -119,3 +121,4 @@ protected:
 extern char* rpc_readStringData(int fd);
 extern ssize_t rpc_writeStringData(int fd, const char* data, size_t len);
 
+} // namespace MaBoSS

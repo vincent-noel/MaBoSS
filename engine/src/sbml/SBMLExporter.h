@@ -56,6 +56,8 @@
 
 LIBSBML_CPP_NAMESPACE_USE
 
+namespace MaBoSS {
+
 class SBMLExporter
 {
   public:
@@ -139,5 +141,7 @@ class SBMLExporter
 
   
 };
+
+} // namespace MaBoSS
 
 #endif

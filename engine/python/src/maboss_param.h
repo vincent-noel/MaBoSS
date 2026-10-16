@@ -59,8 +59,8 @@ typedef struct {
   // cached raw pointers borrowed from them and are never freed here
   PyObject* py_network;
   PyObject* py_config;
-  Network* network;
-  RunConfig* config;
+  MaBoSS::Network* network;
+  MaBoSS::RunConfig* config;
 } cMaBoSSParamObject;
 
 void cMaBoSSParam_dealloc(PyObject *self);

@@ -49,5 +49,9 @@
 
 #include "RandomGenerator.h"
 
+namespace MaBoSS {
+
 size_t RandomGenerator::generated_number_count = 0;
 bool RandomGeneratorFactory::has_shown_warning = false;
+
+} // namespace MaBoSS

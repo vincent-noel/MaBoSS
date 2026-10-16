@@ -23,14 +23,14 @@ namespace {
 
 struct GlobalEngineState {
   GlobalEngineState() {
-    MetaEngine::init();
+    MaBoSS::MetaEngine::init();
 #ifdef USE_DYNAMIC_BITSET
-    MBDynBitset::init_pthread();
+    MaBoSS::MBDynBitset::init_pthread();
 #endif
   }
   ~GlobalEngineState() {
 #ifdef USE_DYNAMIC_BITSET
-    MBDynBitset::end_pthread();
+    MaBoSS::MBDynBitset::end_pthread();
 #endif
   }
 };

@@ -56,6 +56,8 @@
 #include <hdf5/serial/hdf5.h>
 #endif
 
+namespace MaBoSS {
+
 class NetworkState;
 class Network;
 
@@ -107,4 +109,4 @@ public:
 };
 #endif
 
-
+} // namespace MaBoSS

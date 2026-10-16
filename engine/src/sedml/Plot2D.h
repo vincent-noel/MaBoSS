@@ -17,6 +17,8 @@
 #endif
 LIBSEDML_CPP_NAMESPACE_USE
 
+namespace MaBoSS {
+
 class Plot2D {
    
     std::map<std::string, std::pair<std::vector<double>, std::vector<double> > > data;
@@ -90,3 +92,5 @@ class Plot2D {
 
 #endif
 };
+
+} // namespace MaBoSS

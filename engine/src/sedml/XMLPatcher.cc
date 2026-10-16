@@ -14,6 +14,8 @@
 
 #include "SedException.h"
 
+namespace MaBoSS {
+
 XMLPatcher::XMLPatcher(std::filesystem::path _xml_file): xml_file(_xml_file)
 {
     /* Init libxml */     
@@ -191,3 +193,5 @@ std::string XMLPatcher::getXML()
     
     return out;
 }
+
+} // namespace MaBoSS

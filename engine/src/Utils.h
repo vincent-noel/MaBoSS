@@ -53,6 +53,8 @@
 #include <cassert>
 #include <iostream>
 
+namespace MaBoSS {
+
 class Network;
 class ConfigOpt {
   std::string file_or_expr;
@@ -85,3 +87,4 @@ bool hasEnding (std::string const &fullString, std::string const &ending);
 int setConfigVariables(Network* network, const std::string& prog, std::vector<std::string>& runvar_v);
 int setConfigVariables(Network* network, const std::string& prog, const std::string& runvar);
 
+} // namespace MaBoSS

@@ -63,13 +63,14 @@
 #include "MPI_headers.h"
 #endif
 
-inline constexpr bool COMPUTE_ERRORS = true;
-
 #include "RunConfig.h"
 #include "ProbaDist.h"
-#include "RunConfig.h"
 #include "displayers/StatDistDisplayer.h"
 #include "displayers/ProbTrajDisplayer.h"
+
+namespace MaBoSS {
+
+inline constexpr bool COMPUTE_ERRORS = true;
 
 class Network;
 template <typename S> class ProbTrajDisplayer;
@@ -1922,3 +1923,4 @@ static void mergePairOfMPICumulators(Cumulator<S>* ret_cumul, int world_rank, in
 
 };
 
+} // namespace MaBoSS

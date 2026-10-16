@@ -51,6 +51,8 @@
 #include "../Utils.h"
 #include <iomanip>
 
+namespace MaBoSS {
+
 void CSVFinalStateDisplayer::begin() {
 }
 
@@ -99,4 +101,4 @@ void JsonFinalStateDisplayer::end() {
   os << "]";
 }
 
-
+} // namespace MaBoSS

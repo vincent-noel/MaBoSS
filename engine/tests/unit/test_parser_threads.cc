@@ -22,6 +22,8 @@
 #include "RunConfig.h"
 #include "NetworkState_Impl.h"
 
+using namespace MaBoSS;
+
 namespace {
 
 const int THREAD_COUNT = 8;

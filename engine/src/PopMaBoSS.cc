@@ -63,6 +63,8 @@
 #include <mpi.h>
 #endif
 
+using namespace MaBoSS;
+
 const char* prog = "PopMaBoSS";
 
 static int usage(std::ostream& os = std::cerr)

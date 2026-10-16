@@ -11,6 +11,8 @@
 //#define USE_MB_SHIFT
 //#define MB_COUNT
 
+namespace MaBoSS {
+
 class MBDynBitset {
 
   uint64_t* data;
@@ -360,33 +362,36 @@ public:
   }
 };
 
+} // namespace MaBoSS
+
 namespace std {
-  template <> struct hash<MBDynBitset>
+  template <> struct hash<MaBoSS::MBDynBitset>
   {
-    size_t operator()(const MBDynBitset& val) const {
+    size_t operator()(const MaBoSS::MBDynBitset& val) const {
       return val.to_ulong();
     }
   };
 
-  template <> struct equal_to<MBDynBitset >
+  template <> struct equal_to<MaBoSS::MBDynBitset >
   {
-    size_t operator()(const MBDynBitset& val1, const MBDynBitset& val2) const {
+    size_t operator()(const MaBoSS::MBDynBitset& val1, const MaBoSS::MBDynBitset& val2) const {
       return val1 == val2;
     }
   };
 
-  template <> struct not_equal_to<MBDynBitset >
+  template <> struct not_equal_to<MaBoSS::MBDynBitset >
   {
-    size_t operator()(const MBDynBitset& val1, const MBDynBitset& val2) const {
+    size_t operator()(const MaBoSS::MBDynBitset& val1, const MaBoSS::MBDynBitset& val2) const {
       return val1 != val2;
     }
   };
   
   // Added less operator, necessary for maps, sets. Code from https://stackoverflow.com/a/21245301/11713763
-  template <> struct less<MBDynBitset>
+  template <> struct less<MaBoSS::MBDynBitset>
   {
-    bool operator()(const MBDynBitset& val1, const MBDynBitset& val2) const {
+    bool operator()(const MaBoSS::MBDynBitset& val1, const MaBoSS::MBDynBitset& val2) const {
       return val1 < val2;
     }
   };
 }
+

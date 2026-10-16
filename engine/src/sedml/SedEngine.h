@@ -88,6 +88,8 @@
 
 LIBSEDML_CPP_NAMESPACE_USE
 
+namespace MaBoSS {
+
 
 
 // template<typename T, template<typename> class C>
@@ -667,5 +669,7 @@ class SedEngine
     return plots;
   }
 };
+
+} // namespace MaBoSS
 
 #endif

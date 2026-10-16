@@ -53,6 +53,8 @@
 #include <iomanip>
 #include <iostream>
 
+namespace MaBoSS {
+
 const std::string PopMaBEstEngine::VERSION = "0.0.1";
 // extern size_t RandomGenerator::generated_number_count;
 
@@ -990,3 +992,5 @@ const std::map<unsigned int, std::pair<NetworkState, double> > PopMaBEstEngine::
   }
   return res;
 }
+
+} // namespace MaBoSS

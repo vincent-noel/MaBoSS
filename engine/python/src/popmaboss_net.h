@@ -54,7 +54,7 @@
 
 typedef struct {
   PyObject_HEAD
-  PopNetwork* network;
+  MaBoSS::PopNetwork* network;
   PyObject* nodes;
 } cPopMaBoSSNetworkObject;
 

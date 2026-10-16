@@ -54,6 +54,8 @@
 #include <iomanip>
 #include <iostream>
 
+namespace MaBoSS {
+
 const std::string FinalStateSimulationEngine::VERSION = "1.0.0";
 
 #ifdef MPI_COMPAT
@@ -463,3 +465,5 @@ void FinalStateSimulationEngine::displayRunStats(std::ostream& os, time_t start_
   
   runconfig->display(network, start_time, end_time, os);
 }
+
+} // namespace MaBoSS

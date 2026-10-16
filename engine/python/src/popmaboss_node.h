@@ -54,8 +54,8 @@
 
 typedef struct {
   PyObject_HEAD
-  Node* node;
-  Network* network;
+  MaBoSS::Node* node;
+  MaBoSS::Network* network;
 } cMaBoSSNodeObject;
 
 void cMaBoSSNode_dealloc(cMaBoSSNodeObject *self);

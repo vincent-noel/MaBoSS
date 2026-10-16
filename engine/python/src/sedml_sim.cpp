@@ -54,6 +54,8 @@
 #include <malloc.h>
 #endif
 
+using namespace MaBoSS;
+
 PyMethodDef sedmlSim_methods[] = {
   {"get_plots", (PyCFunction) sedmlSim_get_plots, METH_NOARGS, "returns the list of plots"},
   {"get_reports", (PyCFunction) sedmlSim_get_reports, METH_NOARGS, "returns the list of reports"},

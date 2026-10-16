@@ -56,6 +56,8 @@
 
 #include "BNException.h"
 
+namespace MaBoSS {
+
 using SymbolIndex = unsigned int;
 
 // symbol entry (i.e. variables)
@@ -153,3 +155,4 @@ public:
   }
 };
 
+} // namespace MaBoSS

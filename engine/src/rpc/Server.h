@@ -51,6 +51,8 @@
 #include "MaBoSS-RPC.h"
 #include "../Utils.h"
 
+namespace MaBoSS {
+
 class ClientData;
 
 class ServerData {
@@ -165,3 +167,4 @@ public:
   void manageRequest(int fd, const char* request) override;
 };
 
+} // namespace MaBoSS

@@ -62,6 +62,8 @@
 #include <hdf5/serial/hdf5.h>
 #endif
 
+namespace MaBoSS {
+
 class StatDistDisplayer {
 
 protected:
@@ -269,3 +271,4 @@ public:
 };
 #endif
 
+} // namespace MaBoSS

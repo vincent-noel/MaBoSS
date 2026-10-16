@@ -7,6 +7,8 @@
 #include <string> 
 #include <sbml/math/ASTNode.h>
 
+namespace MaBoSS {
+
 class SedASTExpression
 {
   public:
@@ -104,3 +106,5 @@ inline SedASTExpression* parseSedASTExpression(const ASTNode* tree, std::map<std
 //     }
     
 // }
+
+} // namespace MaBoSS

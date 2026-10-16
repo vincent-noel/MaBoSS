@@ -50,13 +50,17 @@
 #include "Network.h"
 #include "Symbols.h"
 #include "compatibility_header.h"
+#ifndef _MSC_VER
+#include <sys/stat.h>
+#endif
+
+namespace MaBoSS {
 
 const std::string NL_PATTERN = "@--NL--@";
 unsigned int ConfigOpt::runconfig_file_cnt = 0;
 unsigned int ConfigOpt::runconfig_expr_cnt = 0;
 
 #ifndef _MSC_VER
-#include <sys/stat.h>
 
 
 int checkArgMissing(const char* prog, const char* opt, int nn, int argc)
@@ -213,3 +217,4 @@ int setConfigVariables(Network* network, const std::string& prog, const std::str
   return setConfigVariables(network, prog, runvar_v);
 }
 
+} // namespace MaBoSS

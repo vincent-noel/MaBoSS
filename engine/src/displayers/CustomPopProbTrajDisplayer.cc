@@ -53,6 +53,8 @@
 #include <iomanip>
 #include <cstring>
 
+namespace MaBoSS {
+
 void CSVCustomPopProbTrajDisplayer::beginDisplay() 
 {
   os_probtraj << "Time\tTH" << (this->compute_errors ? "\tErrorTH" : "") << "\tH";
@@ -107,3 +109,5 @@ void CSVCustomPopProbTrajDisplayer::endTimeTickDisplay()
   }
   os_probtraj << '\n';
 }
+
+} // namespace MaBoSS

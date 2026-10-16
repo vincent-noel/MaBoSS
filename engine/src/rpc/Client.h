@@ -52,6 +52,8 @@
 
 #include "MaBoSS-RPC.h"
 
+namespace MaBoSS {
+
 class ServerData;
 
 class ClientData {
@@ -133,3 +135,4 @@ public:
   void send(const ClientData& client_data, ServerData& server_data);
 };
 
+} // namespace MaBoSS

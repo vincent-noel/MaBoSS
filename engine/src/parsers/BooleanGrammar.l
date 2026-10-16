@@ -4,7 +4,7 @@
 // The scanner's extra data is the parse context. Set here rather than with
 // %option extra-type, which the development version of flex (git master, used
 // by the manylinux wheel builds) does not apply: yyextra stays a void*.
-#define YY_EXTRA_TYPE BNDParseContext*
+#define YY_EXTRA_TYPE MaBoSS::BNDParseContext*
 }
 %{
 /*

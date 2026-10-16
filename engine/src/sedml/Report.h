@@ -10,6 +10,8 @@
 
 LIBSEDML_CPP_NAMESPACE_USE
 
+namespace MaBoSS {
+
 class Report
 {
     std::map<std::string, std::vector<double> > data;
@@ -109,3 +111,5 @@ PyObject* getReportData() const
         report_file.close();
     }
 };
+
+} // namespace MaBoSS

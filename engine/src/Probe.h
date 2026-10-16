@@ -50,10 +50,17 @@
 #pragma once
 
 #if !defined (_MSC_VER) && !defined (WINDOWS)
-
 #include <sys/time.h>
 #include <sys/times.h>
 #include <unistd.h>
+#else
+#include <ctime>   // CPU (system, user) clock
+#include <chrono>  // wall (real) clock
+#endif
+
+namespace MaBoSS {
+
+#if !defined (_MSC_VER) && !defined (WINDOWS)
 
 class Probe {
 
@@ -105,12 +112,6 @@ class Probe {
 };
 
 #else
-
-#include <ctime>   // CPU (system, user) clock
-
-#include <chrono>  // wall (real) clock
-
-
 
 class Probe {
 
@@ -248,3 +249,5 @@ class Probe {
 
 };
 #endif
+
+} // namespace MaBoSS

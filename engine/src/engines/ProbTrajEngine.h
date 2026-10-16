@@ -68,6 +68,8 @@
 #include "../displayers/FixedPointDisplayer.h"
 #include "../displayers/ProbTrajDisplayer.h"
 
+namespace MaBoSS {
+
 struct EnsembleArgWrapper;
 
 class ProbTrajEngine : public FixedPointEngine {
@@ -122,3 +124,4 @@ public:
 #endif
 };
 
+} // namespace MaBoSS

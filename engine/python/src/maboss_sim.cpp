@@ -58,6 +58,8 @@
 #include <malloc.h>
 #endif
 
+using namespace MaBoSS;
+
 PyMethodDef cMaBoSSSim_methods[] = {
     {"run", (PyCFunction) cMaBoSSSim_run, METH_VARARGS | METH_KEYWORDS, "runs the simulation"},
     {"check", (PyCFunction) cMaBoSSSim_check, METH_VARARGS | METH_KEYWORDS, "checks the model"},

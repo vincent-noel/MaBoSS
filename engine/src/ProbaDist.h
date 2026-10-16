@@ -66,6 +66,8 @@
 #include "RunConfig.h"
 #include "displayers/StatDistDisplayer.h"
 
+namespace MaBoSS {
+
 template <typename S>
 class ProbaDist {
   StateMap<S, double> mp;
@@ -329,3 +331,4 @@ class ProbaDistClusterFactory {
   }
 };
 
+} // namespace MaBoSS

@@ -65,6 +65,8 @@ LIBSBML_CPP_NAMESPACE_USE
 #include "RandomGenerator.h"
 #include "maps_header.h"
 
+namespace MaBoSS {
+
 using NodeIndex = unsigned int;
 using NodeState = bool; // for now... could be a class
 
@@ -315,3 +317,4 @@ class Node {
   ~Node();
 };
 
+} // namespace MaBoSS

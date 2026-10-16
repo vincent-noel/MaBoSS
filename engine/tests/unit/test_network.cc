@@ -16,6 +16,8 @@
 #include "Network.h"
 #include "test_helpers.h"
 
+using namespace MaBoSS;
+
 using maboss_test::parse_abc_network;
 using maboss_test::parse_network;
 

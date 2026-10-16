@@ -73,6 +73,7 @@
 int world_size, world_rank;
 #endif
 
+using namespace MaBoSS;
 
 const char* prog = "MaBoSS";
 

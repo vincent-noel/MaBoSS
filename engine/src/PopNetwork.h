@@ -53,6 +53,8 @@
 #include "Network.h"
 #include "Expressions.h"
 
+namespace MaBoSS {
+
 class DivisionRule {
   
   public:
@@ -171,3 +173,4 @@ class PopNetwork : public Network {
 
 };
 
+} // namespace MaBoSS

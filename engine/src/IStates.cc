@@ -51,6 +51,8 @@
 #include "IStates.h"
 #include "PopNetwork.h"
 
+namespace MaBoSS {
+
 void PopIStateGroup::epilogue(PopNetwork* network) 
 {
   network->getPopIStateGroup()->push_back(this);
@@ -283,3 +285,5 @@ void IStateGroup::reset(Network * network) {
   }
   network->getIStateGroup()->clear();
 }
+
+} // namespace MaBoSS

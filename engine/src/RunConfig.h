@@ -55,6 +55,8 @@
 #include "Expressions.h"
 #include "IStates.h"
 
+namespace MaBoSS {
+
 class MaBEstEngine;
 class PopMaBEstEngine;
 class FinalStateSimulationEngine;
@@ -120,3 +122,5 @@ class RunConfig {
   static void setVerbose(unsigned int level) {verbose = level;}
   static unsigned int getVerbose() { return verbose; }
 };
+
+} // namespace MaBoSS

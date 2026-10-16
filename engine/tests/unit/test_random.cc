@@ -19,6 +19,8 @@
 
 #include "RandomGenerator.h"
 
+using namespace MaBoSS;
+
 namespace {
 
 // First eight draws of generateUInt32() for a freshly seeded generator.

@@ -7,6 +7,8 @@
 #include <Python.h>
 #endif
 
+namespace MaBoSS {
+
 class ObservedGraph {
     std::map<NetworkState_Impl, std::map<NetworkState_Impl, unsigned int>> counts;
     std::map<NetworkState_Impl, std::map<NetworkState_Impl, double>> durations;
@@ -49,3 +51,5 @@ public:
     PyObject* getNumpyObservedDurations(const Network* network) const;
 #endif
 };
+
+} // namespace MaBoSS

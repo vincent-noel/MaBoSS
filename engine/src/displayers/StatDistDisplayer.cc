@@ -53,6 +53,8 @@
 #include <map>
 #include <set>
 
+namespace MaBoSS {
+
 void JSONStatDistDisplayer::beginDisplay() {
   //os_statdist << "{";
 }
@@ -392,4 +394,7 @@ PyObject* NumpyStatDistDisplayer::getNumpyStatDist() const {
 
   return Py_BuildValue("NNN", getNumpyTable(statdist, false), pylist_clusters, getNumpyTable(summary, true));
 }
+
 #endif
+
+} // namespace MaBoSS

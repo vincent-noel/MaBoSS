@@ -49,6 +49,8 @@
 #include "IStates.h"
 #include <set>
 
+using namespace MaBoSS;
+
 PyMethodDef cMaBoSSNetwork_methods[] = {
     {"set_output", (PyCFunction) cMaBoSSNetwork_setOutput, METH_VARARGS, "sets the output nodes"},
     {"get_output", (PyCFunction) cMaBoSSNetwork_getOutput, METH_NOARGS, "gets the output nodes"},

@@ -51,6 +51,8 @@
 #include "DataStreamer.h"
 #include "../Utils.h"
 
+namespace MaBoSS {
+
 const std::string DataStreamer::PROTOCOL_VERSION_NUMBER = "1.0";
 
 const std::string DataStreamer::MABOSS_MAGIC = "MaBoSS-2.0";
@@ -344,3 +346,4 @@ int DataStreamer::parseStreamData(ServerData& server_data, const std::string& in
   return 0;
 }
 
+} // namespace MaBoSS

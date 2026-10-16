@@ -50,6 +50,8 @@
 #include "popmaboss_net.h"
 
 
+using namespace MaBoSS;
+
 PyMethodDef cMaBoSSConfig_methods[] = {
     {NULL}  /* Sentinel */
 };

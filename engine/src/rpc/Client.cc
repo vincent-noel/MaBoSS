@@ -63,6 +63,8 @@
 #include "DataStreamer.h"
 #include "MaBoSS-RPC.h"
 
+namespace MaBoSS {
+
 void Client::send(const ClientData& client_data, ServerData& server_data)
 {
   if (open() == rpc_Success) {
@@ -89,3 +91,4 @@ void Client::send(const ClientData& client_data, ServerData& server_data)
   // else throw error
 }
 
+} // namespace MaBoSS

@@ -5,6 +5,8 @@
 #include <iostream>
 #include <vector>
 #include <bitset>
+#include <cassert>
+#include <sys/types.h>
 #ifndef _MSC_VER
 #include <unistd.h>
 #else
@@ -13,6 +15,8 @@
 
 //#include <sys/syscall.h>
 //#define gettid() syscall(SYS_gettid)
+
+namespace MaBoSS {
 
 #ifdef MB_COUNT
 size_t MBDynBitset::new_cnt = 0;
@@ -87,8 +91,6 @@ void MBDynBitset::end_pthread()
 }
 
 #else
-#include <sys/types.h>
-#include <cassert>
 
 class Mutex {
   pthread_mutex_t mutex;
@@ -276,5 +278,7 @@ void MBDynBitset::stats()
   std::cout << "delete_count: " << del_cnt << "\n\n";
 #endif
 }
+
+} // namespace MaBoSS
 
 #endif

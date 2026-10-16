@@ -8,6 +8,8 @@
 #include <numpy/arrayobject.h>
 #endif
 
+namespace MaBoSS {
+
 NetworkState_Impl ObservedGraph::getObservedState(NetworkState state) const
 {
     return state.getState() & graph_mask;
@@ -364,3 +366,5 @@ PyObject* ObservedGraph::getNumpyObservedDurations(const Network* network) const
     return Py_BuildValue("NN", PyArray_Return(graph), states);
 }
 #endif
+
+} // namespace MaBoSS

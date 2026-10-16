@@ -53,6 +53,8 @@
 #include <iomanip>
 #include <iostream>
 
+namespace MaBoSS {
+
 const std::string StochasticSimulationEngine::VERSION = "1.0.0";
 
 NodeIndex StochasticSimulationEngine::getTargetNode(RandomGenerator *_random_generator, const std::vector<double> &nodeTransitionRates, double total_rate) const
@@ -154,3 +156,5 @@ NetworkState StochasticSimulationEngine::run(NetworkState& initial_state, std::o
   
   return network_state;
 }
+
+} // namespace MaBoSS

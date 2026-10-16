@@ -49,6 +49,8 @@
 #include "maboss_net.h"
 
 
+using namespace MaBoSS;
+
 PyMethodDef cPopMaBoSSNetwork_methods[] = {
     // {"getNetwork", (PyCFunction) cPopMaBoSSNetwork_getNetwork, METH_NOARGS, "returns the network object"},
     // {"getNodes", (PyCFunction) cPopMaBoSSNetwork_getDictNodes, METH_NOARGS, "returns the dict of nodes"},

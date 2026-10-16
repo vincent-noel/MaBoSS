@@ -2,6 +2,9 @@
 
 #include <string>
 #include <iostream>
+
+namespace MaBoSS {
+
 class BNException {
 
     std::string msg;
@@ -14,3 +17,5 @@ class BNException {
 };
 
 std::ostream& operator<<(std::ostream& os, const BNException& e);
+
+} // namespace MaBoSS

@@ -56,6 +56,8 @@
   #include <windows.h>
 #endif
 
+namespace MaBoSS {
+
 static const char* MABOSS_USER_FUNC_INIT = "maboss_user_func_init";
 
 void MetaEngine::init()
@@ -83,19 +85,17 @@ void MetaEngine::loadUserFuncs(const char* module)
     exit(1);
   }
 
+  using init_t = decltype(&maboss_user_func_init);
 #if !defined (WINDOWS) && !defined(_MSC_VER)
-  void* sym = dlsym(dl, MABOSS_USER_FUNC_INIT);
+  auto init_fun = reinterpret_cast<init_t>(dlsym(dl, MABOSS_USER_FUNC_INIT));
 #else
-  typedef void (__cdecl *MYPROC)(std::map<std::string, Function*>*);
-  MYPROC sym = (MYPROC) GetProcAddress((HINSTANCE) dl, MABOSS_USER_FUNC_INIT);
+  auto init_fun = reinterpret_cast<init_t>(GetProcAddress((HINSTANCE) dl, MABOSS_USER_FUNC_INIT));
 #endif
 
-  if (sym == nullptr) {
+  if (init_fun == nullptr) {
     std::cerr << "symbol " << MABOSS_USER_FUNC_INIT << "() not found in user func module: " << module << "\n";
     exit(1);
   }
-  typedef void (*init_t)(std::map<std::string, Function*>*);
-  init_t init_fun = (init_t)sym;
   init_fun(Function::getFuncMap());
 }
 
@@ -148,3 +148,5 @@ double MetaEngine::computeTH(Network* _network, const std::vector<double>& nodeT
 
   return TH;
 }
+
+} // namespace MaBoSS

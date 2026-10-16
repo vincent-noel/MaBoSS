@@ -50,6 +50,8 @@
 #include "NetworkState.h"
 #include "Expressions.h"
 
+namespace MaBoSS {
+
 bool NetworkState::computeNodeState(const Node* node, NodeState& node_state)
 {
   const Expression* expr = node->getLogicalInputExpression();
@@ -222,3 +224,5 @@ unsigned int PopNetworkState::hamming(Network*, const NetworkState&) const
 
   return hd;
 }
+
+} // namespace MaBoSS

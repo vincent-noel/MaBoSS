@@ -54,6 +54,8 @@
 
 LIBSBML_CPP_NAMESPACE_USE
 
+namespace MaBoSS {
+
 
 class SBMLParser
 {
@@ -80,5 +82,7 @@ class SBMLParser
     void build();
     void setIStates();
 };
+
+} // namespace MaBoSS
 
 #endif

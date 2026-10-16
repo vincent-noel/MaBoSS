@@ -52,6 +52,8 @@
 #include "IStates.h"
 #include "parsers/BooleanGrammar.h"
 
+namespace MaBoSS {
+
 const bool backward_istate = getenv("MABOSS_BACKWARD_ISTATE") != nullptr;
 
 const int DivisionRule::DAUGHTER_1 = 1;
@@ -149,4 +151,4 @@ PopNetwork::~PopNetwork()
   
 }
 
-
+} // namespace MaBoSS

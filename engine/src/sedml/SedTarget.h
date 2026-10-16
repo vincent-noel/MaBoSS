@@ -8,6 +8,8 @@
 
 #include "SedException.h"
 
+namespace MaBoSS {
+
 struct SedTargetNode {
     // std::vector<std::string> namespaces;
     std::string node;
@@ -106,3 +108,5 @@ inline Node* getTargetVariable(const std::string string_target, Network* network
         throw SedException("Unknown target node " + string_target);
     }
 }
+
+} // namespace MaBoSS
