@@ -28,6 +28,8 @@ Checks: >
   -bugprone-macro-parentheses,
   -bugprone-narrowing-conversions,
   -modernize-avoid-c-arrays,
+  -modernize-use-auto,
+  -modernize-use-nodiscard,
   -modernize-use-trailing-return-type,
   -performance-avoid-endl,
 
