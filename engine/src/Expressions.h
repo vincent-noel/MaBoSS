@@ -54,6 +54,7 @@
 #include <sstream>
 #include <vector>
 #include <algorithm>
+#include <atomic>
 
 #ifdef SBML_COMPAT
 #include <sbml/SBMLTypes.h>
@@ -769,30 +770,19 @@ class SymbolExpression : public Expression {
 
   SymbolTable* symbol_table;
   const Symbol* symbol;
-  mutable bool value_set;
-  mutable double value;
 
 public:
-  SymbolExpression(SymbolTable* symbol_table, const Symbol* symbol) : symbol_table(symbol_table), symbol(symbol), value_set(false) { 
-    symbol_table->addSymbolExpression(this);
-  }
+  SymbolExpression(SymbolTable* symbol_table, const Symbol* symbol) : symbol_table(symbol_table), symbol(symbol) { }
 
   Expression* clone() const override {return new SymbolExpression(symbol_table, symbol);}
 
+  // No lazy cache here: eval() runs concurrently from every simulation thread.
   double eval(const Node*, const NetworkState&) const override {
-    if (!value_set) {
-      value = symbol_table->getSymbolValue(symbol);
-      value_set = true;
-    }
-    return value;
+    return symbol_table->getSymbolValue(symbol);
   }
   
   double eval(const Node*, const NetworkState&, const PopNetworkState&) const override {
-    if (!value_set) {
-      value = symbol_table->getSymbolValue(symbol);
-      value_set = true;
-    }
-    return value;
+    return symbol_table->getSymbolValue(symbol);
   }
 
   bool hasCycle(Node*) const override {
@@ -810,8 +800,6 @@ public:
   }
 
   void generateLogicalExpression(LogicalExprGenContext& genctx) const override;
-
-  void unset() { value_set = false; }
 };
 
 class AliasExpression : public Expression {
@@ -824,7 +812,8 @@ class AliasExpression : public Expression {
     return nullptr;
   }
 
-  mutable const Expression* alias_expr;
+  // Lazily resolved, and eval() runs concurrently from every simulation thread.
+  mutable std::atomic<const Expression*> alias_expr;
 
 public:
   AliasExpression(const std::string& identifier) : identifier(identifier), alias_expr(nullptr) { }
@@ -832,11 +821,13 @@ public:
   Expression* clone() const override {return new AliasExpression(identifier);}
 
   double eval(const Node* this_node, const NetworkState& network_state) const override {
-    if (nullptr == alias_expr) {
-      alias_expr = getAliasExpression(this_node);
+    const Expression* expr = alias_expr.load();
+    if (nullptr == expr) {
+      expr = getAliasExpression(this_node);
+      alias_expr.store(expr);
     }
-    if (nullptr != alias_expr) {
-      return alias_expr->eval(this_node, network_state);
+    if (nullptr != expr) {
+      return expr->eval(this_node, network_state);
     }
     if (nullptr != this_node) {
       throw BNException("invalid use of alias attribute @" + identifier + " in node " + this_node->getLabel());
@@ -845,11 +836,13 @@ public:
   }
   
   double eval(const Node* this_node, const NetworkState& network_state, const PopNetworkState& pop) const override {
-    if (nullptr == alias_expr) {
-      alias_expr = getAliasExpression(this_node);
+    const Expression* expr = alias_expr.load();
+    if (nullptr == expr) {
+      expr = getAliasExpression(this_node);
+      alias_expr.store(expr);
     }
-    if (nullptr != alias_expr) {
-      return alias_expr->eval(this_node, network_state, pop);
+    if (nullptr != expr) {
+      return expr->eval(this_node, network_state, pop);
     }
     
     if (nullptr != this_node) {
@@ -875,9 +868,10 @@ public:
   }
 #ifdef SBML_COMPAT
   ASTNode* writeSBML(LogicalExprGenContext& genctx) const override {
-    alias_expr = getAliasExpression(genctx.getNode());
-    if (nullptr != alias_expr) {
-      return alias_expr->writeSBML(genctx);
+    const Expression* expr = getAliasExpression(genctx.getNode());
+    alias_expr.store(expr);
+    if (nullptr != expr) {
+      return expr->writeSBML(genctx);
     }
     else return new ASTNode(AST_CONSTANT_FALSE);
   }

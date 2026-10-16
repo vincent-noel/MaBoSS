@@ -56,8 +56,6 @@
 
 #include "BNException.h"
 
-class SymbolExpression;
-
 using SymbolIndex = unsigned int;
 
 // symbol entry (i.e. variables)
@@ -78,8 +76,6 @@ class SymbolTable {
   std::vector<double> symb_value;
   std::vector<bool> symb_def;
   std::map<SymbolIndex, bool> symb_dont_set;
-  
-  std::vector<SymbolExpression *> symbolExpressions;
 
 public:
   SymbolTable() : last_symb_idx(0) { }
@@ -149,12 +145,6 @@ public:
     return result;
   }
   void reset();
-
-  void addSymbolExpression(SymbolExpression * exp) {
-    symbolExpressions.push_back(exp);
-  }
-
-  void unsetSymbolExpressions();
 
   ~SymbolTable() {
     for (auto& symbol : symb_map) {

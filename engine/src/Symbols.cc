@@ -84,8 +84,3 @@ void SymbolTable::reset()
   last_symb_idx = 0;
 }
 
-void SymbolTable::unsetSymbolExpressions() {
-  for (auto * exp : symbolExpressions) {
-    exp->unset();
-  }
-}

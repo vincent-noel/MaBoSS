@@ -230,7 +230,6 @@ PyObject* cMaBoSSParam_update_parameters(cMaBoSSParamObject* self, PyObject *arg
         try {
           SymbolTable* st = self->network->getSymbolTable();
           st->setSymbolValue(st->getOrMakeSymbol(key_str), PyFloat_AsDouble(value));
-          st->unsetSymbolExpressions();
         } catch (BNException& e) {
           PyErr_SetString(PyBNException, e.getMessage().c_str());
           return NULL;
