@@ -62,7 +62,6 @@ static const char* MABOSS_USER_FUNC_INIT = "maboss_user_func_init";
 
 void MetaEngine::init()
 {
-  extern void builtin_functions_init();
   builtin_functions_init();
 }
 
