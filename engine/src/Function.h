@@ -123,6 +123,9 @@ public:
     virtual ~Function() = default;
 };
 
+// Registers the built-in functions (log, exp, ...); defined in BuiltinFunctions.cc.
+void builtin_functions_init();
+
 // Entry point of a user function module, loaded by MetaEngine::loadUserFuncs()
 // (see user_func.cc). The module defines it at global scope; declaring it here
 // makes the compiler check the module's definition against this signature.
