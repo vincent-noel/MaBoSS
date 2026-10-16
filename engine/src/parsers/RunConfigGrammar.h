@@ -63,13 +63,13 @@ class RunConfig;
 struct RCParseContext {
   Network* network;
   RunConfig* config;
-  // What is being parsed, for error messages: a file name, or else an
-  // expression given as a string.
-  const char* file;
+  // What is being parsed, for error messages: a file name, or else (file
+  // empty) an expression given as a string.
+  std::string file;
   const char* expr;
   unsigned int lineno = 1;
 
-  RCParseContext(Network* network, RunConfig* config, const char* file, const char* expr) : network(network), config(config), file(file), expr(expr) { }
+  RCParseContext(Network* network, RunConfig* config, const std::string& file, const char* expr) : network(network), config(config), file(file), expr(expr) { }
 
   std::string errorHead() const {
     return "configuration parsing at line #" + std::to_string(lineno) + ": ";

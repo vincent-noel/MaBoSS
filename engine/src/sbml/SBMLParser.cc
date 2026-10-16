@@ -57,13 +57,13 @@ LIBSBML_CPP_NAMESPACE_USE
 
 namespace MaBoSS {
 
-SBMLParser::SBMLParser(Network* network, const char* file, bool useSBMLNames) : network(network), useSBMLNames(useSBMLNames) 
+SBMLParser::SBMLParser(Network* network, const std::filesystem::path& file, bool useSBMLNames) : network(network), useSBMLNames(useSBMLNames) 
 {
 
     SBMLDocument* document;
     SBMLReader reader;
 
-    document = reader.readSBML(file);
+    document = reader.readSBML(file.string());
     parseDocument(document);
 }
 

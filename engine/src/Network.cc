@@ -86,7 +86,7 @@ Expression* Network::parseSingleExpression(const char* content, std::map<std::st
   return expression;
 }
 
-int Network::parse(const char* file, std::map<std::string, NodeIndex>* nodes_indexes, bool is_temp_file, bool useSBMLNames)
+int Network::parse(const std::filesystem::path& file, std::map<std::string, NodeIndex>* nodes_indexes, bool is_temp_file, bool useSBMLNames)
 {
   return parseFile(file, nodes_indexes, is_temp_file, useSBMLNames, nullptr);
 }
@@ -105,26 +105,23 @@ int Network::parseString(const char* content, std::map<std::string, NodeIndex>* 
   return 0;
 }
 
-// file == nullptr reads the network from the standard input.
-int Network::parseFile(const char* file, std::map<std::string, NodeIndex>* nodes_indexes, bool is_temp_file, bool useSBMLNames, PopNetwork* pop_network)
+int Network::parseFile(const std::filesystem::path& file, std::map<std::string, NodeIndex>* nodes_indexes, bool is_temp_file, bool useSBMLNames, PopNetwork* pop_network)
 {
 #ifdef SBML_COMPAT
-  if (nullptr != file && (hasEnding(std::string(file), ".xml") || hasEnding(std::string(file), ".sbml"))) {
+  if (file.extension() == ".xml" || file.extension() == ".sbml") {
     return this->parseSBML(file, nodes_indexes, useSBMLNames);
   }
 #else
   (void)useSBMLNames;
 #endif
 
-  FILE* in = stdin;
-  if (nullptr != file) {
-    in = fopen(file, "r");
-    if (in == nullptr) {
-      throw BNException("network parsing: cannot open file:" + std::string(file) + " for reading");
-    }
-    if (is_temp_file) {
-      unlink(file);
-    }
+  FILE* in = openFile(file, "r");
+  if (in == nullptr) {
+    throw BNException("network parsing: cannot open file:" + file.string() + " for reading");
+  }
+  if (is_temp_file) {
+    std::error_code ignored;
+    std::filesystem::remove(file, ignored);
   }
 
   BNDParseContext ctx(this, pop_network);
@@ -133,14 +130,10 @@ int Network::parseFile(const char* file, std::map<std::string, NodeIndex>* nodes
     r = ctbndl_parse_file(in, ctx);
   }
   catch (...) {
-    if (in != stdin) {
-      fclose(in);
-    }
+    fclose(in);
     throw;
   }
-  if (in != stdin) {
-    fclose(in);
-  }
+  fclose(in);
 
   if (r) {
     return 1;
@@ -151,7 +144,7 @@ int Network::parseFile(const char* file, std::map<std::string, NodeIndex>* nodes
 
 #ifdef SBML_COMPAT
 
-int Network::parseSBML(const char* file, std::map<std::string, NodeIndex>* nodes_indexes, bool useSBMLNames) 
+int Network::parseSBML(const std::filesystem::path& file, std::map<std::string, NodeIndex>* nodes_indexes, bool useSBMLNames) 
 {  
   SBMLParser* parser = new SBMLParser(this, file, useSBMLNames);
     

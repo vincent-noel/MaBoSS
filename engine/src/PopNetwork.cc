@@ -66,7 +66,7 @@ PopNetwork::PopNetwork()
   pop_istate_group_list = new std::vector<PopIStateGroup*>();
 }
 
-int PopNetwork::parse(const char* file, std::map<std::string, NodeIndex>* nodes_indexes, bool is_temp_file)
+int PopNetwork::parse(const std::filesystem::path& file, std::map<std::string, NodeIndex>* nodes_indexes, bool is_temp_file)
 {
   return parseFile(file, nodes_indexes, is_temp_file, false, this);
 }

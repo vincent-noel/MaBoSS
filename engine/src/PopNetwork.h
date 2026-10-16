@@ -138,7 +138,7 @@ class PopNetwork : public Network {
   PopNetwork(const PopNetwork& network) = delete;
   PopNetwork& operator=(const PopNetwork& network) = delete;
 
-  int parse(const char* file = nullptr, std::map<std::string, NodeIndex>* nodes_indexes = nullptr, bool is_temp_file = false);
+  int parse(const std::filesystem::path& file, std::map<std::string, NodeIndex>* nodes_indexes = nullptr, bool is_temp_file = false);
   int parseExpression(const char* content, std::map<std::string, NodeIndex>* nodes_indexes = nullptr);
   Expression* parseSingleExpression(const char* content, std::map<std::string, NodeIndex>* nodes_indexes = nullptr);
   void initPopStates(PopNetworkState& initial_pop_state, RandomGenerator* randgen, unsigned int pop);

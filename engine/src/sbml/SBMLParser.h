@@ -76,7 +76,7 @@ class SBMLParser
   public:
   
     
-    SBMLParser(Network* network, const char* file, bool useSBMLNames);
+    SBMLParser(Network* network, const std::filesystem::path& file, bool useSBMLNames);
     SBMLParser(Network* network, SBMLDocument* document, bool useSBMLNames);
     
     void build();

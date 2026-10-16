@@ -16,13 +16,13 @@
 
 namespace MaBoSS {
 
-XMLPatcher::XMLPatcher(std::filesystem::path _xml_file): xml_file(_xml_file)
+XMLPatcher::XMLPatcher(const std::filesystem::path& _xml_file): xml_file(_xml_file)
 {
     /* Init libxml */     
     xmlInitParser();
     
     /* Load XML document */
-    doc = xmlParseFile(xml_file.c_str());
+    doc = xmlParseFile(xml_file.string().c_str());
     /* Create xpath evaluation context */
     xpathCtx = xmlXPathNewContext(doc);
     

@@ -405,7 +405,7 @@ int cPopMaBoSSNetwork_init(PyObject* self, PyObject *args, PyObject* kwargs)
   {
     if (network_file != Py_None) 
     {
-      py_network->network->parse(PyUnicode_AsUTF8(network_file));  
+      py_network->network->parse(std::filesystem::u8path(PyUnicode_AsUTF8(network_file)));  
       
     } else if (network_str != Py_None)
     {

@@ -49,6 +49,7 @@
 
 #pragma once
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -92,7 +93,7 @@ protected:
   // What parse(), parseExpression() and parseSingleExpression() do. A
   // PopNetwork passes itself as pop_network, which enables its syntax
   // (division and death rules).
-  int parseFile(const char* file, std::map<std::string, NodeIndex>* nodes_indexes, bool is_temp_file, bool useSBMLNames, PopNetwork* pop_network);
+  int parseFile(const std::filesystem::path& file, std::map<std::string, NodeIndex>* nodes_indexes, bool is_temp_file, bool useSBMLNames, PopNetwork* pop_network);
   int parseString(const char* content, std::map<std::string, NodeIndex>* nodes_indexes, PopNetwork* pop_network, Expression** single_expression = nullptr);
 
 public:
@@ -109,12 +110,12 @@ public:
   Network(const Network& network) = delete;
   Network& operator=(const Network& network) = delete;
 
-  int parse(const char* file = nullptr, std::map<std::string, NodeIndex>* nodes_indexes = nullptr, bool is_temp_file = false, bool useSBMLNames = false);
+  int parse(const std::filesystem::path& file, std::map<std::string, NodeIndex>* nodes_indexes = nullptr, bool is_temp_file = false, bool useSBMLNames = false);
   int parseExpression(const char* content = nullptr, std::map<std::string, NodeIndex>* nodes_indexes = nullptr);
   Expression* parseSingleExpression(const char* content, std::map<std::string, NodeIndex>* nodes_indexes = nullptr);
   
   #ifdef SBML_COMPAT
-  int parseSBML(const char* file, std::map<std::string, NodeIndex>* nodes_indexes = nullptr, bool useSBMLNames = false);
+  int parseSBML(const std::filesystem::path& file, std::map<std::string, NodeIndex>* nodes_indexes = nullptr, bool useSBMLNames = false);
   #endif
   
   std::vector<IStateGroup*>* getIStateGroup() {

@@ -170,7 +170,7 @@ public:
     }
   ~MetaEngine() = default;
   static void init();
-  static void loadUserFuncs(const char* module);
+  static void loadUserFuncs(const std::filesystem::path& module);
 
   NodeIndex getTargetNode(Network* _network, RandomGenerator* random_generator, const std::vector<double>& nodeTransitionRates, double total_rate) const;
   double computeTH(Network* _network, const std::vector<double>& nodeTransitionRates, double total_rate) const;

@@ -309,7 +309,7 @@ int run_ensemble_istates(std::vector<char *> ctbndl_files, std::vector<ConfigOpt
 	if (cfg.isExpr()) {
 	  runconfig->parseExpression(networks[0], (cfg.getExpr() + ";").c_str());
 	} else {
-	  runconfig->parse(networks[0], cfg.getFile().c_str());
+	  runconfig->parse(networks[0], cfg.getFile());
 	}
   
   IStateGroup::checkAndComplete(networks[0]);
@@ -330,7 +330,7 @@ int run_ensemble_istates(std::vector<char *> ctbndl_files, std::vector<ConfigOpt
     if (cfg.isExpr()) {
       runconfig->parseExpression(networks[i], (cfg.getExpr() + ";").c_str());
     } else {
-      runconfig->parse(networks[i], cfg.getFile().c_str());
+      runconfig->parse(networks[i], cfg.getFile());
     }
 
 
@@ -414,7 +414,7 @@ int run_ensemble(std::vector<char *> ctbndl_files, std::vector<ConfigOpt> runcon
     if (cfg.isExpr()) {
       runconfig->parseExpression(networks[0], (cfg.getExpr() + ";").c_str());
     } else {
-      runconfig->parse(networks[0], cfg.getFile().c_str());
+      runconfig->parse(networks[0], cfg.getFile());
     }
   }
 
@@ -524,7 +524,7 @@ int run_single(const char* ctbndl_file, std::vector<std::string> runconfig_var_v
     if (cfg.isExpr()) {
       runconfig->parseExpression(network, (cfg.getExpr() + ";").c_str());
     } else {
-      runconfig->parse(network, cfg.getFile().c_str());
+      runconfig->parse(network, cfg.getFile());
     }
   }
 
@@ -855,7 +855,7 @@ int main(int argc, char* argv[])
         if (cfg.isExpr()) {
 	  runconfig->parseExpression(network, (cfg.getExpr() + ";").c_str());
         } else {
-	  runconfig->parse(network, cfg.getFile().c_str());
+	  runconfig->parse(network, cfg.getFile());
         }
       }
 

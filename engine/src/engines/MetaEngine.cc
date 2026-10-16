@@ -66,14 +66,14 @@ void MetaEngine::init()
   builtin_functions_init();
 }
 
-void MetaEngine::loadUserFuncs(const char* module)
+void MetaEngine::loadUserFuncs(const std::filesystem::path& module)
 {
   init();
 
 #if !defined (WINDOWS) && !defined(_MSC_VER)
-  void* dl = dlopen(module, RTLD_LAZY);
+  void* dl = dlopen(module.c_str(), RTLD_LAZY);
 #else
-  void* dl = LoadLibrary(module);
+  void* dl = LoadLibraryW(module.c_str());
 #endif
 
   if (nullptr == dl) {
@@ -93,7 +93,7 @@ void MetaEngine::loadUserFuncs(const char* module)
 #endif
 
   if (init_fun == nullptr) {
-    std::cerr << "symbol " << MABOSS_USER_FUNC_INIT << "() not found in user func module: " << module << "\n";
+    std::cerr << "symbol " << MABOSS_USER_FUNC_INIT << "() not found in user func module: " << module.string() << "\n";
     exit(1);
   }
   init_fun(Function::getFuncMap());
