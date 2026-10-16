@@ -151,7 +151,7 @@ inline ASTNode* find_states(ASTNode* math, SedListOfVariables* variables, std::m
 
 
 
-inline SBMLDocument* patchXMLModel(const char* path_model, SedListOfChanges* listOfChanges)
+inline SBMLDocument* patchXMLModel(const std::filesystem::path& path_model, SedListOfChanges* listOfChanges)
 {
     XMLPatcher patcher(path_model);
 
@@ -214,12 +214,12 @@ inline void patchModel(QualModelPlugin* model, SedChange* change)
     }
 }
 
-inline SBMLDocument* getDocument(std::filesystem::path path_model, SedListOfChanges* listOfChanges)
+inline SBMLDocument* getDocument(const std::filesystem::path& path_model, SedListOfChanges* listOfChanges)
 {
     SBMLDocument* document;
     SBMLReader reader;
     
-    document = patchXMLModel(path_model.c_str(), listOfChanges);
+    document = patchXMLModel(path_model, listOfChanges);
     
     
     // document = reader.readSBML(path_model.c_str());
@@ -263,7 +263,7 @@ class SedEngine
   
   
   
-  void parse(std::string sedml_file) {
+  void parse(const std::filesystem::path& sedml_file) {
     
     std::map<std::string, Network*> networks;
     std::map<std::string, RunConfig*> configs;
@@ -272,9 +272,9 @@ class SedEngine
     // std::map<std::string, std::map<std::string, std::string> > variables_by_data_generator;
     std::map<std::string, std::map<std::string, std::vector<double> > > reports;
     
-    doc = readSedMLFromFile(sedml_file.c_str());
+    doc = readSedMLFromFile(sedml_file.string().c_str());
     
-    doc_path = std::filesystem::path(sedml_file);
+    doc_path = sedml_file;
     
     for (unsigned int i=0; i < doc->getListOfModels()->getNumModels(); i++)
     {

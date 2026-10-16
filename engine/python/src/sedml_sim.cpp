@@ -127,7 +127,7 @@ int sedmlSim_init(PyObject* self, PyObject *args, PyObject* kwargs)
   try {
     SedEngine* engine = new SedEngine();
     py_simulation->engine = engine;  
-    engine->parse(PyUnicode_AsUTF8(sedml_file));
+    engine->parse(std::filesystem::u8path(PyUnicode_AsUTF8(sedml_file)));
     engine->run();
   }
   catch (BNException& e) {

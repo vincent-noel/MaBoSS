@@ -49,6 +49,8 @@
 
 #pragma once
 
+#include <filesystem>
+
 #include "RandomGenerator.h"
 #include "Network.h"
 #include "PopNetwork.h"
@@ -88,7 +90,7 @@ class RunConfig {
   RunConfig();
   ~RunConfig();
   RunConfig(const RunConfig& other);
-  int parse(Network* network, const char* file = nullptr);
+  int parse(Network* network, const std::filesystem::path& file);
   int parseExpression(Network* network, const char* expr);
   void setParameter(const std::string& param, double value);
   void setCustomPopOutputExpression(Expression* expr) { custom_pop_output_expression = expr; }

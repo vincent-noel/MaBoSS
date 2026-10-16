@@ -53,6 +53,7 @@
 #include "RunConfig.h"
 #include "compatibility_header.h"
 #include "parsers/RunConfigGrammar.h"
+#include "Utils.h"
 
 namespace MaBoSS {
 
@@ -224,36 +225,29 @@ void RunConfig::display(Network* network, time_t start_time, time_t end_time, st
 }
 
 // file == nullptr reads the configuration from the standard input.
-int RunConfig::parse(Network* network, const char* file)
+int RunConfig::parse(Network* network, const std::filesystem::path& file)
 {
-  FILE* in = stdin;
-  if (nullptr != file) {
-    in = fopen(file, "r");
-    if (in == nullptr) {
-      throw BNException("variable parsing: cannot open file:" + std::string(file) + " for reading");
-    }
+  FILE* in = openFile(file, "r");
+  if (in == nullptr) {
+    throw BNException("variable parsing: cannot open file:" + file.string() + " for reading");
   }
 
-  RCParseContext ctx(network, this, file, nullptr);
+  RCParseContext ctx(network, this, file.string(), nullptr);
   int res;
   try {
     res = rc_parse_file(in, ctx);
   }
   catch (...) {
-    if (in != stdin) {
-      fclose(in);
-    }
+    fclose(in);
     throw;
   }
-  if (in != stdin) {
-    fclose(in);
-  }
+  fclose(in);
   return res;
 }
 
 int RunConfig::parseExpression(Network* network, const char* expr)
 {
-  RCParseContext ctx(network, this, nullptr, expr);
+  RCParseContext ctx(network, this, "", expr);
   return rc_parse_string(expr, ctx);
 }
 

@@ -149,14 +149,14 @@ int cMaBoSSConfig_init(PyObject* self, PyObject *args, PyObject* kwargs)
     if (config_file != Py_None) 
     {
        IStateGroup::reset(network);
-       py_config->config->parse(network, PyUnicode_AsUTF8(config_file));
+       py_config->config->parse(network, std::filesystem::u8path(PyUnicode_AsUTF8(config_file)));
       
     } else if (config_files != Py_None)
     {
       IStateGroup::reset(network);
       for (int i = 0; i < PyList_Size(config_files); i++) {
         PyObject* item = PyList_GetItem(config_files, i);
-        py_config->config->parse(network, PyUnicode_AsUTF8(item));
+        py_config->config->parse(network, std::filesystem::u8path(PyUnicode_AsUTF8(item)));
       }
       
     } else if (config_str != Py_None)

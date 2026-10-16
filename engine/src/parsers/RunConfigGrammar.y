@@ -533,7 +533,7 @@ expression: conditional_expression
 
 void rc::parser::error(const std::string&)
 {
-  if (ctx.file) {
+  if (!ctx.file.empty()) {
     throw BNException("configuration syntax error at line #" + std::to_string(ctx.lineno) + " in file \"" + ctx.file + "\"");
   } else if (ctx.expr) {
     throw BNException("configuration syntax error in expression '" + std::string(ctx.expr) + "'");

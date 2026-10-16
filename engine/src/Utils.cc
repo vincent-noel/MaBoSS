@@ -50,6 +50,7 @@
 #include "Network.h"
 #include "Symbols.h"
 #include "compatibility_header.h"
+#include <cstring>
 #ifndef _MSC_VER
 #include <sys/stat.h>
 #endif
@@ -72,16 +73,16 @@ int checkArgMissing(const char* prog, const char* opt, int nn, int argc)
   return 0;
 }
 
-int fileGetContents(const std::string& file, std::string& contents)
+int fileGetContents(const std::filesystem::path& file, std::string& contents)
 {
-  int fd = open(file.c_str(), O_RDONLY);
+  int fd = open(file.string().c_str(), O_RDONLY);
   if (fd < 0) {
-    std::cerr << "cannot open file " + file + " for reading" << std::endl;
+    std::cerr << "cannot open file " + file.string() + " for reading" << std::endl;
     return 1;
   }
   struct stat st;
   if (fstat(fd, &st) < 0) {
-    std::cerr << "cannot stat file " + file + "" << std::endl;
+    std::cerr << "cannot stat file " + file.string() + "" << std::endl;
     return 1;
   }
 
@@ -112,11 +113,11 @@ int fileGetContents(const std::string& file, std::string& contents)
   return 0;
 }
 
-int filePutContents(const std::string& file, const std::string& data)
+int filePutContents(const std::filesystem::path& file, const std::string& data)
 {
-  FILE* fd = fopen(file.c_str(), "w");
+  FILE* fd = openFile(file, "w");
   if (fd == nullptr) {
-    std::cerr << "cannot open file " + file + " for writing" << std::endl;
+    std::cerr << "cannot open file " + file.string() + " for writing" << std::endl;
     return 1;
   }
   fputs(data.c_str(), fd);
@@ -162,12 +163,14 @@ const char* fmthexdouble(double d, bool add_quotes)
   return buf[buf_ind++];
 }
 
-bool hasEnding (std::string const &fullString, std::string const &ending) {
-    if (fullString.length() >= ending.length()) {
-        return (0 == fullString.compare (fullString.length() - ending.length(), ending.length(), ending));
-    } else {
-        return false;
-    }
+FILE* openFile(const std::filesystem::path& file, const char* mode)
+{
+#ifdef _WIN32
+  std::wstring wmode(mode, mode + strlen(mode));
+  return _wfopen(file.c_str(), wmode.c_str());
+#else
+  return fopen(file.c_str(), mode);
+#endif
 }
 
 

@@ -369,7 +369,7 @@ int main(int argc, char* argv[])
       if (cfg.isExpr()) {
         runconfig->parseExpression(pop_network, (cfg.getExpr() + ";").c_str());
       } else {
-        runconfig->parse(pop_network, cfg.getFile().c_str());
+        runconfig->parse(pop_network, cfg.getFile());
       }
     }
 

@@ -65,7 +65,7 @@ class SBMLExporter
   Network* network;
   RunConfig* runconfig;
   
-  SBMLExporter(Network* network, RunConfig* runconfig, const char* file) : network(network), runconfig(runconfig) {
+  SBMLExporter(Network* network, RunConfig* runconfig, const std::filesystem::path& file) : network(network), runconfig(runconfig) {
     
     SBMLNamespaces sbmlns(3,1,"qual",1);
   
@@ -135,7 +135,7 @@ class SBMLExporter
     }
     
     SBMLWriter sbml_writer = SBMLWriter();
-    sbml_writer.writeSBMLToFile(document, file);
+    sbml_writer.writeSBMLToFile(document, file.string());
     
   }
 

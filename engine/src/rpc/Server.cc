@@ -155,7 +155,7 @@ void Server::run(const ClientData& client_data, ServerData& server_data)
     std::string network_file = tmp_output + "_network.bnd";
     filePutContents(network_file, client_data.getNetwork());
 
-    network->parse(network_file.c_str(), nullptr, true);
+    network->parse(network_file, nullptr, true);
 
     RunConfig* runconfig = new RunConfig();
     const std::string& config_vars = client_data.getConfigVars();

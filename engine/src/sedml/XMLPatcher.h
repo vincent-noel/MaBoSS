@@ -15,7 +15,7 @@ class XMLPatcher
     xmlXPathContextPtr xpathCtx;
     
   public: 
-    XMLPatcher(std::filesystem::path _xml_file);
+    XMLPatcher(const std::filesystem::path& _xml_file);
     ~XMLPatcher();
     void changeXML(std::string xpath, std::string new_xml);
     void removeXML(std::string xpath);

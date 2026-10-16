@@ -419,12 +419,13 @@ int cMaBoSSNetwork_init(PyObject* self, PyObject *args, PyObject* kwargs)
     if (network_file != Py_None) 
     {
       std::string network_file_str = std::string(PyUnicode_AsUTF8(network_file));
+      std::filesystem::path network_file_path = std::filesystem::u8path(network_file_str);
 #ifdef SBML_COMPAT
       if (network_file_str.substr(network_file_str.find_last_of(".") + 1) == "sbml" || network_file_str.substr(network_file_str.find_last_of(".") + 1) == "xml" ) {
-        py_network->network->parseSBML(network_file_str.c_str(), NULL, (use_sbml_names == Py_True)); 
+        py_network->network->parseSBML(network_file_path, NULL, (use_sbml_names == Py_True)); 
       } else {
 #endif
-        py_network->network->parse(network_file_str.c_str());
+        py_network->network->parse(network_file_path);
 #ifdef SBML_COMPAT
       }
 #endif

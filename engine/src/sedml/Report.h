@@ -76,10 +76,10 @@ PyObject* getReportData() const
 }
 
 #endif
-    void writeReport(std::filesystem::path filename)
+    void writeReport(const std::filesystem::path& filename)
     {
         std::ofstream report_file;
-        report_file.open(filename.c_str());
+        report_file.open(filename);
 
         size_t i=0;
         for (const auto& label: labels)

@@ -48,6 +48,8 @@
 
 #pragma once
 
+#include <cstdio>
+#include <filesystem>
 #include <string>
 #include <vector>
 #include <cassert>
@@ -74,14 +76,16 @@ public:
 };
 #ifndef _MSC_VER
 extern int checkArgMissing(const char* prog, const char* opt, int nn, int argc);
-extern int fileGetContents(const std::string& file, std::string& contents);
-extern int filePutContents(const std::string& file, const std::string& data);
+extern int fileGetContents(const std::filesystem::path& file, std::string& contents);
+extern int filePutContents(const std::filesystem::path& file, const std::string& data);
 extern std::string stringReplaceAll(const std::string& subject, const std::string& from, const std::string& to);
 #endif
 extern const std::string NL_PATTERN;
 extern const char* fmthexdouble(double d, bool add_quotes = false);
 
-bool hasEnding (std::string const &fullString, std::string const &ending);
+// fopen() for a path. On Windows the narrow fopen() only understands paths
+// representable in the ANSI code page, so this goes through _wfopen() there.
+FILE* openFile(const std::filesystem::path& file, const char* mode);
 
 
 int setConfigVariables(Network* network, const std::string& prog, std::vector<std::string>& runvar_v);
