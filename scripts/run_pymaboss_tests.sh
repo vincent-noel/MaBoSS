@@ -9,8 +9,8 @@
 # environment:
 #   PYTHON         interpreter to install into and test with (default: python3)
 #   PIP_FLAGS      extra flags for pip install (e.g. --break-system-packages)
-#   PYMABOSS_REPO  pyMaBoSS git repository (default: vincent-noel/pyMaBoSS)
-#   PYMABOSS_REF   branch or tag to test (default: develop)
+#   PYMABOSS_REPO  pyMaBoSS git repository (default: colomoto/pyMaBoSS)
+#   PYMABOSS_REF   branch or tag to test (default: master)
 #
 # This cMaBoSS is force-reinstalled first: pip otherwise keeps an installed
 # cMaBoSS of the same version (from PyPI, say). It is then named again next to
@@ -19,8 +19,8 @@
 # pulling one from PyPI.
 
 PYTHON=${PYTHON:-python3}
-PYMABOSS_REPO=${PYMABOSS_REPO:-https://github.com/vincent-noel/pyMaBoSS.git}
-PYMABOSS_REF=${PYMABOSS_REF:-develop}
+PYMABOSS_REPO=${PYMABOSS_REPO:-https://github.com/colomoto/pyMaBoSS.git}
+PYMABOSS_REF=${PYMABOSS_REF:-master}
 CMABOSS=$(realpath "${1:-engine/python}")
 
 return_code=0
