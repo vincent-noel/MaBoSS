@@ -47,12 +47,14 @@ jobs:
         
     - name: Build cMaBoSS
       run: |
-        cd engine/python
-        pip3 install . -v
-        cd ../..
-    
+        pip3 wheel --no-deps -w /tmp/cmaboss-wheel engine/python -v
+        pip3 install /tmp/cmaboss-wheel/cmaboss-*.whl
+
     - name: Test cMaBoSS
       run: bash scripts/run_cmaboss_tests.sh
+
+    - name: Test pyMaBoSS with this cMaBoSS
+      run: bash scripts/run_pymaboss_tests.sh /tmp/cmaboss-wheel/cmaboss-*.whl
   
   build_wheels_linux:
     name: Build linux wheels (scikit-build-core)
