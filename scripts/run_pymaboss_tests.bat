@@ -29,6 +29,7 @@ for /f %%h in ('git -C "%PYMABOSS_DIR%" rev-parse --short HEAD') do echo pyMaBoS
 
 %PYTHON% -m pip install %PIP_FLAGS% --force-reinstall --no-deps "%CMABOSS%" || (rmdir /s /q "%WORK_DIR%" & exit /b 1)
 %PYTHON% -m pip install %PIP_FLAGS% "%CMABOSS%" "%PYMABOSS_DIR%" || (rmdir /s /q "%WORK_DIR%" & exit /b 1)
+%PYTHON% -m maboss_setup_experimental || (rmdir /s /q "%WORK_DIR%" & exit /b 1)
 
 set return_code=0
 pushd "%PYMABOSS_DIR%"

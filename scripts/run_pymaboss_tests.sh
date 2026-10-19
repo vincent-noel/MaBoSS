@@ -50,6 +50,7 @@ echo "pyMaBoSS $PYMABOSS_REF at $(git -C "$PYMABOSS_DIR" rev-parse --short HEAD)
 
 $PYTHON -m pip install $PIP_FLAGS --force-reinstall --no-deps "$CMABOSS" || exit 1
 $PYTHON -m pip install $PIP_FLAGS "$CMABOSS" "$PYMABOSS_DIR" || exit 1
+$PYTHON -m maboss_setup_experimental || exit 1
 
 cd "$PYMABOSS_DIR"
 
