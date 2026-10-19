@@ -85,7 +85,37 @@ jobs:
           TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
         run: |
           python -m twine upload --skip-existing wheelhouse/cmaboss*
-        
+
+  test_wheel_windows:
+    name: Test cMaBoSS and pyMaBoSS
+    needs: build_wheels_windows
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels_win64
+          path: wheelhouse
+
+      - name: Install cMaBoSS
+        shell: pwsh
+        run: |
+          $wheel = (Get-ChildItem wheelhouse/cmaboss-*-cp312-*-win_amd64.whl).FullName
+          "CMABOSS_WHEEL=$wheel" >> $env:GITHUB_ENV
+          python -m pip install pandas $wheel
+
+      - name: Test cMaBoSS
+        shell: cmd
+        run: scripts\run_cmaboss_tests.bat
+
+      - name: Test pyMaBoSS with this cMaBoSS
+        shell: cmd
+        run: scripts\run_pymaboss_tests.bat "%CMABOSS_WHEEL%"
+
   cmaboss_conda:
     name: Build cMaBoSS conda package (${{matrix.repo.name}}, python ${{matrix.version.python}}, numpy ${{matrix.version.numpy}})
     runs-on: windows-2022

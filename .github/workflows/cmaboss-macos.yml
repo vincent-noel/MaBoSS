@@ -63,6 +63,12 @@ jobs:
         BISON_ROOT: /usr/local/opt/bison/bin
       run: |
         bash scripts/run_cmaboss_tests.sh
+
+    - name: Test pyMaBoSS with this cMaBoSS
+      env:
+        PIP_FLAGS: --break-system-packages --user
+      run: |
+        bash scripts/run_pymaboss_tests.sh `ls engine/python/fixed_wheels/cmaboss*.whl`
   
   build_wheels_macos:
     name: Build MacOS wheels
