@@ -98,6 +98,13 @@ class RandomGenerator {
   
   static void resetGeneratedNumberCount() {generated_number_count = 0;}
   static size_t getGeneratedNumberCount() {return generated_number_count;}
+
+  // Maps a draw of `bits` random bits to the middle of its 1/2^bits wide cell
+  // of the unit interval, so generate() never returns exactly 0 (-log(0) is an
+  // infinite waiting time) nor exactly 1 (a selection past the last choice).
+  static double toOpenUnitInterval(uint64_t value, int bits) {
+    return (static_cast<double>(value) + 0.5) / static_cast<double>(uint64_t(1) << bits);
+  }
 };
 
 class Rand48RandomGenerator final: public RandomGenerator
@@ -177,13 +184,13 @@ public:
     return 0.5;
 #endif
     
-    double two16m = 1.0 / (1L << N);
     next();
 
+    const double result = toOpenUnitInterval((uint64_t(x[2]) << (2 * N)) | (uint64_t(x[1]) << N) | x[0], 3 * N);
 #ifdef RANDOM_TRACE
-    std::cout << (two16m * (two16m * (two16m * x[0] + x[1]) + x[2])) << '\n';
+    std::cout << result << '\n';
 #endif
-    return (two16m * (two16m * (two16m * x[0] + x[1]) + x[2]));
+    return result;
   }
 
   void setSeed(int _seed) override {
@@ -278,7 +285,7 @@ class GLibCRandomGenerator final : public RandomGenerator
 #ifdef USE_DUMMY_RANDOM
     return 0.5;
 #endif
-    return double(glibc_rand()) / GLIBCRAND_MAX;
+    return toOpenUnitInterval(glibc_rand(), 31);
   }
 
   void setSeed(int _seed) override {
@@ -331,7 +338,13 @@ class MT19937RandomGenerator final : public RandomGenerator
 #ifdef USE_DUMMY_RANDOM
     return 0.5;
 #endif
-    return dis(generator);
+    // uniform_real_distribution may return 0, and some standard libraries
+    // round up to 1 (LWG 2524): draw again in both cases.
+    double result;
+    do {
+      result = dis(generator);
+    } while (result <= 0. || result >= 1.);
+    return result;
   }
 
   void setSeed(int _seed) override {
@@ -398,7 +411,7 @@ unsigned int result;
   }
 
   double generate() override {
-    double result = ((double)generateUInt32())/~0U; // fixed this 2014-10-17, but I think I added /2 because it did not work
+    double result = toOpenUnitInterval(generateUInt32(), 32);
 #ifdef RANDOM_TRACE
     std::cout << result << '\n';
 #endif

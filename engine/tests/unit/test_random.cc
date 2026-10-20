@@ -116,7 +116,9 @@ TEST_CASE("setSeed rewinds the stream") {
   CHECK(take(gen, 32) == first);
 }
 
-TEST_CASE("generate() stays within the unit interval") {
+// -log(generate()) is a waiting time and generate() * total picks a transition,
+// so neither 0 nor 1 may come out.
+TEST_CASE("generate() stays within the open unit interval") {
   Rand48RandomGenerator rand48(3);
   GLibCRandomGenerator glibc(3);
   MT19937RandomGenerator mt(3);
@@ -126,9 +128,21 @@ TEST_CASE("generate() stays within the unit interval") {
     CAPTURE(gen->getName());
     for (int i = 0; i < 4096; ++i) {
       const double value = gen->generate();
-      REQUIRE(value >= 0.);
+      REQUIRE(value > 0.);
       REQUIRE(value < 1.);
     }
+  }
+}
+
+TEST_CASE("the extreme raw draws map strictly inside the unit interval") {
+  // rand48 has 48 bits of state, glibc rand() 31 bits, /dev/urandom 32.
+  for (int bits : {31, 32, 48}) {
+    CAPTURE(bits);
+    const uint64_t max = (uint64_t(1) << bits) - 1;
+    CHECK(RandomGenerator::toOpenUnitInterval(0, bits) > 0.);
+    CHECK(RandomGenerator::toOpenUnitInterval(max, bits) < 1.);
+    CHECK(RandomGenerator::toOpenUnitInterval(0, bits) < RandomGenerator::toOpenUnitInterval(1, bits));
+    CHECK(RandomGenerator::toOpenUnitInterval(max - 1, bits) < RandomGenerator::toOpenUnitInterval(max, bits));
   }
 }
 
