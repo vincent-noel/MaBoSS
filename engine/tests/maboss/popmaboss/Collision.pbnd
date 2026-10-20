@@ -1,0 +1,24 @@
+// A cell with A = 0 either flips A (rate 1) or divides through one of two
+// identical division rules (rate 1 each) into two A cells; a cell with A = 1
+// does nothing. Both divisions lead to the same population, so their rates
+// must add up: the population ends as [{A:1}] with probability 1/3 (a flip
+// first) and as [{A:2}] with probability 2/3.
+Node A
+{
+  rate_up = 1.0;
+  rate_down = 0.0;
+}
+
+division
+{
+  rate = A ? 0.0 : 1.0;
+  A.daughter1 = 1;
+  A.daughter2 = 1;
+}
+
+division
+{
+  rate = A ? 0.0 : 1.0;
+  A.daughter1 = 1;
+  A.daughter2 = 1;
+}

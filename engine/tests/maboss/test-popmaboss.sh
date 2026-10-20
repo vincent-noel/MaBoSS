@@ -65,6 +65,16 @@ if [ $? != 0 ]; then exit 1; fi
 ${PYTHON:-python} compare_probtrajs.py popmaboss/refer/res_icd_custom_pop_probtraj.csv tmp/res_icd_custom_pop_probtraj.csv 5e-2 5e-2
 check_file "custom pop_projtraj"
 
+# Two division rules lead to the same population: their rates must add up
+# (P([{A:1}]) -> 1/3).
+$LAUNCHER $POPMABOSS -c popmaboss/Collision.cfg -o tmp/res_collision popmaboss/Collision.pbnd > /dev/null
+
+if [ $? != 0 ]; then exit 1; fi
+
+${PYTHON:-python} compare_probtrajs.py popmaboss/refer/res_collision_pop_probtraj.csv tmp/res_collision_pop_probtraj.csv --exact
+check_file "colliding transitions pop_projtraj"
+
+
 rm -rf tmp; 
 
 exit $return_code

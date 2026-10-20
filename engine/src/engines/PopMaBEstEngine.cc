@@ -336,7 +336,8 @@ void PopMaBEstEngine::runThread(Cumulator<PopNetworkState> *cumulator, Cumulator
 
               total_rate += nodeTransitionRate;
               // Put (ψ' , ρψ→ψ' ) in Ω
-              popNodeTransitionRates.insert(std::pair<PopNetworkState, double>(new_pop_network_state, nodeTransitionRate));
+              // Several transitions can lead to the same ψ': their rates add up.
+              popNodeTransitionRates[new_pop_network_state] += nodeTransitionRate;
             }
           }
           
@@ -370,7 +371,7 @@ void PopMaBEstEngine::runThread(Cumulator<PopNetworkState> *cumulator, Cumulator
               division_rate *= pop.second;
               
               // Put (ψ' , ρψ→ψ' ) in Ω
-              popNodeTransitionRates.insert(std::pair<PopNetworkState, double>(new_pop_network_state, division_rate));
+              popNodeTransitionRates[new_pop_network_state] += division_rate;
               total_rate += division_rate;
               
             }
@@ -385,7 +386,7 @@ void PopMaBEstEngine::runThread(Cumulator<PopNetworkState> *cumulator, Cumulator
             PopNetworkState new_pop_network_state = PopNetworkState(pop_network_state);
 #endif
             new_pop_network_state.decr(t_network_state);
-            popNodeTransitionRates.insert(std::pair<PopNetworkState, double>(new_pop_network_state, rate_death));
+            popNodeTransitionRates[new_pop_network_state] += rate_death;
           }
           
           if (total_pop_rate == 0)
