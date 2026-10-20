@@ -357,6 +357,22 @@ public:
     return ret;
   }
 
+  // Each word is xored into the running hash, which is then put through
+  // MurmurHash3's 64-bit finalizer: a bijection in which every input bit
+  // affects every output bit, so a word's position matters too.
+  size_t hash() const {
+    uint64_t h = 0;
+    for (size_t nn = 0; nn < num_64; nn++) {
+      h ^= data[nn];
+      h ^= h >> 33;
+      h *= 0xff51afd7ed558ccdULL;
+      h ^= h >> 33;
+      h *= 0xc4ceb9fe1a85ec53ULL;
+      h ^= h >> 33;
+    }
+    return static_cast<size_t>(h);
+  }
+
   ~MBDynBitset() {
     destroy(data, num_bytes);
   }
@@ -368,24 +384,10 @@ namespace std {
   template <> struct hash<MaBoSS::MBDynBitset>
   {
     size_t operator()(const MaBoSS::MBDynBitset& val) const {
-      return val.to_ulong();
+      return val.hash();
     }
   };
 
-  template <> struct equal_to<MaBoSS::MBDynBitset >
-  {
-    size_t operator()(const MaBoSS::MBDynBitset& val1, const MaBoSS::MBDynBitset& val2) const {
-      return val1 == val2;
-    }
-  };
-
-  template <> struct not_equal_to<MaBoSS::MBDynBitset >
-  {
-    size_t operator()(const MaBoSS::MBDynBitset& val1, const MaBoSS::MBDynBitset& val2) const {
-      return val1 != val2;
-    }
-  };
-  
   // Added less operator, necessary for maps, sets. Code from https://stackoverflow.com/a/21245301/11713763
   template <> struct less<MaBoSS::MBDynBitset>
   {

@@ -281,6 +281,66 @@ TEST_CASE("MBDynBitset operator< is a strict weak ordering across bit 63") {
   CHECK(states.count(c) == 1);
 }
 
+// std::hash used to return the first word only, so every state of a big model
+// that differed only beyond node 63 landed in the same unordered_map bucket.
+TEST_CASE("MBDynBitset hashes every word") {
+  std::hash<MBDynBitset> hasher;
+
+  MBDynBitset a(128);
+  a.reset();
+  a.set(100, true);
+  MBDynBitset b(128);
+  b.reset();
+  b.set(100, true);
+  CHECK(hasher(a) == hasher(b));
+
+  MBDynBitset empty(128);
+  empty.reset();
+  CHECK(hasher(a) != hasher(empty));
+
+  // One bit at a time above bit 63: 64 distinct hashes, none of them equal to
+  // the hash of the same bit in the first word.
+  std::set<size_t> hashes;
+  for (size_t bit = 64; bit < 128; bit++) {
+    MBDynBitset high(128);
+    high.reset();
+    high.set(bit, true);
+
+    MBDynBitset low(128);
+    low.reset();
+    low.set(bit - 64, true);
+
+    CAPTURE(bit);
+    CHECK(hasher(high) != hasher(low));
+    hashes.insert(hasher(high));
+  }
+  CHECK(hashes.size() == 64);
+
+  // Every state with one or two bits up gets its own hash.
+  std::set<size_t> sparse;
+  size_t count = 0;
+  for (size_t i = 0; i < 128; i++) {
+    for (size_t j = i; j < 128; j++) {
+      MBDynBitset bits(128);
+      bits.reset();
+      bits.set(i, true);
+      bits.set(j, true);
+      sparse.insert(hasher(bits));
+      count++;
+    }
+  }
+  CHECK(sparse.size() == count);
+
+  // Swapping two words changes the hash too.
+  MBDynBitset first(192);
+  first.reset();
+  first.set(64, true);
+  MBDynBitset second(192);
+  second.reset();
+  second.set(128, true);
+  CHECK(hasher(first) != hasher(second));
+}
+
 #endif // USE_DYNAMIC_BITSET
 
 } // TEST_SUITE
