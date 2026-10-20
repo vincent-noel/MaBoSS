@@ -106,7 +106,8 @@ void IStateGroup::initStates(Network* network, NetworkState& initial_state, Rand
       for (auto * proba_istate : *proba_istates) {
         proba_sum += proba_istate->getProbaValue();
         //std::cerr << "rand: " << rand << " " << proba_sum << '\n';
-        if (rand < proba_sum || jj == proba_istate_size - 1) {
+        // The last state also takes whatever rounding leaves above proba_sum.
+        if (rand < proba_sum || jj++ == proba_istate_size - 1) {
           std::vector<double>* state_value_list = proba_istate->getStateValueList();
           size_t nn = 0;
           //std::cerr << "state #" << jj << " choosen\n";
@@ -157,12 +158,14 @@ void PopIStateGroup::initPopStates(PopNetwork* network, PopNetworkState& initial
         NetworkState network_state;
         unsigned int pop_size = 0;
         double proba_sum = 0;
+        size_t jj = 0;
         
         // std::cout << "Creating a random initial state from " << proba_istates->size() << " possibilities " << std::endl;
         for (auto * proba_istate: *proba_istates) 
         {
           proba_sum += proba_istate->getProbaValue();
-          if (rand < proba_sum)
+          // The last state also takes whatever rounding leaves above proba_sum.
+          if (rand < proba_sum || jj++ == proba_istates->size() - 1)
           {
             for (auto * individual: *(proba_istate->getIndividualList())) 
             {
