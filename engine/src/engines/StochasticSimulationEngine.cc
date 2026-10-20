@@ -62,11 +62,20 @@ NodeIndex StochasticSimulationEngine::getTargetNode(RandomGenerator *_random_gen
   double U_rand2 = _random_generator->generate();
   double random_rate = U_rand2 * total_rate;
   NodeIndex node_idx = INVALID_NODE_INDEX;
-  
-  for (unsigned int i=0; i < nodeTransitionRates.size() && random_rate >= 0.; i++) {
-    node_idx = i;
+
+  // Only a node that can flip may be picked: if rounding leaves random_rate
+  // non-negative once every rate is subtracted, the last node with a non-zero
+  // rate is chosen, not whichever node comes last.
+  for (unsigned int i=0; i < nodeTransitionRates.size(); i++) {
     double rate = nodeTransitionRates[i];
+    if (rate == 0.) {
+      continue;
+    }
+    node_idx = i;
     random_rate -= rate;
+    if (random_rate < 0.) {
+      break;
+    }
   }
 
   assert(node_idx != INVALID_NODE_INDEX);

@@ -219,6 +219,10 @@ void MaBEstEngine::runThread(Cumulator<NetworkState>* cumulator, unsigned int st
       }
 
       double TH;
+      // No transition happens when the state is fixed, or when the next
+      // schedule time comes first: time just moves to it, and the next pass
+      // applies the schedule and draws a new waiting time (they are memoryless).
+      bool transition = false;
       if (total_rate == 0) {
 	tm = times.size() > 0 ? times[0] : max_time;
 	TH = 0.;
@@ -237,7 +241,12 @@ void MaBEstEngine::runThread(Cumulator<NetworkState>* cumulator, unsigned int st
 	  transition_time = -log(U_rand1) / total_rate;
 	}
 	
-	tm += times.size() > 0 ? std::min(transition_time, (times[0] - tm)) : transition_time;
+	if (times.size() > 0 && times[0] - tm < transition_time) {
+	  tm = times[0];
+	} else {
+	  tm += transition_time;
+	  transition = true;
+	}
 	TH = computeTH(network, nodeTransitionRates, total_rate);
       }
 
@@ -251,6 +260,10 @@ void MaBEstEngine::runThread(Cumulator<NetworkState>* cumulator, unsigned int st
 
       if (tm >= max_time) {
 	break;
+      }
+
+      if (!transition) {
+	continue;
       }
 
       NodeIndex node_idx = getTargetNode(network, random_generator, nodeTransitionRates, total_rate);

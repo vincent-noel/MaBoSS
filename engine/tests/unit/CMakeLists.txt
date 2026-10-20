@@ -21,6 +21,7 @@ set(MABOSS_UNIT_SOURCES
   test_runconfig.cc
   test_random.cc
   test_parser_threads.cc
+  test_simulation.cc
 )
 
 find_package(doctest QUIET)
@@ -90,6 +91,7 @@ set(MABOSS_UNIT_SUITES
   runconfig
   random
   parser
+  simulation
 )
 
 foreach(suite ${MABOSS_UNIT_SUITES})
