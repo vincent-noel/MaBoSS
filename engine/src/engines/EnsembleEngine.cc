@@ -126,6 +126,10 @@ EnsembleEngine::EnsembleEngine(std::vector<Network*> networks, RunConfig* runcon
         // so only needing network.size() random numbers. 
         // Should be generate()*2*(sample_count/networks.size()) (since expectancy of generate() is 0.5)
         network_index = (unsigned int) floor(random_generator->generate()*networks.size());
+        // generate() * size can round up to size when the draw is just below 1.
+        if (network_index >= networks.size()) {
+          network_index = networks.size() - 1;
+        }
         simulations_per_model[network_index] += 1;
       }
       
