@@ -106,6 +106,7 @@ public:
     
     std::vector<PopIStateGroupIndividual*>* getIndividualList() { return individual_list; }
     double getProbaValue() { return proba_value; }
+    void normalizeProbaValue(double proba_sum) { proba_value /= proba_sum; }
     ~PopProbaIState() {
       delete proba_expr;
       for (auto individual: *individual_list) {

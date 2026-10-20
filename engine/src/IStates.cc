@@ -55,6 +55,14 @@ namespace MaBoSS {
 
 void PopIStateGroup::epilogue(PopNetwork* network) 
 {
+  // Like IStateGroup: the weights need not sum to 1, the draw expects them to.
+  double proba_sum = 0;
+  for (auto * proba_istate : *proba_istates)
+    proba_sum += proba_istate->getProbaValue();
+
+  for (auto * proba_istate : *proba_istates)
+    proba_istate->normalizeProbaValue(proba_sum);
+
   network->getPopIStateGroup()->push_back(this);
 }
 

@@ -66,7 +66,7 @@ ${PYTHON:-python} compare_probtrajs.py popmaboss/refer/res_icd_custom_pop_probtr
 check_file "custom pop_projtraj"
 
 # Two division rules lead to the same population: their rates must add up
-# (P([{A:1}]) -> 1/3).
+# (P([{A:1}]) -> 1/3), and pop_istate weights 1 : 3 must be normalised (-> 5/6).
 $LAUNCHER $POPMABOSS -c popmaboss/Collision.cfg -o tmp/res_collision popmaboss/Collision.pbnd > /dev/null
 
 if [ $? != 0 ]; then exit 1; fi
@@ -74,6 +74,13 @@ if [ $? != 0 ]; then exit 1; fi
 ${PYTHON:-python} compare_probtrajs.py popmaboss/refer/res_collision_pop_probtraj.csv tmp/res_collision_pop_probtraj.csv --exact
 check_file "colliding transitions pop_projtraj"
 
+
+$LAUNCHER $POPMABOSS -c popmaboss/Collision_pop_istate.cfg -o tmp/res_collision_pop_istate popmaboss/Collision.pbnd > /dev/null
+
+if [ $? != 0 ]; then exit 1; fi
+
+${PYTHON:-python} compare_probtrajs.py popmaboss/refer/res_collision_pop_istate_pop_probtraj.csv tmp/res_collision_pop_istate_pop_probtraj.csv --exact
+check_file "normalised pop_istate pop_projtraj"
 
 rm -rf tmp; 
 
