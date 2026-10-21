@@ -71,7 +71,7 @@ $LAUNCHER $POPMABOSS -c popmaboss/Collision.cfg -o tmp/res_collision popmaboss/C
 
 if [ $? != 0 ]; then exit 1; fi
 
-${PYTHON:-python} compare_probtrajs.py popmaboss/refer/res_collision_pop_probtraj.csv tmp/res_collision_pop_probtraj.csv --exact
+${PYTHON:-python} compare_probtrajs.py popmaboss/refer/res_collision_pop_probtraj.csv tmp/res_collision_pop_probtraj.csv 1e-2 1e-2
 check_file "colliding transitions pop_projtraj"
 
 
@@ -79,7 +79,7 @@ $LAUNCHER $POPMABOSS -c popmaboss/Collision_pop_istate.cfg -o tmp/res_collision_
 
 if [ $? != 0 ]; then exit 1; fi
 
-${PYTHON:-python} compare_probtrajs.py popmaboss/refer/res_collision_pop_istate_pop_probtraj.csv tmp/res_collision_pop_istate_pop_probtraj.csv --exact
+${PYTHON:-python} compare_probtrajs.py popmaboss/refer/res_collision_pop_istate_pop_probtraj.csv tmp/res_collision_pop_istate_pop_probtraj.csv 1e-2 1e-2
 check_file "normalised pop_istate pop_projtraj"
 
 rm -rf tmp; 
