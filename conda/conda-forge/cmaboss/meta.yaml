@@ -24,6 +24,7 @@ requirements:
     - setuptools
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
+    - {{ stdlib('c') }}  # [osx]
     - flex  # [not win]
     - bison  # [not win]
     - winflexbison  # [win]

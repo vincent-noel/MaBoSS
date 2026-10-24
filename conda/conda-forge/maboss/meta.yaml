@@ -24,6 +24,7 @@ requirements:
   build:
     - {{ compiler('cxx') }}
     - {{ compiler('c') }}
+    - {{ stdlib('c') }}  # [osx]
     - flex  # [not win]
     - bison  # [not win]
     - winflexbison  # [win]
