@@ -49,7 +49,7 @@ jobs:
       LIBXML_LIBDIR: /usr/lib/x86_64-linux-gnu/libxml2.so
       LIBXML_INCLUDEDIR: /usr/include/libxml2/
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install dependencies
         run: |
@@ -66,7 +66,7 @@ jobs:
       - name: Cache compiled libSBML
         if: matrix.sbml
         id: cache-libsbml-gcc
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: /tmp/libsbml-5.21.1
           key: ${{ runner.os }}-libSBML-5.21.1-gcc-namespace
@@ -111,7 +111,7 @@ jobs:
       CXX: g++
       CPU_COUNT: 4
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install dependencies
         run: |
@@ -146,7 +146,7 @@ jobs:
       CXX: clang++
       CPU_COUNT: 4
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Install dependencies
         run: |

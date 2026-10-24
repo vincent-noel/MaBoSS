@@ -22,7 +22,7 @@ jobs:
       SBML_COMPAT: 1
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - name: Install dependencies
       run: |
@@ -33,7 +33,7 @@ jobs:
 
     - name: Cache compiled libSBML
       id: cache-libsbml-gcc
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: /tmp/libsbml-5.21.1
         key: ${{ runner.os }}-libSBML-5.21.1-gcc-namespace
@@ -65,8 +65,8 @@ jobs:
         build: ["cp*-manylinux_x86_64"]
     needs: cmaboss
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12' 
 
@@ -98,13 +98,13 @@ jobs:
         run: |
           python -m cibuildwheel --output-dir wheelhouse engine/python
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: matrix.build == 'cp*-manylinux_x86_64'
         with:
           name: wheels-cpython
           path: wheelhouse/*.whl
           
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: matrix.build == 'pp*-manylinux_x86_64'
         with:
           name: wheels-pypy
@@ -135,8 +135,8 @@ jobs:
         build: ["cp*-manylinux_aarch64"]
     needs: cmaboss
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: '3.12' 
 
@@ -171,13 +171,13 @@ jobs:
         run: |
           python -m cibuildwheel --output-dir wheelhouse engine/python
           
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: matrix.build == 'pp*-manylinux_aarch64'
         with:
           name: wheels-aarch64
           path: wheelhouse/*.whl
               
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: matrix.build == 'pp*-manylinux_x86_64'
         with:
           name: wheels-pypy
@@ -229,7 +229,7 @@ jobs:
         shell: bash -el {0}
                 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: conda-incubator/setup-miniconda@v4
       with:
         auto-update-conda: true

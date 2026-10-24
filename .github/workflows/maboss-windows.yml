@@ -25,7 +25,7 @@ jobs:
       CPU_COUNT: 4
       
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - uses: msys2/setup-msys2@v2
       with:
@@ -41,7 +41,7 @@ jobs:
      
     - name: Cache compiled libSBML
       id: cache-libsbml-gcc
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: D:/a/_temp/msys64/tmp/libsbml-5.21.1
         key: ${{ runner.os }}-libSBML-5.21.1-namespace-ucrt64
@@ -83,7 +83,7 @@ jobs:
         CPU_COUNT: 4
       
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: ilammy/msvc-dev-cmd@v1 
     
     - name: Install dependencies
@@ -93,7 +93,7 @@ jobs:
     
     - name: Cache compiled vcpkg packages
       id: cache-vcpkg
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: C:\vcpkg\
         key: ${{ runner.os }}-vcpkg-msvc
@@ -105,7 +105,7 @@ jobs:
     
     - name: Cache compiled libSBML
       id: cache-libsbml-msvc
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: D:\a\MaBoSS\MaBoSS\libsbml-5.21.1\
         key: ${{ runner.os }}-libSBML-5.21.1-msvc-namespace
@@ -177,7 +177,7 @@ jobs:
       CPU_COUNT: 4
           
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - uses: msys2/setup-msys2@v2
       with:
@@ -191,7 +191,7 @@ jobs:
         
     - name: Cache compiled libSBML
       id: cache-libsbml-gcc
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: D:/a/_temp/msys64/tmp/libsbml-5.21.1
         key: ${{ runner.os }}-libSBML-5.21.1-namespace-ucrt64
@@ -219,21 +219,18 @@ jobs:
         cd ../pub
         zip MaBoSS-win64.zip *
     
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: github.event_name != 'release'
       with:
         name: MaBoSS-win64
         path: D:\a\MaBoSS/MaBoSS/engine/pub/MaBoSS-win64.zip
       
-    - uses: actions/upload-release-asset@v1
+    - name: Upload MaBoSS-win64.zip to the release
       if: github.event_name == 'release'
+      shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_name: MaBoSS-win64.zip
-        asset_path: D:\a\MaBoSS/MaBoSS/engine/pub/MaBoSS-win64.zip
-        asset_content_type: application/zip
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release upload "${{ github.event.release.tag_name }}" 'D:\a\MaBoSS/MaBoSS/engine/pub/MaBoSS-win64.zip' --clobber --repo "${{ github.repository }}"
         
   maboss_library_windows:
     runs-on: windows-2022
@@ -248,7 +245,7 @@ jobs:
         shell: msys2 {0}
         
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - uses: msys2/setup-msys2@v2
       with:
@@ -281,22 +278,18 @@ jobs:
         tar -zcvf libMaBoSS-win64.tar.gz MaBoSS/README.md MaBoSS/LICENSE MaBoSS/engine/src MaBoSS/engine/include MaBoSS/engine/lib
         
       
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: github.event_name != 'release'
       with:
         name: libMaBoSS-win64
         path: D:\a\MaBoSS/libMaBoSS-win64.tar.gz
         
-    - uses: actions/upload-release-asset@v1
+    - name: Upload libMaBoSS-win64.tar.gz to the release
       if: github.event_name == 'release'
-
+      shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_name: libMaBoSS-win64.tar.gz
-        asset_path: D:\a\MaBoSS/libMaBoSS-win64.tar.gz
-        asset_content_type: application/gzip
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release upload "${{ github.event.release.tag_name }}" 'D:\a\MaBoSS/libMaBoSS-win64.tar.gz' --clobber --repo "${{ github.repository }}"
       
   maboss_sbml_library_windows:
     runs-on: windows-2022
@@ -317,7 +310,7 @@ jobs:
       CPU_COUNT: 4
           
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - uses: msys2/setup-msys2@v2
       with:
@@ -331,7 +324,7 @@ jobs:
         
     - name: Cache compiled libSBML
       id: cache-libsbml-gcc
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: D:/a/_temp/msys64/tmp/libsbml-5.21.1
         key: ${{ runner.os }}-libSBML-5.21.1-namespace-ucrt64
@@ -367,22 +360,18 @@ jobs:
         tar -zcvf libMaBoSS-sbml-win64.tar.gz MaBoSS/README.md MaBoSS/LICENSE MaBoSS/engine/src MaBoSS/engine/include MaBoSS/engine/lib
         
       
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: github.event_name != 'release'
       with:
         name: libMaBoSS-sbml-win64
         path: D:\a\MaBoSS/libMaBoSS-sbml-win64.tar.gz
         
-    - uses: actions/upload-release-asset@v1
+    - name: Upload libMaBoSS-sbml-win64.tar.gz to the release
       if: github.event_name == 'release'
-
+      shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_name: libMaBoSS-sbml-win64.tar.gz
-        asset_path: D:\a\MaBoSS/libMaBoSS-sbml-win64.tar.gz
-        asset_content_type: application/gzip
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release upload "${{ github.event.release.tag_name }}" 'D:\a\MaBoSS/libMaBoSS-sbml-win64.tar.gz' --clobber --repo "${{ github.repository }}"
         
   maboss_library_windows_msvc:
     runs-on: windows-2022
@@ -394,7 +383,7 @@ jobs:
         CPU_COUNT: 4
       
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: ilammy/msvc-dev-cmd@v1 
     
     - name: Install dependencies
@@ -460,22 +449,18 @@ jobs:
         cd ../
         tar -zcvf libMaBoSS-win64-msvc.tar.gz MaBoSS/README.md MaBoSS/LICENSE MaBoSS/engine/src MaBoSS/engine/include MaBoSS/engine/lib
         
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: github.event_name != 'release'
       with:
         name: libMaBoSS-win64-msvc
         path: D:\a\MaBoSS/libMaBoSS-win64-msvc.tar.gz
         
-    - uses: actions/upload-release-asset@v1
+    - name: Upload libMaBoSS-win64-msvc.tar.gz to the release
       if: github.event_name == 'release'
-
+      shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_name: libMaBoSS-win64-msvc.tar.gz
-        asset_path: D:\a\MaBoSS/libMaBoSS-win64-msvc.tar.gz
-        asset_content_type: application/gzip
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release upload "${{ github.event.release.tag_name }}" 'D:\a\MaBoSS/libMaBoSS-win64-msvc.tar.gz' --clobber --repo "${{ github.repository }}"
         
         
   maboss_library_windows_msvc_sbml:
@@ -493,7 +478,7 @@ jobs:
         CPU_COUNT: 4
       
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: ilammy/msvc-dev-cmd@v1 
     
     - name: Install dependencies
@@ -503,7 +488,7 @@ jobs:
     
     - name: Cache compiled vcpkg packages
       id: cache-vcpkg
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: C:\vcpkg\
         key: ${{ runner.os }}-vcpkg-msvc
@@ -515,7 +500,7 @@ jobs:
     
     - name: Cache compiled libSBML
       id: cache-libsbml-msvc
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: D:\a\MaBoSS\MaBoSS\libsbml-5.21.1\
         key: ${{ runner.os }}-libSBML-5.21.1-msvc-namespace
@@ -630,22 +615,18 @@ jobs:
         cd ../
         tar -zcvf libMaBoSS-sbml-win64-msvc.tar.gz MaBoSS/README.md MaBoSS/LICENSE MaBoSS/engine/src MaBoSS/engine/include MaBoSS/engine/lib
         
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: github.event_name != 'release'
       with:
         name: libMaBoSS-sbml-win64-msvc
         path: D:\a\MaBoSS/libMaBoSS-sbml-win64-msvc.tar.gz
         
-    - uses: actions/upload-release-asset@v1
+    - name: Upload libMaBoSS-sbml-win64-msvc.tar.gz to the release
       if: github.event_name == 'release'
-
+      shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_name: libMaBoSS-sbml-win64-msvc.tar.gz
-        asset_path: D:\a\MaBoSS/libMaBoSS-sbml-win64-msvc.tar.gz
-        asset_content_type: application/gzip
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release upload "${{ github.event.release.tag_name }}" 'D:\a\MaBoSS/libMaBoSS-sbml-win64-msvc.tar.gz' --clobber --repo "${{ github.repository }}"
         
         
   maboss_conda:
@@ -667,7 +648,7 @@ jobs:
         shell: pwsh -Command {0}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     # No ilammy/msvc-dev-cmd here: conda-build's vs2022 activation runs
     # vcvars64.bat itself, and doing it twice overflows cmd.exe's 8191-char
     # PATH limit ("The input line is too long").

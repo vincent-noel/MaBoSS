@@ -23,7 +23,7 @@ jobs:
       CPU_COUNT: 4
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Install dependencies
       run : |
         brew install gcc flex bison cmake
@@ -36,7 +36,7 @@ jobs:
   
     - name: Cache compiled libSBML
       id: cache-libsbml-gcc
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: /tmp/libsbml-5.21.1
         key: ${{ runner.os }}-${{ env.CMAKE_VERSION }}.libSBML-5.21.1-g++12-namespace
@@ -81,7 +81,7 @@ jobs:
       CPU_COUNT: 4
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Install dependencies
       run : |
         brew install flex bison cmake hdf5 libxml2
@@ -93,7 +93,7 @@ jobs:
     
     - name: Cache compiled libSBML
       id: cache-libsbml-clang
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: /tmp/libsbml-5.21.1
         key: ${{ runner.os }}-${{ env.CMAKE_VERSION }}-libSBML-5.21.1-clang++-namespace
@@ -149,7 +149,7 @@ jobs:
       CPU_COUNT: 4
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Install dependencies
       run : |
         brew install flex bison cmake hdf5 libxml2
@@ -161,7 +161,7 @@ jobs:
     
     - name: Cache compiled libSBML
       id: cache-libsbml-clang
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: /tmp/libsbml-5.21.1
         key: ${{ runner.os }}-${{ env.CMAKE_VERSION }}-libSBML-5.21.1-clang++-namespace
@@ -206,7 +206,7 @@ jobs:
       CPU_COUNT: 4
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Install dependencies
       run : |
         brew install flex bison cmake libxml2
@@ -217,7 +217,7 @@ jobs:
     
     - name: Cache compiled libSBML
       id: cache-libsbml-clang
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: /tmp/libsbml-5.21.1
         key: ${{ runner.os }}-${{ env.CMAKE_VERSION }}-libSBML-5.21.1-clang++-namespace
@@ -245,27 +245,24 @@ jobs:
         zip MaBoSS-osx64.zip *
       
     - name: Caching produced project binaries
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: |
           ${{ github.workspace }}/engine/pub/MaBoSS-osx64.zip
         key: ${{ runner.os }}-macos-MaBoSS-${{ github.run_id }}
         
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: github.event_name != 'release'
       with:
         name: MaBoSS-osx64
         path: /Users/runner/work/MaBoSS/MaBoSS/engine/pub/MaBoSS-osx64.zip
             
-    - uses: actions/upload-release-asset@v1
+    - name: Upload MaBoSS-osx64.zip to the release
       if: github.event_name == 'release'
+      shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_name: MaBoSS-osx64.zip
-        asset_path: /Users/runner/work/MaBoSS/MaBoSS/engine/pub/MaBoSS-osx64.zip
-        asset_content_type: application/zip
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release upload "${{ github.event.release.tag_name }}" '/Users/runner/work/MaBoSS/MaBoSS/engine/pub/MaBoSS-osx64.zip' --clobber --repo "${{ github.repository }}"
         
   maboss_binary_macos_m1:
     name: MaBoSS MacOSX arm64 binary
@@ -282,7 +279,7 @@ jobs:
       CPU_COUNT: 3
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Install dependencies
       run : |
         brew install flex bison cmake libxml2
@@ -293,7 +290,7 @@ jobs:
     
     - name: Cache compiled libSBML
       id: cache-libsbml-clang
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: /tmp/libsbml-5.21.1
         key: ${{ runner.os }}-m1-${{ env.CMAKE_VERSION }}-libSBML-5.21.1-clang++-namespace
@@ -321,27 +318,24 @@ jobs:
         zip MaBoSS-osx-arm64.zip *
     
     - name: Caching produced project binaries
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: |
           ${{ github.workspace }}/engine/pub/MaBoSS-osx-arm64.zip
         key: ${{ runner.os }}-macosarm64-MaBoSS-${{ github.run_id }}
         
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: github.event_name != 'release'
       with:
         name: MaBoSS-osx-arm64
         path: /Users/runner/work/MaBoSS/MaBoSS/engine/pub/MaBoSS-osx-arm64.zip
             
-    - uses: actions/upload-release-asset@v1
+    - name: Upload MaBoSS-osx-arm64.zip to the release
       if: github.event_name == 'release'
+      shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_name: MaBoSS-osx-arm64.zip
-        asset_path: /Users/runner/work/MaBoSS/MaBoSS/engine/pub/MaBoSS-osx-arm64.zip
-        asset_content_type: application/zip
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release upload "${{ github.event.release.tag_name }}" '/Users/runner/work/MaBoSS/MaBoSS/engine/pub/MaBoSS-osx-arm64.zip' --clobber --repo "${{ github.repository }}"
         
   maboss_binary_macos_universal:
     name: MaBoSS MacOSX universal binary
@@ -349,20 +343,20 @@ jobs:
     runs-on: macos-15-intel
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Install dependencies
       run : |
         brew install unzip
 
     - name: Caching produced project binaries
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: |
           ${{ github.workspace }}/engine/pub/MaBoSS-osx-arm64.zip
         key: ${{ runner.os }}-macosarm64-MaBoSS-${{ github.run_id }}
         
     - name: Caching produced project binaries
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: |
           ${{ github.workspace }}/engine/pub/MaBoSS-osx64.zip
@@ -388,21 +382,18 @@ jobs:
         zip MaBoSS-osx-universal.zip MaBoSS MaBoSS_128n MaBoSS_256n MaBoSS_512n MaBoSS_1024n PopMaBoSS PopMaBoSS_128n PopMaBoSS_256n PopMaBoSS_512n PopMaBoSS_1024n MaBoSS_dn PopMaBoSS_dn
     
         
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: github.event_name != 'release'
       with:
         name: MaBoSS-osx-universal
         path: /Users/runner/work/MaBoSS/MaBoSS/engine/pub/MaBoSS-osx-universal.zip
             
-    - uses: actions/upload-release-asset@v1
+    - name: Upload MaBoSS-osx-universal.zip to the release
       if: github.event_name == 'release'
+      shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_name: MaBoSS-osx-universal.zip
-        asset_path: /Users/runner/work/MaBoSS/MaBoSS/engine/pub/MaBoSS-osx-universal.zip
-        asset_content_type: application/zip
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release upload "${{ github.event.release.tag_name }}" '/Users/runner/work/MaBoSS/MaBoSS/engine/pub/MaBoSS-osx-universal.zip' --clobber --repo "${{ github.repository }}"
         
   maboss_library_macos:
     name: Building MaBoSS osx library
@@ -412,7 +403,7 @@ jobs:
       CPU_COUNT: 4
       MACOSX_DEPLOYMENT_TARGET: 10.13 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Install dependencies
       run : |
         brew install flex bison
@@ -439,21 +430,18 @@ jobs:
         cd ../../../
         tar -zcvf libMaBoSS-osx64.tar.gz MaBoSS/README.md MaBoSS/LICENSE MaBoSS/engine/src MaBoSS/engine/include MaBoSS/engine/lib
         
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: github.event_name != 'release'
       with:
         name: libMaBoSS-osx64
         path: /Users/runner/work/MaBoSS/libMaBoSS-osx64.tar.gz
         
-    - uses: actions/upload-release-asset@v1
+    - name: Upload libMaBoSS-osx64.tar.gz to the release
       if: github.event_name == 'release'
+      shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_name: libMaBoSS-osx64.tar.gz
-        asset_path: /Users/runner/work/MaBoSS/libMaBoSS-osx64.tar.gz
-        asset_content_type: application/gzip     
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release upload "${{ github.event.release.tag_name }}" '/Users/runner/work/MaBoSS/libMaBoSS-osx64.tar.gz' --clobber --repo "${{ github.repository }}"
         
   maboss_library_macos_m1:
     name: Building MaBoSS osx library for arm64 
@@ -464,7 +452,7 @@ jobs:
       MACOSX_DEPLOYMENT_TARGET: 11.0
       
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
   
     - name: Install dependencies
       run : |
@@ -492,21 +480,18 @@ jobs:
         cd ../../../
         tar -zcvf libMaBoSS-macos-arm64.tar.gz MaBoSS/README.md MaBoSS/LICENSE MaBoSS/engine/src MaBoSS/engine/include MaBoSS/engine/lib
         
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: github.event_name != 'release'
       with:
         name: libMaBoSS-macos-arm64
         path: /Users/runner/work/MaBoSS/libMaBoSS-macos-arm64.tar.gz
         
-    - uses: actions/upload-release-asset@v1
+    - name: Upload libMaBoSS-macos-arm64.tar.gz to the release
       if: github.event_name == 'release'
+      shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_name: libMaBoSS-macos-arm64.tar.gz
-        asset_path: /Users/runner/work/MaBoSS/libMaBoSS-macos-arm64.tar.gz
-        asset_content_type: application/gzip     
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release upload "${{ github.event.release.tag_name }}" '/Users/runner/work/MaBoSS/libMaBoSS-macos-arm64.tar.gz' --clobber --repo "${{ github.repository }}"
         
   maboss_library_sbml_macos:
     name: Building MaBoSS osx library with libSBML
@@ -523,7 +508,7 @@ jobs:
       CPU_COUNT: 4
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Install dependencies
       run : |
         brew install flex bison cmake libxml2
@@ -534,7 +519,7 @@ jobs:
          
     - name: Cache compiled libSBML
       id: cache-libsbml-gcc12
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: /tmp/libsbml-5.21.1
         key: ${{ runner.os }}-${{ env.CMAKE_VERSION }}-libSBML-5.21.1-g++12-namespace
@@ -571,21 +556,18 @@ jobs:
         cd ../../../
         tar -zcvf libMaBoSS-sbml-osx64.tar.gz MaBoSS/README.md MaBoSS/LICENSE MaBoSS/engine/src MaBoSS/engine/include MaBoSS/engine/lib
         
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: github.event_name != 'release'
       with:
         name: libMaBoSS-sbml-osx64
         path: /Users/runner/work/MaBoSS/libMaBoSS-sbml-osx64.tar.gz
         
-    - uses: actions/upload-release-asset@v1
+    - name: Upload libMaBoSS-sbml-osx64.tar.gz to the release
       if: github.event_name == 'release'
+      shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_name: libMaBoSS-sbml-osx64.tar.gz
-        asset_path: /Users/runner/work/MaBoSS/libMaBoSS-sbml-osx64.tar.gz
-        asset_content_type: application/gzip
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release upload "${{ github.event.release.tag_name }}" '/Users/runner/work/MaBoSS/libMaBoSS-sbml-osx64.tar.gz' --clobber --repo "${{ github.repository }}"
         
  
       
@@ -605,7 +587,7 @@ jobs:
         shell: sh -l {0}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: conda-incubator/setup-miniconda@v4
       with:
         auto-update-conda: true
@@ -661,7 +643,7 @@ jobs:
         shell: sh -l {0}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: conda-incubator/setup-miniconda@v4
       with:
         auto-update-conda: true

@@ -21,7 +21,7 @@ jobs:
       CPU_COUNT: 4
       
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - name: Install dependencies
       run: |
@@ -31,7 +31,7 @@ jobs:
     
     - name: Cache compiled libSBML
       id: cache-libsbml-gcc
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: /tmp/libsbml-5.21.1
         key: ${{ runner.os }}-libSBML-5.21.1-gcc-namespace
@@ -69,7 +69,7 @@ jobs:
       CPU_COUNT: 4
       
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - name: Install dependencies
       run: |
@@ -79,7 +79,7 @@ jobs:
     
     - name: Cache compiled libSBML
       id: cache-libsbml-gcc
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: /tmp/libsbml-5.21.1
         key: ${{ runner.os }}-libSBML-5.21.1-gcc-namespace
@@ -128,7 +128,7 @@ jobs:
       CPU_COUNT: 4
       
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - name: Install dependencies
       run: |
@@ -231,7 +231,7 @@ jobs:
       CPU_COUNT: 4
       
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - name: Install dependencies
       run: |
@@ -241,7 +241,7 @@ jobs:
     
     - name: Cache compiled libSBML
       id: cache-libsbml-gcc
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: /tmp/libsbml-5.21.1
         key: ${{ runner.os }}-libSBML-5.21.1-gcc-namespace
@@ -288,7 +288,7 @@ jobs:
       LIBXML_INCLUDEDIR: /usr/include/libxml2/
       CPU_COUNT: 4
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - name: Install dependencies
       run : |
         sudo apt-get update
@@ -297,7 +297,7 @@ jobs:
         
     - name: Cache compiled libSBML
       id: cache-libsbml-clang
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: /tmp/libsbml-5.21.1
         key: ${{ runner.os }}-libSBML-5.21.1-clang-namespace
@@ -329,7 +329,7 @@ jobs:
       CPU_COUNT: 4
       
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - name: Install dependencies
       run: |
@@ -354,7 +354,7 @@ jobs:
       CPU_COUNT: 4
       
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - name: Install dependencies
       run: |
@@ -397,7 +397,7 @@ jobs:
       CPU_COUNT: 4
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - name: Install dependencies
       run: |
@@ -407,7 +407,7 @@ jobs:
     
     - name: Cache compiled libSBML
       id: cache-libsbml-gcc
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: /tmp/libsbml-5.21.1
         key: ${{ runner.os }}-libSBML-5.21.1-gcc-namespace
@@ -435,21 +435,18 @@ jobs:
         cd ../pub
         zip MaBoSS-linux64.zip *
         
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: github.event_name != 'release'
       with:
         name: MaBoSS-linux64
         path: /home/runner/work/MaBoSS/MaBoSS/engine/pub/MaBoSS-linux64.zip
         
-    - uses: actions/upload-release-asset@v1
+    - name: Upload MaBoSS-linux64.zip to the release
       if: github.event_name == 'release'
+      shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_name: MaBoSS-linux64.zip
-        asset_path: /home/runner/work/MaBoSS/MaBoSS/engine/pub/MaBoSS-linux64.zip
-        asset_content_type: application/zip
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release upload "${{ github.event.release.tag_name }}" '/home/runner/work/MaBoSS/MaBoSS/engine/pub/MaBoSS-linux64.zip' --clobber --repo "${{ github.repository }}"
   
   
   maboss_library:
@@ -461,7 +458,7 @@ jobs:
       CPU_COUNT: 4
       
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - name: Install dependencies
       run: |
@@ -489,21 +486,18 @@ jobs:
         cd ../../../
         tar -zcvf libMaBoSS-linux64.tar.gz MaBoSS/README.md MaBoSS/LICENSE MaBoSS/engine/src MaBoSS/engine/include MaBoSS/engine/lib
         
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: github.event_name != 'release'
       with:
         name: libMaBoSS-linux64
         path: /home/runner/work/MaBoSS/libMaBoSS-linux64.tar.gz
         
-    - uses: actions/upload-release-asset@v1
+    - name: Upload libMaBoSS-linux64.tar.gz to the release
       if: github.event_name == 'release'
+      shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_name: libMaBoSS-linux64.tar.gz
-        asset_path: /home/runner/work/MaBoSS/libMaBoSS-linux64.tar.gz
-        asset_content_type: application/gzip
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release upload "${{ github.event.release.tag_name }}" '/home/runner/work/MaBoSS/libMaBoSS-linux64.tar.gz' --clobber --repo "${{ github.repository }}"
   
   maboss_library_sbml:
     name: Building MaBoSS linux64 library with libSBML
@@ -520,7 +514,7 @@ jobs:
     # if: github.event.workflow_run.conclusion == 'success' && (github.ref == 'refs/heads/master' || github.event_name == 'release')
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - name: Install dependencies
       run: |
@@ -529,7 +523,7 @@ jobs:
     
     - name: Cache compiled libSBML
       id: cache-libsbml-gcc
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: /tmp/libsbml-5.21.1
         key: ${{ runner.os }}-libSBML-5.21.1-gcc-namespace
@@ -562,21 +556,18 @@ jobs:
         cd ../../../
         tar -zcvf libMaBoSS-sbml-linux64.tar.gz MaBoSS/README.md MaBoSS/LICENSE MaBoSS/engine/src MaBoSS/engine/include MaBoSS/engine/lib
         
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v7
       if: github.event_name != 'release'
       with:
         name: libMaBoSS-sbml-linux64
         path: /home/runner/work/MaBoSS/libMaBoSS-sbml-linux64.tar.gz
         
-    - uses: actions/upload-release-asset@v1
+    - name: Upload libMaBoSS-sbml-linux64.tar.gz to the release
       if: github.event_name == 'release'
+      shell: bash
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ github.event.release.upload_url }}
-        asset_name: libMaBoSS-sbml-linux64.tar.gz
-        asset_path: /home/runner/work/MaBoSS/libMaBoSS-sbml-linux64.tar.gz
-        asset_content_type: application/gzip
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: gh release upload "${{ github.event.release.tag_name }}" '/home/runner/work/MaBoSS/libMaBoSS-sbml-linux64.tar.gz' --clobber --repo "${{ github.repository }}"
         
   test_docker:
     name: Test Docker MaBoSS Server
@@ -584,7 +575,7 @@ jobs:
     needs: [maboss, maboss_llvm, maboss_cmake, maboss_mpi, maboss_mpi_cmake]
     
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - name: Install dependencies
       run: |
@@ -629,10 +620,10 @@ jobs:
         contents: read
         packages: write
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
           
     - name: Log in to the Container registry
-      uses: docker/login-action@v3
+      uses: docker/login-action@v4
       with:
         registry: ${{ env.REGISTRY }}
         username: ${{ github.actor }}
@@ -640,12 +631,12 @@ jobs:
 
     - name: Extract metadata (tags, labels) for Docker
       id: meta
-      uses: docker/metadata-action@v5
+      uses: docker/metadata-action@v6
       with:
         images: ${{ env.REGISTRY }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
 
     - name: Build and push Docker image
-      uses: docker/build-push-action@v5
+      uses: docker/build-push-action@v7
       with:
         context: .
         file: containers/docker/Dockerfile
@@ -660,7 +651,7 @@ jobs:
     needs: [maboss, maboss_llvm, maboss_cmake, maboss_mpi, maboss_mpi_cmake]
    
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     
     - name: Install dependencies
       run: |
@@ -699,7 +690,7 @@ jobs:
         shell: bash -el {0}
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v7
     - uses: conda-incubator/setup-miniconda@v4
       with:
         auto-update-conda: true
