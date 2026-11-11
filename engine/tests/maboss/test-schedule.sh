@@ -39,4 +39,18 @@ if [ $? != 0 ]; then exit 1; fi
 python compare_probtrajs.py cellfate/refer/res_schedule_probtraj.csv tmp/res_schedule_probtraj.csv --exact
 check_file "projtraj"
 
+echo
+echo "Testing a schedule on a fixed point: no other node may flip"
+$LAUNCHER $MABOSS schedule/fixpoint.bnd -c schedule/fixpoint.cfg -o tmp/res_schedule_fixpoint
+if [ $? != 0 ]; then exit 1; fi
+python check_schedule.py fixpoint tmp/res_schedule_fixpoint_probtraj.csv
+check_file "projtraj"
+
+echo
+echo "Testing a schedule that changes nothing: the dynamics must not change"
+$LAUNCHER $MABOSS schedule/noop.bnd -c schedule/noop.cfg -o tmp/res_schedule_noop
+if [ $? != 0 ]; then exit 1; fi
+python check_schedule.py noop tmp/res_schedule_noop_probtraj.csv
+check_file "projtraj"
+
 exit $return_code
